@@ -1,0 +1,180 @@
+# File:   ~/.config/shell/functions
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+# Brief:  Shell functions.
+
+
+################################################################################
+###   Open the given file (or directory) with the default application.
+################################################################################
+open() {
+    [[ -n $1 ]] && element="$1" || element=.
+    xdg-open "$element" &>/dev/null & disown
+}
+
+
+
+################################################################################
+###   Open the right editor to edit a file.
+################################################################################
+edit() {
+    if [[ -n $EDITOR ]] && command -v $EDITOR &>/dev/null; then
+        editor=$EDITOR
+    elif command -v nvim >/dev/null 2>&1; then
+        editor=nvim
+    elif command -v vim >/dev/null 2>&1; then
+        editor=vim
+    else
+        editor=nano
+    fi
+
+    if [[ -x "$SCRIPTS_DIR"/edit_file ]]; then
+        edit_file $1 -e $editor
+    else
+        $editor $1
+    fi
+}
+
+
+
+################################################################################
+###   Use git diff instead of standard diff.
+################################################################################
+diff() {
+    # One argument must be path to git file.
+    if [[ $# -eq 1 ]]; then
+        git diff "$1"
+    # Two arguments and they both are files, then add some custom flags.
+    elif [[ $# -eq 2 ]] && [[ -f $1 ]] && [[ -f $2 ]]; then
+        git diff --no-index --color-words "$@"
+    # In any other case call standard git diff with all the arguments.
+    else
+        git diff "$@"
+    fi
+}
+
+
+
+################################################################################
+###   Count and display the number of files in the current directory.
+################################################################################
+countfiles() {
+    local num_files=$(ls -A | wc -l)
+    local num_hidden_files=$(( $num_files - $(ls | wc -l) ))
+    if [[ $num_files -gt 0 ]]; then
+        echo "$num_files files ($num_hidden_files hidden)."
+    else
+        echo "No files here."
+    fi
+}
+
+
+
+################################################################################
+###   Find the given string in the files of the current directory.
+################################################################################
+findstring() {
+    grep -i --exclude-dir=.git --color=auto -IrnT -B1 -A1 './' -e "$1"
+}
+
+
+
+################################################################################
+###   Find a file with a pattern in the name.
+################################################################################
+findfile() {
+    find . -type f -iname '*'"$*"'*' -ls
+}
+
+
+
+################################################################################
+###   Better syntax for tree command.
+################################################################################
+pretty_tree() {
+    tree -aC -I ".git" --dirsfirst "$@" | less -FRNX
+}
+
+
+
+################################################################################
+###   Print local IP address.
+################################################################################
+myip() {
+    hostname -I | cut -d' ' -f 1
+}
+
+
+
+################################################################################
+###   ping with no arguments tries google.com
+################################################################################
+ping() {
+    if [[ $# == 0 ]]; then
+        if ping -q -c 2 -W 2 www.google.com &>/dev/null; then
+            echo "Internet OK."
+        else
+            echo "No Internet."
+        fi
+    else
+        command ping "$@"
+    fi
+}
+
+
+
+################################################################################
+###   Check if URI is up.
+################################################################################
+isup() {
+    local uri="$1"
+    if curl -s --head --request GET "$uri" | grep "200 OK" &>/dev/null; then
+        echo "$uri is down!"
+    else
+        echo "$uri is up"
+    fi
+}
+
+
+
+################################################################################
+###   Reload gpg-agent (to forget passphrase)
+################################################################################
+gpgreload() {
+    pkill gpg-agent
+    gpg-connect-agent reloadagent /bye
+}
+
+
+
+################################################################################
+###   Extract the given archive.
+################################################################################
+extract() {
+    local archive="$1"
+    if [[ -f "$archive" ]]; then
+        case "$archive" in
+            *.tar.gz)  tar xvzf "$archive" > /dev/null  ;;
+            *.tar.xz)  tar -xf "$archive" > /dev/null   ;;
+            *.rar)     rar x "$archive" > /dev/null     ;;
+            *.gz)      gunzip "$archive" > /dev/null    ;;
+            *.tar)     tar xvf "$archive" > /dev/null   ;;
+            *.tgz)     tar xvzf "$archive" > /dev/null  ;;
+            *.zip)     unzip "$archive" > /dev/null     ;;
+            *)         echo "Don't know how to extract '$archive'." ;;
+        esac
+    else
+        echo "Archive '$archive' not found."
+    fi
+}
+
+
+
+################################################################################
+###   Make the following commands run in background automatically.
+################################################################################
+firefox() { command firefox "$@" &>/dev/null & disown ; }
+mousepad() { command mousepad "$@" &>/dev/null & disown ; }
+thunar() { command thunar "$@" &>/dev/null & disown ; }
+vlc() { command vlc "$@" &>/dev/null & disown ; }
+xfce4-terminal() { command xfce4-terminal "$@" &>/dev/null & disown ; }

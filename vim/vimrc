@@ -1,0 +1,213 @@
+" File:   ~/.vim/vimrc
+" Author: Marco Plaitano
+" Github: https://github.com/marcoplaitano
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== GENERAL
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Disable compatibility with VI.
+set nocompatible
+
+" Move default location of viminfo file.
+set viminfo+=n~/.cache/viminfo
+
+" Enable filetype detection.
+filetype plugin indent on
+
+" See :help shortmess to learn about these flags.
+set shortmess+=IastWF
+
+" Languages accepted by spelling check.
+set spelllang=en,it
+
+" Refresh time.
+set updatetime=100
+
+" Yank into system clipboard.
+set clipboard=unnamedplus
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== EDITOR BEHAVIOUR
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Only enable mouse usage in specific modes.
+set mouse=a
+
+" Hide mouse pointer when any key is pressed.
+set mousehide
+
+" Disable folding when opening a file, it can be restored with zc.
+set nofoldenable
+
+" Always add new pane to the right and to the bottom.
+set splitbelow splitright
+
+" Fix some backspace problems.
+set backspace=indent,eol,start
+
+" Speedup scrolling and typing responsiveness.
+set ttyfast
+
+" Do not redraw while executing macros.
+set lazyredraw
+
+" Jump briefly to matching bracket when writing.
+set showmatch
+" Tenths of a second to spend on the other bracket.
+set mat=2
+
+" Start scrolling entire page when cursor reaches N lines from the top/bottom.
+set scrolloff=8
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== SEARCH
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Do not highlight search matches.
+set nohlsearch
+
+" Find results while typing.
+set incsearch
+
+" Ignore case during search.
+set ignorecase
+
+" Override ignorecase if searching for Capital Letters.
+set smartcase
+
+" Add the 'g' flag (replace all) to default for the :%s command.
+set gdefault
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== TABS, SPACES, INDENTATION
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Enable auto indentation.
+set autoindent
+set smartindent
+
+" Use spaces instead of tabs.
+set expandtab
+
+" How many spaces a level of indentation is.
+set shiftwidth=4
+
+" How many spaces a \t is.
+set tabstop=4
+
+" How many spaces a TAB or BACKSPACE keypress is.
+set softtabstop=4
+
+" Wrap longer lines.
+"set nowrap
+set wrap
+" Linebreak on 80 characters.
+set linebreak
+" Characters to print showing that a line has been wrapped.
+let &showbreak = '+++ '
+
+" Lines longer than this will be split at the first whitespace.
+set textwidth=80
+
+" To automatically set comments or follow paragraph indentation,...
+set formatoptions=jtql2ncro
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== APPEARANCE
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Show relative line numbers (except for the current line which follows global
+" enumeration).
+set number
+set relativenumber
+
+" Enable syntax highlighting.
+syntax on
+
+" Use block cursor also in INSERT mode.
+set guicursor=i:block
+
+" Highlight current line.
+"set cursorline
+
+" Set ruler at 80 characters.
+"set colorcolumn=80
+
+" Display different kinds of white spaces.
+set list
+set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
+
+" Colorscheme.
+colorscheme default
+
+" Keep transparent background.
+highlight Normal ctermbg=none
+highlight NonText ctermbg=none
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== COMMAND-LINE
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Height of the command-line bar.
+set cmdheight=1
+
+" Commands' history size.
+set history=50
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ==== FILES, BUFFERS, DIRECTORIES
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Autoread changes when file is modified externally.
+set autoread
+
+" Ask for confirmation if leaving unsaved document.
+set confirm
+
+" Automatically cd into the folder of current buffer.
+set autochdir
+
+" Enable auto completion when pressing TAB in command-line.
+set wildmenu
+set wildmode=longest,list,full
+
+" Ignore this files during auto completion.
+set wildignore=*.jpg,*.png,*.gif,*.docx,*.xlsx,*.pdf
+set wildignore+=*/*.exe,*/*.out,*/*.o,*/*.class
+set wildignore+=*/.git/*,*/.DS_Store
+
+" Paths in which to look for files during :find command.
+set path=.,,/usr/local/include,/usr/include
+
+" Add include path for autocomplete suggestions.
+set complete+=i
+
+" Set default encoding.
+set encoding=utf-8
+
+" Directories in which to store backup and swap files.
+if !isdirectory(expand('/var/tmp/vimbackups'))
+    call mkdir(expand('/var/tmp/vimbackups'))
+endif
+set backupdir^=/var/tmp/vimbackups
+if !isdirectory(expand('/var/tmp/vimswaps'))
+    call mkdir(expand('/var/tmp/vimswaps'))
+endif
+set directory^=/var/tmp/vimswaps
+
+" Skip creation of backups when editing in these directories.
+set backupskip=/tmp/*

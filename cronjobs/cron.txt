@@ -1,0 +1,48 @@
+################################################################################
+####   REMEMBER TO SAVE THIS FILE IN THE DOTFILES DIRECTORY!!!
+####
+####   crontab -l > $DOTS_DIR/cronjobs/cron.txt
+####
+####   (It is done automatically every hour)
+################################################################################
+
+### cron syntax:
+###
+### 1 2 3 4 5 /path/to/command args
+###
+### 1: minute       0 - 59
+### 2: hour         0 - 23
+### 3: day (month)  0 - 31
+### 4: month        0 - 12
+### 5: day (week)   0 -  7 (0 == 7 == sunday)
+###
+### *     means *every* value.
+### */N   means *every* other N.
+###
+### Example:
+### 0 12 * * * ~/Desktop/hello.sh arg1 arg2
+### Runs the hello.sh script every day at noon.
+### */5 * * * * echo hello
+### Runs *every* 5 minutes, every day.
+
+DISPLAY=:0.0
+
+BASH_ENV=~/.profile
+
+# Random wallpaper every hour.
+# 00 * * * * ~/Desktop/.scripts/wallpaper -r ~/Pictures/wallpapers
+
+# Remind me to listen to the radio.
+# 00 20 * * 1,2,3,4,5 if ! pgrep teams; then ~/Desktop/.scripts/reminder -n -d "radio" ; fi
+
+# Toggle dark theme and blue light filter. The script is called frequently but
+# it will only actually operate when the time is right.
+*/30 * * * * ~/Desktop/.scripts/night_mode
+
+# Update caches.
+*/30 * * * * ~/Desktop/.scripts/cache/cache_code_dirs
+00 * * * * ~/Desktop/.scripts/cache/cache_wallpapers
+00 * * * * ~/Desktop/.scripts/cache/cache_filesystem
+
+# Create backup copy of this crontab in my dotfiles repository.
+00 * * * * crontab -l > ~/Desktop/.dotfiles/cronjobs/cron.txt

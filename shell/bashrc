@@ -1,0 +1,120 @@
+# File:   ~/.config/shell/bashrc
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+
+# If not running interactively, don't do anything.
+case $- in
+    *i*) ;;
+      *) return ;;
+esac
+
+
+################################################################################
+###  OPTIONS
+################################################################################
+
+# Check and update (if necessary) LINES and COLUMNS after each command.
+shopt -s checkwinsize
+
+# Allow usage of comments in the shell.
+shopt -s interactive_comments
+
+# Append to the history file instead of overwriting.
+shopt -s histappend
+
+# Autocorrect spelling errors when using cd command.
+shopt -s cdspell
+
+# Automatically expand directory globs and fix directory name typos whilst
+# completing.
+# Note, this works in conjuction with the cdspell option listed above.
+shopt -s direxpand dirspell
+
+# Enable the ** globstar recursive pattern in file and directory expansions.
+# For example, ls **/*.txt will list all text files in the current directory
+# hierarchy.
+shopt -s globstar
+
+# Don't exit shell but print background jobs that are still running; to force
+# quit, type 'exit' right after.
+shopt -s checkjobs
+
+# Save multi-line commands in one history entry.
+shopt -s cmdhist
+
+# Expand aliases.
+shopt -s expand_aliases
+
+# Set bash history to ignore duplicates and commands starting with spaces.
+export HISTCONTROL=ignoreboth
+
+# The maximum number of lines in the history file.
+HISTFILESIZE=10000
+# The number of entries to save in the history file.
+HISTSIZE=10000
+
+# Declare file in which to write history.
+export HISTFILE=$HOME/.cache/.bash_history
+
+# Commands to ignore.
+export HISTIGNORE="?:clear:rm*"
+
+# Disable Ctrl+S & Ctrl+Q to freeze/unfreeze the terminal.
+stty -ixon
+
+# Set VI mode.
+set -o vi
+bind -m vi-command 'Control-l: clear-screen'
+bind -m vi-insert 'Control-l: clear-screen'
+
+
+# To be able to use GPG in SSH connections.
+export GPG_TTY=$(tty)
+# To force tty pinentry when calling pass or GPG from the terminal.
+export PINENTRY_USER_DATA="tty"
+
+
+
+################################################################################
+###  COMPLETION
+################################################################################
+
+if ! shopt -oq posix; then
+    # Bash
+    if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+        source /usr/share/bash-completion/bash_completion
+    elif [[ -f /etc/bash_completion ]]; then
+        source /etc/bash_completion
+    fi
+    # Git
+    if [[ -f /usr/share/bash-completion/completions/git ]]; then
+        source /usr/share/bash-completion/completions/git
+        export GIT_COMPLETION_SHOW_ALL=1
+    fi
+fi
+
+
+
+################################################################################
+###  PROMPT
+################################################################################
+
+PS1='\u@\h:\w\$ '
+
+
+
+################################################################################
+###  SOURCE SHELL FILES
+################################################################################
+
+files=(
+    "$HOME/.config/shell/functions"
+    "$HOME/.config/shell/aliases"
+)
+for file in "${files[@]}"; do
+    [[ -r "$file" ]] && source "$file"
+done
+unset files
+
+unalias vim 2>/dev/null

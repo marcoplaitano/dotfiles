@@ -1,0 +1,91 @@
+# File:   ~/.config/git/config
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+
+[alias]
+    # Print all aliases
+    aliases = config --get-regexp alias
+    # Allow `$ git git git...`
+    git = !exec git
+    # List all authors
+    authors = shortlog --summary --numbered --email --all
+    hist = log --max-count=15 --graph --abbrev-commit --branches
+    info = status -s
+    branches = branch --all
+    # Show last commit
+    last = log -1 HEAD
+    # Remove added file
+    remove = restore --staged
+    # Undo last commit
+    undo = reset --soft HEAD~1
+    # Discard local changes to a file
+    discard = restore
+    # Preview changes before pull
+    preview = log -p HEAD..origin/main
+
+[branch]
+    # Show most recently changed branches first.
+    sort = -committerdate
+
+[color]
+    # Enable colored output in terminal.
+    ui = auto
+
+[color "branch"]
+    current = green bold
+    local = green
+    remote = yellow
+
+[color "diff"]
+    meta = 11
+    frag = magenta bold
+    commit = yellow bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+
+[color "status"]
+    added = green bold
+    changed = yellow bold
+    untracked = blue bold
+
+[commit]
+    # Sign commits by default.
+    gpgsign = true
+    template = ~/.config/git/message
+
+[core]
+    excludesfile = ~/.config/git/ignore
+    editor = nvim
+    pager = less
+    # Speed up commands like status.
+    untrackedCache = true
+
+[credential]
+    helper = /usr/share/git/credential/netrc/git-credential-netrc.perl -f ~/.local/share/passwords/gittoken.gpg
+
+[format]
+    pretty = default
+    graph = true
+
+[help]
+    # Automatically correct and execute mistyped commands.
+    autocorrect = 1
+
+[init]
+    defaultBranch = main
+
+[log]
+    date = format-local:%Y-%m-%d %H:%M
+
+[pretty]
+    default = format:%C(yellow)%h%C(reset) %C(green)(%ad)%C(reset) %C(bold blue)<%an>%C(reset) - %s%C(bold magenta)%d%C(reset)
+    nocolor = format:%h%d (%ad) <%an> - %s
+
+[push]
+    default = current
+
+[user]
+    name = Marco Plaitano
+    email = marcoplaitano23@gmail.com

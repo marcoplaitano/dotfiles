@@ -1,0 +1,13 @@
+# File:   ~/.profile
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+# Source file containing all the environment variables and options.
+if [[ -r $HOME/.config/shell/env ]]; then
+    source $HOME/.config/shell/env
+fi
+
+# Source bashrc file.
+if [[ -r $HOME/.config/shell/bashrc ]]; then
+    source $HOME/.config/shell/bashrc
+fi

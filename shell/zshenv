@@ -1,0 +1,11 @@
+# File:   ~/.zshenv
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+# Source file containing all the environment variables and options.
+if [[ -r $HOME/.config/shell/env ]]; then
+    source $HOME/.config/shell/env
+fi
+
+export ZDOTDIR="$XDG_CONFIG_HOME/shell"
+export ZSH_COMPDUMP="$HOME/.cache/.zcompdump"

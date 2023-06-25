@@ -1,0 +1,17 @@
+# File:   ~/.config/bat/config
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+# To see all themes: bat --list-themes
+# Light: ansi
+# Dark:  OneHalfDark
+--theme="OneHalfDark"
+
+# Show:
+#  - git changes
+#  - line numbers
+#  - separators for files and line groups
+--style="changes,numbers,rule,snip"
+
+# When to use coloured output.
+--color=auto

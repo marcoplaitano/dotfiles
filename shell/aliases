@@ -1,0 +1,101 @@
+if [[ -n $ZDOTDIR ]]; then
+    alias reload="source ~/.config/shell/zshrc"
+else
+    alias reload="source ~/.config/shell/bashrc"
+fi
+
+alias :q='exit'
+alias cd..='cd ..'
+alias ..='cd ..'
+
+alias ls='ls --group-directories-first --color=auto -q'
+alias la='ls -Av'
+alias ll='la -hl'
+alias l='ll'
+alias lt='ll -tr'
+alias lsize='ll -Sr'
+
+alias mkdir='mkdir -p'
+alias cp='cp -r'
+alias mv='mv -iv'
+
+alias grep='grep --color=auto -i --exclude-dir=.git'
+alias pgrep='pgrep -i'
+alias du='du -h'
+alias df='df -Th'
+alias histgrep='history | grep'
+alias hg='histgrep'
+alias tree='pretty_tree'
+
+alias who='who -u'
+alias hostnamechange='hostnamectl set-hostname'
+
+alias cal='ncal -M -b'
+alias locate='locate --database=/tmp/locate.db'
+alias path='echo -e ${PATH//:/\\n}'
+
+if command -v bat &>/dev/null; then
+    alias cat='bat'
+fi
+
+# Repeat last command with sudo privileges.
+alias please='sudo $(fc -ln -1)'
+alias plz='please'
+alias fuck='please'
+alias ae='please'
+alias aee='please'
+alias aej='please'
+alias uff='please'
+alias uffa='please'
+
+# cd into custom folders.
+alias mydots='cd $DOTS_DIR'
+alias myglob='cd $GLOBALS_DIR'
+alias myscripts='cd $SCRIPTS_DIR'
+
+# vim
+alias vim='edit'
+
+# git
+alias gi='git info'
+alias gf='git fetch'
+
+# my scripts
+alias kill='kill_process'
+alias compile='executer'
+alias run='executer --execute'
+alias new='new_file'
+alias passwords='get_password'
+
+# typos
+alias relaod='reload'
+alias reoad='reload'
+alias reloa='reload'
+alias touc='touch'
+alias toch='touch'
+alias mkdri='mkdir'
+alias mdkir='mkdir'
+alias mdkri='mkdir'
+alias dc='cd'
+alias moer='more'
+alias moe='more'
+alias clea='clean'
+alias v='vim'
+alias vi='vim'
+alias im='vim'
+alias vm='vim'
+alias vmi='vim'
+alias mvi='vim'
+alias ope='open'
+alias opne='open'
+alias opn='open'
+alias ru='run'
+alias rum='run'
+alias hop='htop'
+alias diswno='disown'
+alias diswon='disown'
+alias diswn='disown'
+alias kilall='killall'
+alias kilal='killall'
+alias exti='exit'
+alias exi='exit'

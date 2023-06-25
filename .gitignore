@@ -1,0 +1,13 @@
+.bash_history
+.zsh_history
+shell/plugins/
+shell/.zshrc
+.zcompdump*
+
+**/autoload/
+.netrwhist
+.viminfo
+nvim/plugin/
+nvim/ftplugin/
+
+vlc/vlc-qt-interface.conf

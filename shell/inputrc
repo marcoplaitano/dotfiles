@@ -1,0 +1,57 @@
+# Be 8 bit clean.
+set input-meta on
+set output-meta on
+
+# Do not bell on tab-completion.
+set bell-style none
+set bell-style visible
+
+# Be case insensitive for completion suggesions.
+set completion-ignore-case on
+
+# Treat hypens and underscores as equivalent when completing.
+set completion-map-case on
+
+# Only ask 'show all N items?' if N > 100.
+set completion-query-items 100
+
+# Be more intelligent when autocompleting by also looking at the text after the
+# cursor. For example, when the current line is "cd ~/src/mozil", and the cursor
+# is on the "z", pressing Tab will not autocomplete it to "cd ~/src/mozillail",
+# but to "cd ~/src/mozilla".
+set skip-completed-text on
+
+# The TAB key cycles forward through the completion choices.
+# By default it is Ctrl-n.
+#"\t": menu-complete
+
+# The Shift-TAB key cycles backward through the completion choices.
+# By default it is Ctrl-p.
+#"\e[Z": menu-complete-backward
+
+# The first TAB key press will display a list that match the given prefix.
+# The next TAB key press will start cycling through the available choices.
+set menu-complete-display-prefix on
+
+# Append the / character to the end of symlinked directories when completing.
+set mark-symlinked-directories on
+
+# Show all possibilities with 1 TAB press.
+# set show-all-if-ambiguous on
+# set show-all-if-unmodified on
+
+# Color matching prefix during completion.
+set colored-completion-prefix on
+
+# Color suggestions based on their "ls color" (e.g. dirs are blue, execs green).
+set colored-stats on
+
+# Pressing arrows UP, DOWN when the input is not empty will scroll through the
+# history starting with that prefix.
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+# CTRL+b to go up a directory.
+"\C-b": "cd ..\n"
+# CTRL+h to cd home
+"\C-h": "cd\n"

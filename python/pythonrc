@@ -1,0 +1,12 @@
+# File:   ~/.config/python/pythonrc
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+
+# Do not save history in a file.
+import readline
+readline.write_history_file = lambda *args: None
+
+# Default imports
+from time import sleep
+from math import log, log10, e, pi, sqrt, atan2, degrees, radians

@@ -1,0 +1,202 @@
+# File:   ~/.config/shell/zshrc
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+
+################################################################################
+###   OPTIONS
+###   see https://zsh.sourceforge.io/Doc/Release/Options.html
+################################################################################
+
+# Disable CTRL+s from freezing terminal
+stty stop undef
+
+#######################
+# Changing Directories
+#######################
+
+# cd by typing directory name.
+setopt auto_cd
+
+# Never print folder when using cd.
+setopt cd_silent
+
+# Do not print folder when pushing onto the stack.
+setopt pushd_silent
+
+# pushd with no arguments adds $HOME to the stack.
+setopt pushd_to_home
+
+#######################
+# Completion
+#######################
+
+# Automatically list choices on an ambiguous completion.
+setopt auto_list
+
+# Only when AUTO_LIST is also set. Insert prefixes without showing a completion
+# list.
+setopt list_ambiguous
+
+# Automatically use menu completion after the second consecutive request for
+# completion (pressing TAB twice).
+setopt auto_menu
+
+# Insert suggestion on first TAB press, not second.
+# setopt menu_complete
+
+# Move cursor to end if word has one match.
+setopt always_to_end
+
+# Add trailing / if completion is the name of a directory.
+setopt auto_param_slash
+
+# Second match is to the right, not under the first one.
+setopt list_rows_first
+
+# Use trailing char to show type of suggestion.
+setopt list_types
+
+#######################
+# Expansion & Globbing
+#######################
+
+# If a pattern for filename generation has no matches, print an error instead of
+# leaving it unchanged.
+setopt nomatch
+
+#######################
+# History
+#######################
+
+export HISTFILE=$HOME/.cache/.zsh_history
+export HISTSIZE=10000
+export SAVEHIST=$HISTSIZE
+
+# zsh sessions will apped to the same history file, without replacing it.
+setopt appendhistory
+
+# If the history has to be trimmed to add new commands, delete the oldest
+# duplicates.
+setopt hist_expire_dups_first
+
+# Do not show duplicates when searching for history entries.
+setopt hist_find_no_dups
+
+# Remove older duplicate entries from history.
+setopt hist_ignore_all_dups
+
+# Remove from history commands that start with a space.
+setopt hist_ignore_space
+
+# Remove superflous blanks from each command being added to the history list.
+setopt hist_reduce_blanks
+
+# Remove the history (fc -l) command from the history when invoked.
+setopt hist_no_store
+
+# When entering a line with history expansion, don't execute it directly but
+# perform history expansion and reload the line into the editing buffer.
+setopt hist_verify
+
+# Save history entries as soon as they are entered. (off if share_history on).
+setopt inc_append_history
+
+# Share history between different shells.
+setopt share_history
+
+#######################
+# Input/Output
+#######################
+
+# Allow comments in the shell.
+setopt interactive_comments
+
+# Look for executable in PATH even if the command name has slashes.
+setopt path_dirs
+
+# Default echo behaviour.
+setopt BSD_echo
+
+#######################
+# Job Control
+#######################
+
+# Check for running and suspended jobs before exiting.
+setopt check_jobs
+setopt check_running_jobs
+
+# Report the status of background jobs immediately, rather than waiting until
+# just before printing a prompt.
+setopt notify
+
+# Attempt to resume existing job before creating a new process.
+setopt auto_resume
+
+#######################
+# Variables
+#######################
+
+# _ and - will be interchangeable. Case-sensitive completion must be off.
+HYPHEN_INSENSITIVE="true"
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
+
+# Disable auto-setting terminal title.
+DISABLE_AUTO_TITLE="true"
+
+#Enable command auto-correction.
+ENABLE_CORRECTION="true"
+
+# Command execution time stamp shown in the history command output.
+HIST_STAMPS="yyyy-mm-dd"
+
+# To be able to use GPG in SSH connections.
+export GPG_TTY=$(tty)
+# To force tty pinentry when calling pass or GPG from the terminal.
+export PINENTRY_USER_DATA="tty"
+
+
+
+################################################################################
+###  START UP COMMANDS
+################################################################################
+
+# Only run the following commands if the terminal is:
+# - NOT launched from vscode.
+# - NOT a tty session.
+# - NOT a root user session.
+if [[ $TERM_PROGRAM != "vscode" && $(tty) != /dev/tty* && "$EUID" -ne 0 ]]; then
+    if [[ $USE_TMUX -eq 1 ]]; then
+        # If tmux is installed and a graphical environment is running:
+        # try attaching to an existing session or create a new one.
+        if [[ -x "$(command -v tmux)" && -n "${DISPLAY}" ]]; then
+            [[ -z "${TMUX}" ]] && {
+                tmux attach -t main || tmux new -s main
+            } &>/dev/null
+        fi
+    fi
+
+    # Show a welcome message at every first login after system's boot.
+    # login_message --once
+fi
+
+
+
+################################################################################
+###  SOURCE SHELL FILES
+################################################################################
+
+files=(
+    "$HOME/.config/shell/keymaps.zsh"
+    "$HOME/.config/shell/prompt.zsh"
+    "$HOME/.config/shell/functions"
+    "$HOME/.config/shell/plugins.zsh"
+    "$HOME/.config/shell/aliases"
+    "$HOME/.config/shell/completion.zsh"
+)
+for file in "${files[@]}"; do
+    [[ -r "$file" ]] && source "$file"
+done
+unset files
