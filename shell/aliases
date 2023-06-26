@@ -50,7 +50,6 @@ alias uffa='please'
 
 # cd into custom folders.
 alias mydots='cd $DOTS_DIR'
-alias myglob='cd $GLOBALS_DIR'
 alias myscripts='cd $SCRIPTS_DIR'
 
 # vim

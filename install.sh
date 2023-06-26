@@ -81,7 +81,8 @@ done
 # Install cron jobs.
 [[ -e cronjobs/cron.txt ]] && crontab cronjobs/cron.txt
 
-# Remove temporary .gitconfig file.
-if [[ -f $HOME/.gitconfig && -f $XDG_CONFIG_HOME/git/config ]]; then
-    rm $HOME/.gitconfig
+# Install fonts.
+if pushd _other/fonts &>/dev/null ; then
+    bash ./install_fonts.sh
+    popd &>/dev/null
 fi
