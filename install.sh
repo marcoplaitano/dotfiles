@@ -21,8 +21,11 @@ function _copy {
             esac
         done
     fi
-    ln -fs "$1" "$2"
-    echo "LINK  '$1' ---> '$2'"
+    if ln -fs "$1" "$2" ; then
+        echo "LINK  '$1' ---> '$2'"
+    else
+        echo "WARNING: Could not link '$1' to '$2'." >&2
+    fi
 }
 
 
