@@ -19,21 +19,4 @@ vim.cmd([[
         call cursor(l, c)
     endfunction
 
-
-
-    " Save the file, compile and run it as a program if it is recognized.
-    function! CompileAndExecute()
-        let l:filename = expand('%')
-        let l:extension = expand('%:e')
-        let l:supported_extensions = ["c", "cpp", "py", "sh", "java", "r", ""]
-        if (index(l:supported_extensions, l:extension) >= 0)
-            write
-            execute ":!executer " . l:filename . " --execute"
-        else
-            echomsg "Unrecognized file"
-        endif
-    endfunction
-    " Use F5 to run the program.
-    nnoremap <F5> :call CompileAndExecute()<CR>
-
 ]])

@@ -3,8 +3,28 @@ if not status_ok then
     return
 end
 
-local utils = require("moonvim.utils")
+-- Find lenght of longest line.
+local function max_len_line(lines)
+    local max_len = 0
+    for _, line in ipairs(lines) do
+        local line_len = line:len()
+        if line_len > max_len then
+            max_len = line_len
+        end
+    end
+    return max_len
+end
 
+-- Align text to the center.
+local function align_center(container, lines, alignment)
+    local output = {}
+    local max_len = max_len_line(lines)
+    for _, line in ipairs(lines) do
+        local padding = string.rep(" ", (math.max(container.width, max_len) - line:len()) * alignment)
+        table.insert(output, padding .. line)
+    end
+    return output
+end
 
 
 local banner = {
@@ -28,10 +48,11 @@ local banner_small = {
     [[ █▀▄▀█ █▀█ █▀█ █▄░█ █░█ █ █▀▄▀█  ]],
     [[ █░▀░█ █▄█ █▄█ █░▀█ ▀▄▀ █ █░▀░█  ]],
 }
+
+
 local dashboard = require("alpha.themes.dashboard")
 
-
--- Set banner only if window height is enough
+-- Choose banner based on window height.
 dashboard.section.header.val = function()
     local alpha_wins = vim.tbl_filter(
         function(win)
@@ -52,18 +73,15 @@ dashboard.section.buttons.val = {
     dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>"),
     dashboard.button("f", "  Find file", ":lua require'moonvim.utils'.find_files()<CR>"),
     dashboard.button("r", "  Recent files", ":Telescope oldfiles <CR>"),
-    -- dashboard.button("p", "  Projects", ":Telescope projects<CR>"),
     dashboard.button("t", "  Find text", ":Telescope live_grep <CR>"),
-    -- dashboard.button("s", "  Packer Sync", ":PackerSync<CR>"),
     dashboard.button("c", "  Config", ":e ~/.config/nvim/init.lua<CR>"),
     dashboard.button("q", "  Quit", ":qa<CR>"),
 }
 
 
-dashboard.section.footer.val = utils.align_center({ width = 0 }, {
+dashboard.section.footer.val = align_center({ width = 0 }, {
     "",
-    "In the end the Shadow is only a small and passing thing:",
-    "there is light and high beauty for ever beyond its reach."
+    "Moonlight drowns out all but the brightest stars.",
 }, 0.5)
 dashboard.section.footer.opts.position = "center"
 
@@ -75,7 +93,7 @@ dashboard.opts.opts.noautocmd = true
 alpha.setup(dashboard.opts)
 
 
--- Disable folding on alpha buffer
+-- Disable line numbers in alpha buffer.
 vim.cmd([[
     autocmd FileType alpha setlocal nonumber norelativenumber
 ]])

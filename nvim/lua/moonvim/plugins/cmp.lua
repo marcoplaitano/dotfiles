@@ -84,7 +84,6 @@ cmp.setup {
         ['<C-d>'] = cmp.mapping.scroll_docs(4),
     }),
 
-
     sources = cmp.config.sources({
         { name = "nvim_lsp" },
         { name = 'luasnip' },
@@ -93,7 +92,6 @@ cmp.setup {
         { name = "spell",   keyword_length = 5 },
     }),
 
-
     formatting = {
         fields = { "abbr", "kind" },
         format = function(_, vim_item)
@@ -101,7 +99,6 @@ cmp.setup {
             return vim_item
         end
     },
-
 
     sorting = {
         comparators = {
@@ -114,7 +111,6 @@ cmp.setup {
             cmp.config.compare.order
         },
     },
-
 
     completion = {
         -- menuone:  popup menu even if there is only one match.

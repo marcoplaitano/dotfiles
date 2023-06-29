@@ -48,8 +48,6 @@ nnoremap("<C-\\>", ":silent Neotree toggle<CR>")
 -- Disable command history
 nnoremap("q:", "<nop>")
 
-nnoremap("<Esc>bg", utils.toggle_background)
-
 
 
 --------------------------------------------------------------------------------

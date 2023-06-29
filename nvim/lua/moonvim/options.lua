@@ -74,9 +74,6 @@ vim.opt.gdefault = true
 -- Do not show preview of command in split window.
 vim.opt.inccommand = "nosplit"
 
--- Consider - part of the word (useful when deleting or selecting words.
---vim.opt.iskeyword:append("-")
-
 
 
 --------------------------------------------------------------------------------
@@ -109,7 +106,7 @@ vim.opt.showbreak = ''
 -- Lines longer than this will be split at the first whitespace.
 vim.opt.textwidth = 80
 
--- To automatically vim.opt.comments or follow paragraph indentation,...
+-- To automatically comment or follow paragraph indentation,...
 vim.opt.formatoptions:append("jtql2n")
 
 
@@ -130,7 +127,7 @@ vim.opt.guicursor = "i:block"
 vim.opt.signcolumn = "yes"
 
 -- Highlight current line.
-vim.opt.cursorline = false
+vim.opt.cursorline = true
 
 -- Display different kinds of white spaces.
 vim.opt.list = true
@@ -150,7 +147,7 @@ vim.cmd([[
 ]])
 
 -- vim.opt.ruler at 80 characters.
-vim.opt.colorcolumn = ""
+vim.opt.colorcolumn = "80"
 
 
 
@@ -185,7 +182,7 @@ vim.opt.wildmenu = true
 vim.opt.wildmode = "longest,list,full"
 
 -- Ignore this files during auto completion.
-vim.opt.wildignore = "*.jpg,*.png,*.gif,*.docx,*.xlsx,*.pdf,*/*.exe,*/*.out,*/*.o,*/*.class,*/.git/*,*/.DS_Store"
+vim.opt.wildignore = "*.jpg,*.png,*.gif,*.pdf,*/*.out,*/*.o,*/*.class,*/.git/*,*/.DS_Store"
 
 -- Paths in which to look for files during :find command.
 vim.opt.path:remove "/usr/include"
@@ -193,7 +190,7 @@ vim.opt.path:remove "/usr/include"
 -- Add include path for autocomplete suggestions.
 vim.opt.complete:append("i")
 
--- vim.opt.default encoding.
+-- Default encoding.
 vim.opt.encoding = "utf-8"
 vim.opt.fileencoding = "utf-8"
 vim.scriptencoding = "utf-8"

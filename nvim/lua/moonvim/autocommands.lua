@@ -11,20 +11,21 @@ vim.cmd([[
         autocmd FileType java setlocal colorcolumn=120
         autocmd FileType java setlocal textwidth=120
 
+        " Set ruler at column 120 for HTML files.
+        autocmd Filetype html set textwidth=120
+        autocmd Filetype html set colorcolumn=120
+
         autocmd FileType gitcommit setlocal spell
         autocmd FileType gitcommit setlocal textwidth=72
         autocmd FileType gitcommit setlocal colorcolumn=72
-
-        " Map Space Space to quit file explorer and return to the last open buffer.
-        autocmd FileType netrw nnoremap <silent> <buffer> <Space><Space> :bd <CR> :blast <CR>
 
         " Disable line numbers in alpha dashboard.
         autocmd FileType alpha setlocal nonumber norelativenumber
 
         " Enable spellcheck.
-        " autocmd FileType markdown setlocal spell
-        " autocmd FileType gitcommit setlocal spell
-        " autocmd FileType text setlocal spell
+        autocmd FileType markdown setlocal spell
+        autocmd FileType gitcommit setlocal spell
+        autocmd FileType text setlocal spell
 
         " Use hard tabs for makefiles.
         autocmd FileType make setlocal noexpandtab
@@ -38,22 +39,12 @@ vim.cmd([[
         autocmd BufEnter git/config setfiletype gitconfig
 
         " Set filetype for custom shell files.
-        autocmd BufEnter *shell_* setfiletype sh
         autocmd BufEnter *shell/* setfiletype sh
         autocmd BufEnter *bash* setfiletype sh
         autocmd BufEnter *zsh* setfiletype sh
 
-        " Set filetype to mail and adjust text width.
-        autocmd BufEnter *mutt-* setfiletype mail
-        autocmd Filetype mail set textwidth=72
-        autocmd Filetype mail set colorcolumn=72
-
         " Set filetype for crontab file.
         autocmd BufEnter cronjobs* setfiletype crontab
-
-        " Adjust text width for HTML files.
-        autocmd Filetype html set textwidth=120
-        autocmd Filetype html set colorcolumn=120
     augroup END
 
 
@@ -104,7 +95,7 @@ vim.cmd([[
         autocmd BufWritePre * if index(blacklist_writing, &ft) < 0 | :call RemoveTrailingSpacesAndLines() | endif
 
         " Formatting on save.
-        autocmd BufWritePre *.lua :silent lua vim.lsp.buf.format()
+        "autocmd BufWritePre *.lua :silent lua vim.lsp.buf.format()
 
         " Source config files after saving them.
         autocmd BufWritePost *.vim,*.lua :so

@@ -30,7 +30,7 @@ require('lualine').setup({
     options = {
         theme = theme,
         icons_enabled = true,
-        globalstatus = true, -- if true every split has its own.
+        globalstatus = true, -- all panes share the same statusline.
         refresh = {
             statusline = 1000,
             tabline = 1000,
@@ -53,21 +53,20 @@ require('lualine').setup({
         lualine_b = {
             "branch",
             -- {
-            -- "diff",
-            -- colored = true, -- Displays a colored diff status if set to true
-            -- diff_color = {
-            -- -- Same color values as the general color option can be used here.
-            -- added    = 'DiffAdd',    -- Changes the diff's added color
-            -- modified = 'DiffChange', -- Changes the diff's modified color
-            -- removed  = 'DiffDelete', -- Changes the diff's removed color you
+                -- "diff",
+                -- colored = false,
+                -- diff_color = {
+                    -- added    = 'DiffAdd',
+                    -- modified = 'DiffChange',
+                    -- removed  = 'DiffDelete',
+                -- },
+                -- symbols = { added = '+', modified = '~', removed = '-' },
             -- },
-            -- symbols = {added = '+', modified = '~', removed = '-'},
-            -- },
-            -- {
-            -- "diagnostics",
-            -- sources = {"nvim_diagnostic"},
-            -- sections = {"error", "warn", "info"},
-            -- },
+            {
+                "diagnostics",
+                sources = { "nvim_diagnostic" },
+                sections = { "error", "warn", "info" },
+            },
             {
                 "macro_recording",
                 fmt = show_macro_recording,
