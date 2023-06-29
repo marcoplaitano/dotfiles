@@ -1,8 +1,5 @@
-# bash/zsh git prompt support
-#
-# Copyright (C) 2006,2007 Shawn O. Pearce <spearce@spearce.org>
-# Distributed under the GNU General Public License, version 2.0.
-#
+#!/bin/bash
+
 # This script allows you to see repository status in your prompt.
 #
 # To enable:
@@ -181,62 +178,35 @@ __git_ps1_show_upstream () {
     esac
 
     # Find how many commits we are ahead/behind our upstream
-    local commits
-    if commits="$(git rev-list --left-right "$upstream_type"...HEAD 2>/dev/null)"
-    then
-        local commit behind=0 ahead=0
-        for commit in $commits
-        do
-            case "$commit" in
-            "<"*) ((behind++)) ;;
-            *)    ((ahead++))  ;;
-            esac
-        done
-        count="$behind $ahead"
-    else
-        count=""
-    fi
+    count="$(git rev-list --count --left-right "$upstream_type"...HEAD 2>/dev/null)"
 
     # calculate the result
-    if [[ -z "$verbose" ]]; then
-        case "$count" in
-        "")             # no upstream
-            p="" ;;
-        "0 0")          # equal to upstream
-            p="" ;;
-        "0 "*)          # ahead of upstream
-            p=">" ;;
-        *" 0")          # behind upstream
-            p="<" ;;
-        *)              # diverged from upstream
-            p="<>" ;;
-        esac
-    else # verbose, set upstream instead of p
-        case "$count" in
-        "") # no upstream
+    case "$count" in
+        "")                                 # no upstream
             upstream="" ;;
-        "0    0") # equal to upstream
-            upstream="|u=" ;;
-        "0    "*) # ahead of upstream
-            upstream="|u+${count#0    }" ;;
-        *"    0") # behind upstream
-            upstream="|u-${count%    0}" ;;
-        *)        # diverged from upstream
-            upstream="|u+${count#*    }-${count%    *}" ;;
-        esac
-        if [[ -n "$count" && -n "$name" ]]; then
-            __git_ps1_upstream_name=$(git rev-parse \
-                --abbrev-ref "$upstream_type" 2>/dev/null)
-            if [ $pcmode = yes ] && [ $ps1_expanded = yes ]; then
-                upstream="$upstream \${__git_ps1_upstream_name}"
-            else
-                upstream="$upstream ${__git_ps1_upstream_name}"
-                # not needed anymore; keep user's
-                # environment clean
-                unset __git_ps1_upstream_name
-            fi
+        "0	0")                             # equal to upstream
+            upstream="" ;;
+        "0	"*)                             # ahead of upstream
+            upstream=">${count#0	}" ;;
+        *"	0")                             # behind upstream
+            upstream="<${count%	0}" ;;
+        *)                                  # diverged from upstream
+            upstream=">${count#*	}<${count%	*}" ;;
+    esac
+    if [[ -n "$count" && -n "$name" ]]; then
+        __git_ps1_upstream_name=$(git rev-parse \
+            --abbrev-ref "$upstream_type" 2>/dev/null)
+        if [ $pcmode = yes ] && [ $ps1_expanded = yes ]; then
+            upstream="$upstream \${__git_ps1_upstream_name}"
+        else
+            upstream="$upstream ${__git_ps1_upstream_name}"
+            # not needed anymore; keep user's
+            # environment clean
+            unset __git_ps1_upstream_name
         fi
     fi
+
+    [[ -n $upstream ]] && upstream=" $upstream"
 }
 
 
@@ -302,25 +272,22 @@ __git_eread () {
 # the todo file.
 __git_sequencer_status () {
     local todo
-    if test -f "$g/CHERRY_PICK_HEAD"
-    then
+    if test -f "$g/CHERRY_PICK_HEAD"; then
         r="|CHERRY-PICKING"
         return 0;
-    elif test -f "$g/REVERT_HEAD"
-    then
+    elif test -f "$g/REVERT_HEAD"; then
         r="|REVERTING"
         return 0;
-    elif __git_eread "$g/sequencer/todo" todo
-    then
+    elif __git_eread "$g/sequencer/todo" todo; then
         case "$todo" in
-        p[\ \	]|pick[\ \	]*)
-            r="|CHERRY-PICKING"
-            return 0
-        ;;
-        revert[\ \	]*)
-            r="|REVERTING"
-            return 0
-        ;;
+            p[\ \	]|pick[\ \	]*)
+                r="|CHERRY-PICKING"
+                return 0
+            ;;
+            revert[\ \	]*)
+                r="|REVERTING"
+                return 0
+            ;;
         esac
     fi
     return 1
