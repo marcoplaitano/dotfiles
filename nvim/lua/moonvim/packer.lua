@@ -50,10 +50,10 @@ return packer.startup(function(use)
     -- Show preview of hex color.
     use "ap/vim-css-color"
 
-    -- Autopairs
+    -- Autopairs.
     use "windwp/nvim-autopairs"
 
-    -- Telescope
+    -- Telescope.
     use {
         "nvim-telescope/telescope.nvim", tag = "0.1.1",
         requires = { { "nvim-lua/plenary.nvim" } }
@@ -64,7 +64,7 @@ return packer.startup(function(use)
     use "MunifTanjim/nui.nvim"
     use { "nvim-neo-tree/neo-tree.nvim", as = "neotree" }
 
-    -- Welcome page dashboard
+    -- Welcome page dashboard.
     use { "goolord/alpha-nvim", lazy = true }
 
     -- Commenter.
@@ -86,7 +86,7 @@ return packer.startup(function(use)
         "L3MON4D3/LuaSnip",
     }
 
-    -- Syntax highlighting
+    -- Syntax highlighting.
     use {
         "nvim-treesitter/nvim-treesitter",
         as = "treesitter",
@@ -95,16 +95,12 @@ return packer.startup(function(use)
         end,
     }
 
-    -- Status line (lualine)
+    -- Status line.
     use "nvim-lualine/lualine.nvim"
 
     -- Colorschemes.
-    use "RRethy/nvim-base16"
-    use { "catppuccin/nvim", as = "catppuccin" }
-    use "arcticicestudio/nord-vim"
     use "projekt0n/github-nvim-theme"
     use "Mofiqul/vscode.nvim"
-    use "rose-pine/neovim"
 
 
     if packer_bootstrap then

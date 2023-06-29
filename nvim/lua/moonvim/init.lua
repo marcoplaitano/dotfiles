@@ -8,7 +8,6 @@ for _, source in ipairs {
     "moonvim.utils",
     "moonvim.plugins.alpha",
     "moonvim.plugins.autopairs",
-    "moonvim.plugins.catppuccin",
     "moonvim.plugins.cmp",
     "moonvim.plugins.commenter",
     "moonvim.plugins.lspconfig",
