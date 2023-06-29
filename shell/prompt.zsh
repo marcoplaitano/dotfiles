@@ -2,6 +2,11 @@
 # Author: Marco Plaitano
 # Github: https://github.com/marcoplaitano
 
+autoload colors && colors
+
+# Allows for parameter expansions and command substitution in the prompt.
+setopt prompt_subst
+
 
 # Count execution time of last command.
 preexec() {
@@ -41,63 +46,6 @@ precmd() {
 }
 
 
-# Get and print info about git repository.
-git_details() {
-    local branch upstream numbers behind ahead
-    local dirty_state_info num_commits_info
-
-    # Do nothing if the current directory is not a Git repository.
-    ! git rev-parse &>/dev/null && return
-
-    # Check if in .git/ directory (some of the following checks don't make
-    # sense/won't work in the .git directory).
-    [[ "$(git rev-parse --is-inside-git-dir)" == "true" ]] && return
-
-    # Get branch name.
-    branch="$( printf "%s" "$(git rev-parse --abbrev-ref HEAD 2>/dev/null \
-                              || git rev-parse --short HEAD 2>/dev/null \
-                              || printf "unknown" )" | tr -d "\n" )"
-
-    # Check for untracked files.
-    if [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
-        dirty_state_info+="?"
-    fi
-
-    # Check for unstaged changes.
-    if [[ -n $(git status --porcelain) ]]; then
-        dirty_state_info+="*"
-    fi
-
-    # Check for uncommitted changes in the index.
-    if ! git diff --quiet --ignore-submodules --cached; then
-        dirty_state_info+="+"
-    fi
-
-    # Check for stashed files.
-    if git rev-parse --verify refs/stash &>/dev/null; then
-        dirty_state_info+="$"
-    fi
-
-    # Count number of commits ahead/behind with upstream.
-    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/HEAD")"
-    numbers=$(git rev-list --count --left-right $upstream...HEAD 2>/dev/null)
-    behind=$(echo $numbers | awk '{print $1}')
-    ahead=$(echo $numbers | awk '{print $2}')
-    case "$behind$ahead" in
-        "" | "00") ;;
-        "0"*) num_commits_info=">$ahead" ;;
-        *"0") num_commits_info="<$behind" ;;
-        *)    num_commits_info="<>" ;;       # diverged from upstream.
-    esac
-
-    # Add space between different sections.
-    [[ -n $dirty_state_info ]] && dirty_state_info=" $dirty_state_info"
-    [[ -n $num_commits_info ]] && num_commits_info=" $num_commits_info"
-
-    echo -e " (${branch}${dirty_state_info}${num_commits_info})"
-}
-
-
 # Show error code of last executed command.
 error_return() {
     local retval
@@ -119,11 +67,15 @@ locked_dir() {
 }
 
 
-
-autoload colors && colors
-
-# Allows for parameter expansions and command substitution in the prompt.
-setopt prompt_subst
+# Show info about current git repository.
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWSTASHSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWUPSTREAM=1
+GIT_PS1_STATESEPARATOR=" "
+GIT_PS1_SHOWCONFLICTSTATE="yes"
+GIT_PS1_HIDE_IF_PWD_IGNORED=1
+source $HOME/.config/shell/git-prompt.sh
 
 
 
@@ -132,7 +84,6 @@ ROOT_SYMBOL='#'
 # Change prompt symbol (when not root) based on current vim mode.
 VI_NORMAL_SYMBOL=':'
 VI_INSERT_SYMBOL='|'
-
 
 function zle-line-init zle-keymap-select {
     PROMPT=''
@@ -150,7 +101,7 @@ function zle-line-init zle-keymap-select {
     # Lock if no write permissions in current folder.
     PROMPT+='$(locked_dir)'
     # Git info.
-    PROMPT+='%F{magenta}$(git_details)%f'
+    PROMPT+='%F{magenta}$(__git_ps1 " (%s)")%f'
     # Either leave a space or a newline if the available space is not long enough.
     PROMPT+=$'%-50(l: :\n)'
     # Prompt symbol.
@@ -172,7 +123,5 @@ function zle-line-init zle-keymap-select {
 
 zle -N zle-line-init
 zle -N zle-keymap-select
-
-
 
 export PS2="| "
