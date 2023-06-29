@@ -100,8 +100,8 @@ vim.cmd([[
 
         " Remove trailing spaces and lines before saving (for all filetypes
         " except those in this blacklist).
-        let blacklist = ["md", "diff"]
-        autocmd BufWritePre * if index(blacklist, &ft) < 0 | :call RemoveTrailingSpacesAndLines() | endif
+        let blacklist_writing = ["md", "diff"]
+        autocmd BufWritePre * if index(blacklist_writing, &ft) < 0 | :call RemoveTrailingSpacesAndLines() | endif
 
         " Formatting on save.
         autocmd BufWritePre *.lua :silent lua vim.lsp.buf.format()
@@ -121,9 +121,9 @@ vim.cmd([[
     augroup numbers
         autocmd!
         " Do not perform this operation in the alpha dashboard.
-        let blacklist = ["alpha"]
-        autocmd InsertLeave * if index(blacklist, &ft) < 0 | :set relativenumber | endif
-        autocmd InsertEnter * if index(blacklist, &ft) < 0 | :set norelativenumber | endif
+        let blacklist_numbers = ["alpha"]
+        autocmd InsertLeave * if index(blacklist_numbers, &ft) < 0 | :set relativenumber | endif
+        autocmd InsertEnter * if index(blacklist_numbers, &ft) < 0 | :set norelativenumber | endif
     augroup END
 ]])
 
