@@ -89,3 +89,9 @@ if pushd _other/fonts &>/dev/null ; then
     bash ./install_fonts.sh
     popd &>/dev/null
 fi
+
+# Install sounds.
+if pushd _other/sounds &>/dev/null ; then
+    bash ./install_sounds.sh
+    popd &>/dev/null
+fi
