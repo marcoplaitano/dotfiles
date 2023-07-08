@@ -1,13 +1,27 @@
 local theme
 
--- Load theme based on current colorscheme.
--- Use 'auto' theme as fallback.
+-- Find theme file based on current colorscheme.
 local theme_name = require("moonvim.colorscheme")
 local path = table.concat { 'colors/lualine/', theme_name, '.lua' }
 local files = vim.api.nvim_get_runtime_file(path, true)
 local n_files = #files
+
+-- If there are no available theme files then disable all sections of the
+-- statusline so that it does not appear.
 if n_files <= 0 then
-    theme = "auto"
+    require('lualine').setup({
+        sections = {
+            lualine_a = {},
+            lualine_b = {},
+            lualine_c = {},
+            lualine_x = {},
+            lualine_y = {},
+            lualine_z = {},
+        }
+    })
+    return
+
+-- Load theme from file.
 elseif n_files == 1 then
     theme = dofile(files[1])
 end

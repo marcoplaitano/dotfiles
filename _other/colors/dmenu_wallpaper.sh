@@ -10,7 +10,7 @@ from math import sqrt
 c = "$color1"
 r,g,b = tuple(int(c.lstrip('#')[i:i+2], 16) for i in (0,2,4))
 hsp = sqrt(0.299 * r*r + 0.587 * g*g + 0.114 * b*b)
-print("light") if hsp > 127.5 else print("dark")
+print("light") if hsp > 121.5 else print("dark")
 EOF
 )
 if [[ $(python -c "$is_color1_light") == light ]]; then
