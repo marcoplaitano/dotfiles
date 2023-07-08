@@ -127,7 +127,7 @@ vim.opt.guicursor = "i:block"
 vim.opt.signcolumn = "yes"
 
 -- Highlight current line.
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 
 -- Display different kinds of white spaces.
 vim.opt.list = true
@@ -147,7 +147,7 @@ vim.cmd([[
 ]])
 
 -- vim.opt.ruler at 80 characters.
-vim.opt.colorcolumn = "80"
+vim.opt.colorcolumn = ""
 
 
 
