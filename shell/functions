@@ -9,6 +9,7 @@
 ################################################################################
 open() {
     [[ -n $1 ]] && element="$1" || element=.
+    [[ ! -e "$element" ]] && { echo "'$element' does not exist." ; return 1 ;}
     xdg-open "$element" &>/dev/null & disown
 }
 
