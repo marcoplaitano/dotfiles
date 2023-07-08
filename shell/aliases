@@ -8,9 +8,9 @@ alias :q='exit'
 alias cd..='cd ..'
 alias ..='cd ..'
 
-alias ls='ls --group-directories-first --color=auto -q'
+alias ls='ls --group-directories-first --color=auto -qF'
 alias la='ls -Av'
-alias ll='la -hl'
+alias ll='la -hlG'
 alias l='ll'
 alias lt='ll -tr'
 alias lsize='ll -Sr'
@@ -58,6 +58,9 @@ alias vim='edit'
 # git
 alias gi='git info'
 alias gf='git fetch'
+
+# docker
+alias d='docker'
 
 # my scripts
 alias kill='kill_process'
