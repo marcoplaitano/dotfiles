@@ -84,6 +84,11 @@ done
 # Install cron jobs.
 [[ -e cronjobs/cron.txt ]] && crontab cronjobs/cron.txt
 
+# Install autostart applications.
+autostart_dir="$HOME/.config/autostart/"
+[[ ! -d "$autostart_dir" ]] && mkdir "$autostart_dir"
+cp "$(pwd)"/autostart/* "$autostart_dir"
+
 # Install fonts.
 if pushd _other/fonts &>/dev/null ; then
     bash ./install_fonts.sh
