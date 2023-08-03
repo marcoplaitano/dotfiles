@@ -68,6 +68,8 @@ nnoremap("<C-a>", "gg<S-v>G")
 
 -- CTRL+H to search and replace.
 nnoremap("<C-h>", ":%s/")
+-- CTRL+H in visual mode to search and replace selection.
+vnoremap("<C-h>", "\"hy:%s/<C-r>h//g<left><left>")
 
 
 
