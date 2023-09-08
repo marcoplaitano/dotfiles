@@ -16,7 +16,7 @@ set $i3_THEME_FILE /var/tmp/i3_theme.conf
 
 set $BROWSER firefox
 set $TERMINAL WINIT_X11_SCALE_FACTOR=1.0 alacritty
-set $FALLBACK_TERMINAL xfce4-terminal --command "env WANT_TMUX=0 bash"
+set $FALLBACK_TERMINAL xfce4-terminal --command "env USE_TMUX=0 bash"
 set $FILE_MANAGER thunar
 
 
@@ -260,7 +260,7 @@ bindsym $mod+Shift+r restart
 bindsym $mod+q  kill
 
 # Lock screen.
-bindsym $mod+l          exec --no-startup-id $SCRIPTS/lock
+bindsym $mod+l          exec --no-startup-id $SCRIPTS/exit.sh --lock
 
 # Take a screenshot.
 bindsym Print           exec --no-startup-id $SCRIPTS/screenshot
@@ -331,11 +331,3 @@ for_window [title="webcam"] border pixel 3
 
 # Float feh wallpaper chooser.
 for_window [class="(?i)feh"] floating enable
-
-
-
-################################################################################
-###  APPLICATIONS AUTOSTART
-################################################################################
-
-exec --no-startup-id sleep 2 && spotify
