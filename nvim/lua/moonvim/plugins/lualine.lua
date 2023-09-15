@@ -8,21 +8,22 @@ local n_files = #files
 
 -- If there are no available theme files then disable all sections of the
 -- statusline so that it does not appear.
-if n_files <= 0 then
-    require('lualine').setup({
-        sections = {
-            lualine_a = {},
-            lualine_b = {},
-            lualine_c = {},
-            lualine_x = {},
-            lualine_y = {},
-            lualine_z = {},
-        }
-    })
-    return
+-- if n_files == 0 then
+    -- require('lualine').setup({
+        -- sections = {
+            -- lualine_a = {},
+            -- lualine_b = {},
+            -- lualine_c = {},
+            -- lualine_x = {},
+            -- lualine_y = {},
+            -- lualine_z = {},
+        -- }
+    -- })
+    -- return
+-- end
 
 -- Load theme from file.
-elseif n_files == 1 then
+if n_files == 1 then
     theme = dofile(files[1])
 end
 
@@ -76,11 +77,11 @@ require('lualine').setup({
                 -- },
                 -- symbols = { added = '+', modified = '~', removed = '-' },
             -- },
-            {
-                "diagnostics",
-                sources = { "nvim_diagnostic" },
-                sections = { "error", "warn", "info" },
-            },
+            -- {
+                -- "diagnostics",
+                -- sources = { "nvim_diagnostic" },
+                -- sections = { "error", "warn", "info" },
+            -- },
             {
                 "macro_recording",
                 fmt = show_macro_recording,

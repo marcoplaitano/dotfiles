@@ -1,4 +1,7 @@
 for _, source in ipairs {
+    "moonvim.plugins.color_onedark",
+    "moonvim.plugins.color_vscode",
+
     "moonvim.packer",
     "moonvim.colorscheme",
     "moonvim.options",
@@ -6,6 +9,7 @@ for _, source in ipairs {
     "moonvim.functions",
     "moonvim.autocommands",
     "moonvim.utils",
+
     "moonvim.plugins.alpha",
     "moonvim.plugins.autopairs",
     "moonvim.plugins.cmp",
@@ -15,7 +19,6 @@ for _, source in ipairs {
     "moonvim.plugins.neotree",
     "moonvim.plugins.telescope",
     "moonvim.plugins.treesitter",
-    "moonvim.plugins.vscode",
 } do
     local status_ok, fault = pcall(require, source)
     if not status_ok then
