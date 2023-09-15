@@ -45,13 +45,16 @@ if [[ ! -d "$XDG_CONFIG_HOME" ]]; then
     mkdir -p "$XDG_CONFIG_HOME"
 fi
 
-# Associate files/dirs in the 'dotfiles' repository with the correspondent
+# Associate files/dirs in this 'dotfiles' repository with the correspondent
 # files and dirs found across the system.
 declare -A repo_files=(
+    ["alacritty"]="$XDG_CONFIG_HOME/alacritty"
     ["bat"]="$XDG_CONFIG_HOME/bat"
     ["git"]="$XDG_CONFIG_HOME/git"
     ["gnupg"]="$XDG_CONFIG_HOME/gnupg"
+    ["i3"]="$XDG_CONFIG_HOME/i3"
     ["nvim"]="$XDG_CONFIG_HOME/nvim"
+    ["picom"]="$XDG_CONFIG_HOME/picom"
     ["polybar"]="$XDG_CONFIG_HOME/polybar"
     ["python"]="$XDG_CONFIG_HOME/python"
     ["redshift"]="$XDG_CONFIG_HOME/redshift"
