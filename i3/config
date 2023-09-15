@@ -10,7 +10,7 @@
 # Primary mod key is SUPER.
 set $mod Mod4
 
-set $SCRIPTS ~/Desktop/.scripts
+set $SCRIPTS ~/dev/scripts
 set $WALLPAPER_FILE /var/tmp/wallpaper
 set $i3_THEME_FILE /var/tmp/i3_theme.conf
 

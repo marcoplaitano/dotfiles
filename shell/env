@@ -44,9 +44,10 @@ export CYAN="\e[01;36m"
 ################################################################################
 
 # Directories.
-export CODE_DIR="$HOME/Desktop"
-export SCRIPTS_DIR="$CODE_DIR/.scripts"
-export DOTS_DIR="$CODE_DIR/.dotfiles"
+export CODE_DIR="$HOME/dev"
+export SCRIPTS_DIR="$CODE_DIR/scripts"
+export DOTS_DIR="$CODE_DIR/dotfiles"
+export BLOG_DIR="$CODE_DIR/blog"
 export WALLPAPERS_DIR="$HOME/Pictures/wallpapers"
 
 # Status files.

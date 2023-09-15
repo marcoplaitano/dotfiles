@@ -4,10 +4,9 @@ Version=0.9.4
 Type=Application
 Name=CacheCodeDirs
 Comment=
-Exec=/home/marco/Desktop/.scripts/cache/cache_code_dirs
+Exec=/home/marco/dev/scripts/cache/cache_code_dirs
 OnlyShowIn=XFCE;
 RunHook=0
 StartupNotify=false
 Terminal=false
 Hidden=false
-

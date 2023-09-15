@@ -30,19 +30,22 @@ DISPLAY=:0.0
 BASH_ENV=~/.profile
 
 # Random wallpaper every hour.
-# 00 * * * * ~/Desktop/.scripts/wallpaper -r ~/Pictures/wallpapers
+# 00 * * * * ~/dev/scripts/wallpaper -r ~/Pictures/wallpapers
 
 # Remind me to listen to the radio.
-# 00 20 * * 1,2,3,4,5 if ! pgrep teams; then ~/Desktop/.scripts/reminder -n -d "radio" ; fi
+# 00 20 * * 1,2,3,4,5 if ! pgrep teams; then ~/dev/scripts/reminder -n -d "radio" ; fi
 
 # Toggle dark theme and blue light filter. The script is called frequently but
 # it will only actually operate when the time is right.
-*/30 * * * * ~/Desktop/.scripts/night_mode
+*/30 * * * * ~/dev/scripts/night_mode
 
 # Update caches.
-*/30 * * * * ~/Desktop/.scripts/cache/cache_code_dirs
-00 * * * * ~/Desktop/.scripts/cache/cache_wallpapers
-00 * * * * ~/Desktop/.scripts/cache/cache_filesystem
+*/30 * * * * ~/dev/scripts/cache/cache_code_dirs
+00 * * * * ~/dev/scripts/cache/cache_wallpapers
+00 * * * * ~/dev/scripts/cache/cache_filesystem
+
+# Clear torrent files.
+00 * * * * if ! pgrep peerflix ; then rm -r /tmp/torrent-stream/* ; fi
 
 # Create backup copy of this crontab in my dotfiles repository.
-00 * * * * crontab -l > ~/Desktop/.dotfiles/cronjobs/cron.txt
+00 * * * * crontab -l > ~/dev/dotfiles/cronjobs/cron.txt
