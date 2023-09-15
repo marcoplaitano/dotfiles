@@ -12,6 +12,8 @@ PS4='$?\011 $(date +%H:%M:%S.%3N)  $BASH_SOURCE@$LINENO   \011'
 set -x
 
 
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
+
 # Associate files/dirs in this 'dotfiles' repository with the correspondent
 # files and dirs found across the system.
 declare -A repo_files=(
