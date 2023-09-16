@@ -121,7 +121,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 
 -- Use block cursor also in INSERT mode.
-vim.opt.guicursor = "i:block"
+--vim.opt.guicursor = "i:block"
 
 -- Add extra margin to the left.
 vim.opt.signcolumn = "yes"

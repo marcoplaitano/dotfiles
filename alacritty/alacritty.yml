@@ -11,7 +11,7 @@ window:
     class: Terminal
     title: Terminal
     dynamic_title: false
-    decorations: none
+    # decorations: none
     dimensions:
         columns: 96
         lines: 29

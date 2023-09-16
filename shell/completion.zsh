@@ -84,13 +84,15 @@ _complete_night_mode() {
                '(- 1 *)--off' \
                '(- 1 *)--on' \
                '(- 1 *)--toggle' \
-               '(- 1 *)--status'
+               '(- 1 *)--status[1 if on, 0 if off]'
 }
 compdef _complete_night_mode night_mode
 
 
 _complete_repositories() {
-    _arguments '--colored[Print colored output.]'
+    _arguments '(- 1 *)'{-h,--help}'[Show help guide.]' \
+               '--colored[Print repo names with color.]' \
+               {-f,--full}'[Print full path for each repo.]'
 }
 compdef _complete_repositories repositories
 
@@ -146,12 +148,6 @@ _complete_wallpaper() {
 compdef _complete_wallpaper wallpaper
 
 
-_complete_quotes() {
-    _arguments '(- 1 *)'{-h,--help}'[Show help guide.]'
-}
-compdef _complete_quotes quotes
-
-
 _complete_screenrecord() {
     _arguments '(- 1 *)'{-h,--help}'[Show help guide.]' \
                '--stop[Stop recording.]' \
@@ -195,11 +191,17 @@ _complete_exit() {
                '(- 1 *)--suspend' \
                '(- 1 *)--logout' \
                '(- 1 *)--lock' \
-               '(- 1 *)--hibernate' \
                '(- 1 *)--poweroff' \
                '(- 1 *)--reboot' \
 }
 compdef _complete_exit exit.sh
+
+
+_complete_streaming() {
+    _arguments '(- 1 *)'{-h,--help}'[Show help guide.]' \
+               '1:Title:'
+}
+compdef _complete_streaming ytdl
 
 
 _complete_ytdl() {

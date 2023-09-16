@@ -179,7 +179,7 @@ if [[ $TERM_PROGRAM != "vscode" && $(tty) != /dev/tty* && "$EUID" -ne 0 ]]; then
     fi
 
     # Show a welcome message at every first login after system's boot.
-    # login_message --once
+    login_message --once
 fi
 
 
