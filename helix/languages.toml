@@ -1,0 +1,8 @@
+[[language]]
+name = "bash"
+indent = { tab-width = 4, unit = " "}
+file-types = ["sh", "bash", "zsh", {suffix = "shell/aliases"}, {suffix = "shell/functions"}, {suffix = "shell/temp_aliases"}]
+
+[[language]]
+name = "toml"
+indent = { tab-width = 4, unit = " "}

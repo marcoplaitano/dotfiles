@@ -100,10 +100,12 @@ return packer.startup(function(use)
 
     -- Colorschemes.
     use "projekt0n/github-nvim-theme"
+    use "ellisonleao/gruvbox.nvim"
     use "Mofiqul/vscode.nvim"
     use { "catppuccin/nvim", as = "catppuccin" }
-    use 'shaunsingh/nord.nvim'
-    use 'navarasu/onedark.nvim'
+    use "shaunsingh/nord.nvim"
+    use "navarasu/onedark.nvim"
+    use { "Everblush/nvim", as = "everblush" }
 
     if packer_bootstrap then
         require("packer").sync()

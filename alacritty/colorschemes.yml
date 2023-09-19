@@ -1,5 +1,5 @@
 colors:
-    catppuccin: &catppuccin-dark
+    catppuccin-mocha: &catppuccin-mocha
         primary:
             background: "#1E1E2E"
             foreground: "#CDD6F4"

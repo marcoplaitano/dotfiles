@@ -24,6 +24,8 @@ vim.cmd [[
 nnoremap("<C-r>", ":Reload<CR>")
 -- Ctrl+y  to redo last change.
 nnoremap("<C-y>", ":redo<CR>")
+-- U       to redo last change.
+nnoremap("U", ":redo<CR>")
 
 -- Esc+s  to toggle spell check.
 nnoremap("<Esc>s", ":setlocal spell!<CR>")
@@ -108,6 +110,10 @@ nnoremap("<C-d>", "<C-d>zz")
 nnoremap("<C-u>", "<C-u>zz")
 nnoremap("J", "mzJ`z")
 
+-- Better indenting.
+vnoremap("<", "<gv")
+vnoremap(">", ">gv")
+
 
 
 --------------------------------------------------------------------------------
@@ -137,6 +143,8 @@ nnoremap("=", "<C-w>=")
 -- Use TAB to cycle through open buffers.
 nnoremap("<Tab>", ":bnext<CR>")
 nnoremap("<S-Tab>", ":bprevious<CR>")
+nnoremap("gn", ":bnext<CR>")
+nnoremap("gp", ":bprevious<CR>")
 
 
 
@@ -165,7 +173,13 @@ vnoremap("<C-_>", ":call nerdcommenter#Comment('x', 'Toggle')<CR>")
 ----- FUZZY FINDER
 --------------------------------------------------------------------------------
 
+nnoremap("<space><space>", ":Telescope<CR>")
 nnoremap("<C-o>", utils.find_files)
 nnoremap("<C-b>", ":Telescope buffers<CR>")
 nnoremap("<C-t>", ":Telescope live_grep<CR>")
-nnoremap("<space><space>", ":Telescope<CR>")
+nnoremap("<space>sb", ":Telescope buffers<CR>")
+nnoremap("<space>sc", ":Telescope colorscheme<CR>")
+nnoremap("<space>sf", utils.find_files)
+nnoremap("<space>sk", ":Telescope keymaps<CR>")
+nnoremap("<space>sr", ":Telescope oldfiles<CR>")
+nnoremap("<space>st", ":Telescope live_grep<CR>")

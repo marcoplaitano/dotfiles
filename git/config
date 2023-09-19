@@ -8,7 +8,6 @@
     aliases = config --get-regexp alias
     # Allow `$ git git git...`
     git = !exec git
-    # List all authors
     authors = shortlog --summary --numbered --email --all
     hist = log --max-count=15 --graph --abbrev-commit --branches
     info = status -s

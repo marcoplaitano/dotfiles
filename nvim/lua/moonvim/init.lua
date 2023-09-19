@@ -1,4 +1,5 @@
 for _, source in ipairs {
+    "moonvim.plugins.color_gruvbox",
     "moonvim.plugins.color_onedark",
     "moonvim.plugins.color_vscode",
 

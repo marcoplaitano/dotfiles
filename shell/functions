@@ -102,7 +102,7 @@ pretty_tree() {
 ###   Print local IP address.
 ################################################################################
 myip() {
-    hostname -I | cut -d' ' -f 1
+    ip -json route get 8.8.8.8 | jq -r '.[].prefsrc'
 }
 
 

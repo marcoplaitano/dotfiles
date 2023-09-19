@@ -21,6 +21,7 @@ declare -A repo_files=(
     ["bat"]="$XDG_CONFIG_HOME/bat"
     ["git"]="$XDG_CONFIG_HOME/git"
     ["gnupg"]="$XDG_CONFIG_HOME/gnupg"
+    ["helix"]="$XDG_CONFIG_HOME/helix"
     ["i3"]="$XDG_CONFIG_HOME/i3"
     ["nvim"]="$XDG_CONFIG_HOME/nvim"
     ["picom"]="$XDG_CONFIG_HOME/picom"
@@ -159,6 +160,8 @@ if [[ ! -d "$XDG_CONFIG_HOME" ]]; then
     mkdir -p "$XDG_CONFIG_HOME"
 fi
 
+# Go into this repository.
+cd ${0%/*}
 
 # Default action is to install everything.
 [[ -z $1 ]] && { _install_all ; exit ;}

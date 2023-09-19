@@ -6,10 +6,9 @@ end
 local actions = require("telescope.actions")
 
 telescope.setup {
-    initial_mode = "insert",
-    selection_strategy = "reset",
-
     defaults = {
+        initial_mode = "insert",
+        selection_strategy = "reset",
         path_display = { "smart" },
         winblend = 0,
         border = {},

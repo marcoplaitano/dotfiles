@@ -63,10 +63,12 @@ alias walls='mywalls'
 
 # vim
 alias vim='edit'
+alias hx='helix'
 
 # git
 alias gi='git info'
 alias gf='git fetch'
+alias ga='git add'
 
 # docker
 alias d='docker'
@@ -77,6 +79,7 @@ alias compile='executer'
 alias run='executer --execute'
 alias new='new_file'
 alias passwords='get_password'
+alias repo='repositories'
 
 # typos
 alias relaod='reload'
