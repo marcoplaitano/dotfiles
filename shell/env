@@ -45,8 +45,8 @@ export CYAN="\e[01;36m"
 
 # Directories.
 export CODE_DIR="$HOME/dev"
-export SCRIPTS_DIR="$CODE_DIR/scripts"
 export DOTS_DIR="$CODE_DIR/dotfiles"
+export SCRIPTS_DIR="$DOTS_DIR/bin"
 export BLOG_DIR="$CODE_DIR/blog"
 export WALLPAPERS_DIR="$HOME/Pictures/wallpapers"
 
@@ -61,7 +61,7 @@ export WALLPAPER_FILE="/var/tmp/wallpaper"
 
 # Cache files.
 export CACHE_FILE_CODE_DIRS="/var/tmp/cache_code_dirs"
-export CACHE_FILE_SCRIPTS="/var/tmp/cache_scripts"
+export CACHE_FILE_MUSIC="$HOME/Music/discografia.csv"
 export CACHE_FILE_WALLPAPERS="/var/tmp/cache_wallpapers"
 
 # Theme files.

@@ -1,0 +1,129 @@
+#!/bin/bash
+
+# File:   repositories
+# Author: Marco Plaitano
+# Brief:  Report if any local repository has uncommited changes.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    echo "$error_msg" >&2
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]...
+Report if any local git repository has changes to commit, stage, push...
+
+-h, --help          Show this guide and exit.
+-f, --full          Print full path for each repository.
+--colored           Print repository names with color.
+"
+}
+
+
+_repo_has_unpushed() {
+    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
+    numbers="$(git rev-list --count --left-right $upstream...HEAD 2>/dev/null)"
+    behind="$(echo $numbers | awk '{print $1}')"
+    ahead="$(echo $numbers | awk '{print $2}')"
+    case "$behind$ahead" in
+        "" | "00" | *"0") ;;
+        "0"*) return 0 ;;
+        *)    ;;
+    esac
+    return 1
+}
+
+_repo_has_uncommitted() {
+    ! git diff --quiet --ignore-submodules --cached
+}
+
+_repo_has_unstaged() {
+    [[ -n $(git status --porcelain) ]]
+}
+
+_repo_has_untracked() {
+    [[ -n $(git ls-files --others --exclude-standard) ]]
+}
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        -f | --full)
+            full=1
+            shift ;;
+        --colored)
+            _COLOR="$YELLOW"
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+# Use no color by default.
+[[ -z $_COLOR ]] && _COLOR="$RESET"
+
+
+
+# From these directories, look for git repositories with a maxdepth of 1 level.
+dirs_to_check=(
+    "$CODE_DIR"
+    "$HOME/Desktop"
+    "$HOME/Pictures"
+)
+
+for root_dir in ${dirs_to_check[@]}; do
+    for dir in $(find "$root_dir" -mindepth 1 -maxdepth 1 -type d \
+                 ! -path '*.git*' 2>/dev/null \
+                 | sort -n)
+    do
+        [[ ! -d "$dir"/.git/ ]] && continue
+        pushd "$dir" >/dev/null
+        # With these ifs each repository will only show up once.
+        if _repo_has_unpushed       ; then list_unpushed+=("$dir")
+        elif _repo_has_uncommitted  ; then list_uncommited+=("$dir")
+        elif _repo_has_unstaged     ; then list_unstaged+=("$dir")
+        elif _repo_has_untracked    ; then list_untracked+=("$dir")
+        fi
+        popd >/dev/null
+    done
+done
+
+
+# Print results.
+if [[ -n $list_unpushed ]]; then
+    echo "unpushed changes in:"
+    for repo in "${list_unpushed[@]}"; do
+        [[ -z $full ]] && repo="$(basename $repo)"
+        echo -e "  - ${_COLOR}$repo${RESET}"
+    done
+fi
+
+if [[ -n $list_uncommited ]]; then
+    echo "uncommited changes in:"
+    for repo in "${list_uncommited[@]}"; do
+        [[ -z $full ]] && repo="$(basename $repo)"
+        echo -e "  - ${_COLOR}$repo${RESET}"
+    done
+fi
+
+if [[ -n $list_unstaged ]]; then
+    echo "unstaged changes in:"
+    for repo in "${list_unstaged[@]}"; do
+        [[ -z $full ]] && repo="$(basename $repo)"
+        echo -e "  - ${_COLOR}$repo${RESET}"
+    done
+fi
+
+if [[ -n $list_untracked ]]; then
+    echo "untracked changes in:"
+    for repo in "${list_untracked[@]}"; do
+        [[ -z $full ]] && repo="$(basename $repo)"
+        echo -e "  - ${_COLOR}$repo${RESET}"
+    done
+fi

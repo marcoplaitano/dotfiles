@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# File:   pinentry_auto
+# Author: Marco Plaitano
+# Date:   18 Mar 2023
+# Brief:  Choose how to ask for GPG passphrase (via terminal or GUI) based on
+#         whether this instance of GPG is called via terminal or not.
+
+# This variable is declared in the zshrc file and its default value allows the
+# usage of pinentry-tty. If any other script needs a graphical pinentry then it
+# needs to either unset or overwrite this value.
+case "$PINENTRY_USER_DATA" in
+    tty)
+        exec pinentry-tty "$@" ;;
+    *)
+        # Note: Will fall back to curses if $DISPLAY is not available.
+        exec pinentry-gtk-2 "$@" ;;
+esac

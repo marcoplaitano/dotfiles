@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# File:   curr_player
+# Author: Marco Plaitano
+# Date:   20 Nov 2022
+# Brief:  Get name of current/latest playing media player.
+
+
+# Among all the currently active players (ignore firefox), get the one that is
+# actually playing.
+for p in $(playerctl -l -i firefox 2>/dev/null); do
+    status=$(playerctl --player="$p" status 2>/dev/null)
+    if [[ $status == Playing ]]; then
+        echo "$p"
+        exit
+    fi
+done
+
+# If I got here without a value for the $player variable it means there are
+# either no players or none of them is playing. I have to select it manually.
+if [[ -z $player ]]; then
+    # The order is significative of importance.
+
+    # This is the first because it does not appear in the list given by
+    # playerctl but, if it is running I am definitely listening to lofi.
+    if pgrep -x yt-dlp >/dev/null; then
+        echo "lofi"
+        exit
+
+    elif pgrep -x ffplay &>/dev/null; then
+        echo "radio"
+        exit
+
+    elif pgrep -x vlc >/dev/null; then
+        echo "vlc"
+        exit
+
+    elif pgrep -x spotify >/dev/null; then
+        echo "spotify"
+        exit
+
+    elif [[ $(playerctl -l) == *"firefox"* ]]; then
+        echo "firefox"
+        exit
+
+    # Exit echoing nothing if there is no player.
+    else
+        echo ""
+        exit
+    fi
+fi

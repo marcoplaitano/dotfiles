@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# File:   shazam
+# Author: Marco Plaitano
+# Date:   16 Apr 2022
+# Brief:  Recognize a song with songrec (like shazam).
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+# File in which to temporarily save output of song recognition.
+readonly TEMP_FILE="/tmp/shazam.txt"
+# File containing a list of all songs recognized so far.
+readonly LIST_FILE="$HOME/Music/shazam.md"
+# Maximum time to wait before declaring failure in recognizing song.
+readonly MAX_TIME=10
+
+# Start listening.
+songrec recognize -d default > "$TEMP_FILE" 2>/dev/null &
+
+# Check every second if songrec is still running. If not it means a result has
+# been found.
+for (( i=1; i<=MAX_TIME; i++ )); do
+    sleep 1
+    if ! pgrep songrec &>/dev/null; then
+        found=1 ; break
+    fi
+done
+# If after MAX_TIME seconds no song has been recognized stop the process.
+if [[ -z $found ]]; then
+    kill_process songrec
+    _die "Song not recognized"
+fi
+
+# Get result from temporary output file.
+result="$(cat "$TEMP_FILE")"
+
+# Show result in a notification.
+notify-send "Shazam Result" "$result"
+
+# Save result in the file (if it does not already exist).
+if ! grep -q "$result" "$LIST_FILE"; then
+    echo + "$result" >> "$LIST_FILE"
+fi

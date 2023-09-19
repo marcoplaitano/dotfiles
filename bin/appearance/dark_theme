@@ -1,0 +1,265 @@
+#!/bin/bash
+
+# File:   dark_theme
+# Author: Marco Plaitano
+# Brief:  Toggle dark theme across system. ONLY WORKS IN XFCE4.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]
+Toggle dark theme across system's applications. Default action is toggle.
+
+-h, --help      Show this guide and exit.
+--status        Print current status: 1 on, 0 off.
+--on
+--off
+--toggle
+"
+}
+
+
+# Check whether dark mode is enabled by reading from the status file.
+_read_status() {
+    if [[ -n $(cat "$DARK_THEME_STATUS_FILE" 2>/dev/null) ]]; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
+# Write current status (light, dark) on file.
+_write_status() {
+    case $1 in
+        on)
+            echo "1" > "$DARK_THEME_STATUS_FILE" ;;
+        off)
+            > "$DARK_THEME_STATUS_FILE" ;;
+        toggle)
+            if [[ $(_read_status) == 1 ]]; then
+                > "$DARK_THEME_STATUS_FILE"
+            else
+                echo "1" > "$DARK_THEME_STATUS_FILE"
+            fi ;;
+    esac
+}
+
+
+_apply_theme_wallpaper() {
+    curr_wallpaper_file="${WALLPAPER_FILE:=/var/tmp/wallpaper}"
+    curr_wallpaper_file="$(readlink $curr_wallpaper_file)"
+
+    if [[ "$curr_wallpaper_file" == *'-light'* ]]; then
+        version="light"
+    elif [[ "$curr_wallpaper_file" == *'-dark'* ]]; then
+        version="dark"
+    fi
+    [[ -z $version ]] && return 1
+
+    case $1 in
+        on)
+            if [[ $version == light ]]; then
+                new_wallpaper="${curr_wallpaper_file//light/dark}"
+            fi ;;
+        off)
+            if [[ $version == dark ]]; then
+                new_wallpaper="${curr_wallpaper_file//dark/light}"
+            fi ;;
+        toggle)
+            if [[ $version == light ]]; then
+                new_wallpaper="${curr_wallpaper_file//light/dark}"
+            elif [[ $version == dark ]]; then
+                new_wallpaper="${curr_wallpaper_file//dark/light}"
+            fi ;;
+    esac
+
+    [[ ! -f "$new_wallpaper" ]] && return 1
+    wallpaper "$new_wallpaper"
+}
+
+_apply_theme_gtk() {
+    # Format of the ouptut is "/Net/ThemeName  Greybird".
+    local curr_gtk_theme=$(xfconf-query -lvc xsettings -p /Net/ThemeName)
+    curr_gtk_theme=${curr_gtk_theme#*"  "}
+
+    case $1 in
+        on)
+            new_gtk_theme="Greybird-dark" ;;
+        off)
+            new_gtk_theme="Greybird" ;;
+        toggle)
+            case $curr_gtk_theme in
+                *dark)
+                    new_gtk_theme="Greybird" ;;
+                *)
+                    new_gtk_theme="Greybird-dark" ;;
+            esac ;;
+    esac
+
+    if [[ -n $new_gtk_theme ]]; then
+        xfconf-query -c xsettings -p /Net/ThemeName -s $new_gtk_theme
+    fi
+}
+
+_apply_theme_xfwm4() {
+    local curr_xfwm4_theme=$(xfconf-query -lvc xfwm4 -p /general/theme)
+    curr_xfwm4_theme=${curr_xfwm4_theme#*"  "}
+
+    case "$1" in
+        on)
+            new_xfwm4_theme="Greybird-dark" ;;
+        off)
+            new_xfwm4_theme="Greybird" ;;
+        toggle)
+            case $curr_xfwm4_theme in
+                *dark)
+                    new_xfwm4_theme="Greybird" ;;
+                *)
+                    new_xfwm4_theme="Greybird-dark" ;;
+            esac ;;
+    esac
+
+    if [[ -n $new_xfwm4_theme ]]; then
+        xfconf-query -c xfwm4 -p /general/theme -s $new_xfwm4_theme
+    fi
+}
+
+_apply_theme_icons() {
+    local curr_icon_theme=$(xfconf-query -lvc xsettings -p /Net/IconThemeName)
+    curr_icon_theme=${curr_icon_theme#*"  "}
+
+    case "$1" in
+        on)
+            new_icon_theme="Qogir-dark" ;;
+        off)
+            new_icon_theme="Qogir" ;;
+        toggle)
+            case $curr_icon_theme in
+                Qogir-dark)
+                    new_icon_theme="Qogir" ;;
+                Qogir)
+                    new_icon_theme="Qogir-dark" ;;
+            esac ;;
+    esac
+
+    if [[ -n $new_icon_theme ]]; then
+        xfconf-query -c xsettings -p /Net/IconThemeName -s $new_icon_theme
+    fi
+}
+
+_apply_theme_mousepad() {
+    case "$1" in
+        on)
+            new_mousepad_theme="oblivion" ;;
+        off)
+            new_mousepad_theme="kate" ;;
+        toggle)
+            if [[ $new_gtk_theme == *dark* ]]; then
+                new_mousepad_theme="oblivion"
+            else
+                new_mousepad_theme="kate"
+            fi ;;
+    esac
+
+    if [[ -n $new_mousepad_theme ]]; then
+        gsettings set org.xfce.mousepad.preferences.view color-scheme $new_mousepad_theme
+    fi
+}
+
+_apply_theme_terminal() {
+    case "$1" in
+        on)
+            new_terminal_theme="default" ;;
+        off)
+            new_terminal_theme="google-light" ;;
+        toggle)
+            if [[ $new_gtk_theme == *dark* ]]; then
+                new_terminal_theme="default"
+            else
+                new_terminal_theme="google-light"
+            fi ;;
+    esac
+
+    if [[ -n $new_terminal_theme ]]; then
+        theme_alacritty "$new_terminal_theme"
+        theme_terminal "$new_terminal_theme"
+    fi
+}
+
+_apply_theme_vscode() {
+    case "$1" in
+        on)
+            new_vscode_theme="Default Dark Modern" ;;
+        off)
+            new_vscode_theme="Default Light Modern" ;;
+        toggle)
+            if [[ $new_gtk_theme == *dark* ]]; then
+                new_vscode_theme="Default Dark Modern"
+            else
+                new_vscode_theme="Default Light Modern"
+            fi ;;
+    esac
+
+    local config_file="$HOME/.config/Code/User/settings.json"
+    if [[ -n $new_vscode_theme && -f "$config_file" ]]; then
+        sed -i -e '0,/    "workbench.colorTheme":.*/s//    "workbench.colorTheme": "'"$new_vscode_theme"'",/' "$config_file"
+    fi
+}
+
+
+
+# Need this environment variable when this script is called by a cron job.
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
+DARK_THEME_STATUS_FILE="/var/tmp/.darktheme"
+
+
+# Parse command line arguments.
+if [[ -n $1 ]]; then
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        --on | --off | --toggle)
+            flag="${1#*--}"
+            shift ;;
+        --status)
+            _read_status
+            exit ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+fi
+
+# Do not apply if the current state is already the desired one.
+status=$(_read_status)
+[[ $status == 1 && $flag == on ]]  && exit
+[[ $status == 0 && $flag == off ]] && exit
+
+# Default action is toggle.
+if [[ -z $flag ]]; then
+    [[ $status == 1 ]] && flag="off" || flag="on"
+fi
+
+# Register new status.
+_write_status $flag
+
+# Apply new theme.
+_apply_theme_gtk        $flag
+_apply_theme_xfwm4      $flag
+_apply_theme_icons      $flag
+_apply_theme_mousepad   $flag
+_apply_theme_vscode     $flag
+# Changing wallpaper already takes care of changing terminal theme too.
+if ! _apply_theme_wallpaper $flag ; then
+    _apply_theme_terminal $flag
+fi

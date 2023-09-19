@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# File:   kill_process
+# Author: Marco Plaitano
+# Brief:  Kill the given process.
+
+if [[ -z $1 ]] && [[ $TERM != dumb ]]; then
+    fzf_kill
+    exit
+fi
+
+while [[ -n $1 ]]; do
+    if [[ "$1" =~ ^[0-9]+$ ]]; then
+        kill "$1"
+        shift
+        continue
+    fi
+
+    case "${1,,}" in
+        compositor)
+            killall -q picom
+            xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s false
+            sleep 1
+        ;;
+        lofi)
+            killall -q ffplay yt-dlp
+        ;;
+        music)
+            killall -q mplayer vlc ffplay yt-dlp
+        ;;
+        panel)
+            killall -q xfce4-panel polybar
+            sleep 1
+        ;;
+        polybar)
+            killall -q polybar
+            sleep 1
+        ;;
+        pomodoro)
+            killall -q pomodoro
+        ;;
+        radio)
+            killall -q ffplay
+        ;;
+        redshift)
+            blue_light_filter --off
+        ;;
+        screenrecord)
+            screenrecord --stop
+        ;;
+        teams)
+            killall -q teams teams-for-linux
+        ;;
+        telegram)
+            killall -q telegram-desktop
+        ;;
+        virtualbox)
+            killall -q VirtualBox
+        ;;
+        webcam)
+            killall -q ffplay
+        ;;
+        *)
+            killall "$1"
+        ;;
+    esac
+
+    shift
+done

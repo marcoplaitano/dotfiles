@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# File:   polybar_microphone
+# Author: Marco Plaitano
+# Date:   12 Aug 2022
+# Brief:  Send current microphone state to polybar.
+
+
+if [[ ! -f "$MICROPHONE_STATUS_FILE" ]]; then
+    echo " ?"
+    exit
+fi
+
+
+state=$(cat "$MICROPHONE_STATUS_FILE")
+
+if [[ "$state" == off* ]]; then
+    state=${state#*' '}
+    echo " $state"
+else
+    echo " $state"
+fi

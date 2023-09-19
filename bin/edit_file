@@ -1,0 +1,147 @@
+#!/bin/bash
+
+# File:   edit_file
+# Author: Marco Plaitano
+# Brief:  This script performs some pre and post operations when editing a file
+#         with the preferred editor.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") FILE [OPTION]
+Open file in a text editor.
+
+-h, --help      Show this guide and exit.
+-e EDITOR       Use the specified editor. If not given it will try \$EDITOR.
+                If that fails too it will try nvim, vim or nano, in the order.
+FILE            File to edit.
+"
+}
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        -e)
+            [[ -z $2 ]] && _die "No editor given."
+            editor=$2
+            shift ; shift ;;
+        *)
+            if [[ -z $file ]]; then
+                file="$1"
+            else
+                _die "Argument '$1' not recognized."
+            fi
+            shift ;;
+    esac
+done
+
+
+
+################################################################################
+###  SET THE EDITOR
+################################################################################
+
+if [[ -n $editor ]] && command -v "$editor" &>/dev/null; then
+    true
+else
+    echo "Specified editor '$editor' is not valid command." & sleep 0.5
+    # Variable declared in ~/.profile.
+    if [[ -n $EDITOR ]] && command -v "$EDITOR" &>/dev/null; then
+        editor=$EDITOR
+    elif command -v nvim &>/dev/null; then
+        editor=nvim
+    elif command -v vim &>/dev/null; then
+        editor=vim
+    else
+        editor=nano
+    fi
+fi
+
+
+
+################################################################################
+###  PRE-PROCESSING
+################################################################################
+
+# Only perform the following checks if a file is given.
+if [[ -n $file ]]; then
+    # Deconstruct the file variable.
+    readonly path="$(dirname "$file")"
+    readonly filename="$(basename "$file")"
+    readonly name="$(basename "${file%.*}")"
+
+    # For C/C++ projects, add compile_flags.txt file in root directory to help the
+    # Language Server (clangd).
+    if [[ "${file##*.}" =~ ^[ch](pp)?$ ]]; then
+        unset root_dir
+        if [[ -d ./include/ ]]; then
+            root_dir="."
+        elif [[ -d ../include/ ]]; then
+            root_dir=".."
+        fi
+        if [[ -n $root_dir ]]; then
+            echo "-Iinclude" >> "$root_dir"/compile_flags.txt
+        fi
+    fi
+
+    # The file does not exists, create it.
+    if [[ -n $file ]] && [[ ! -e "$file" ]]; then
+        new_file "$file"
+        # Show info with delay to let user see that the file has been just created.
+        echo "Creating file $file..." & sleep 0.3
+    fi
+fi
+
+
+# Rename current tmux window to display that editor is being used (it would
+# otherwise keep showing the shell's name since EDITOR is called in a script).
+[[ -n $TMUX ]] && tmux rename-window "$editor"
+
+
+
+################################################################################
+###  EDIT THE FILE
+################################################################################
+
+if [[ -n $file ]]; then
+    $editor "$file"
+else
+    $editor
+fi
+
+
+
+################################################################################
+###  POST-PROCESSING
+################################################################################
+
+# Remove compile_flags.txt file created before.
+[[ -f "$root_dir"/compile_flags.txt ]] && rm "$root_dir"/compile_flags.txt
+
+
+# Since if the file does not exist it is created via the new_file script,
+# I want to delete empty files which might be the result of opening the wrong
+# file name (e.g. ~/.bashrca instead of ~/.bashrc).
+if [[ -f "$file" ]] && [[ ! -s "$file" ]]; then
+    echo "File '$file' is empty; deleting it."
+    rm "$file"
+fi
+
+
+# Re-enable automatic rename of current tmux window.
+[[ -n $TMUX ]] && tmux setw automatic-rename

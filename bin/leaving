@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# File:   leaving
+# Author: Marco Plaitano
+# Brief:  Inform the user of any file they might have forgotten to make a
+#         bakcup of.
+
+
+_help() {
+    printf "Notify the user for any file they might have forgotten to make a \
+bakcup of.
+This script is to be used when preparing to leave the current machine or
+reset / change the OS.
+"
+}
+
+
+# Parse command line arguments.
+if [[ -n $1 ]]; then
+    case $1 in
+        -h | --help)
+            _help ; exit ;;
+        *)
+            echo "Argument '$1' not recognized." ; exit 1 ;;
+    esac
+fi
+
+clear
+
+
+# Directories to check.
+directories=(
+    "$HOME/Desktop"
+    "$HOME/Downloads"
+    "$HOME/Pictures"
+    "$HOME/Documents"
+    "$HOME/Music"
+    "$HOME/Videos"
+    "$CODE_DIR"
+)
+
+# Print the content of each directory, if it exists.
+for dir in "${directories[@]}"; do
+    if [[ -d "$dir" ]] && [[ -n $(ls -A "$dir") ]]; then
+        printf "${YELLOW}$(basename "${dir^^}")${RESET} still contains:\n"
+        ls -A1 --color=auto --group-directories-first "$dir"
+        echo
+    fi
+done
+
+
+# Check for any uncommited changes in any repository it can find.
+repositories --colored
+
+
+printf "\nRemember to export your ${YELLOW}GPG keys${RESET} and "
+printf "${YELLOW}passwords${RESET} with the 'pass_backup' script.\n"
+printf "Save any docker ${YELLOW}container${RESET}'s configfile or script.\n"
+printf "Check if there is any script in ${YELLOW}~/.local/bin${RESET}.\n"

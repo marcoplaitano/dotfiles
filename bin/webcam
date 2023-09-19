@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# File:   webcam
+# Author: Marco Plaitano
+# Date:   24 Jan 2023
+# Brief:  Open a floating, always-on-top webcam window.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]...
+Open a window showing webcam stream.
+
+-h, --help          Show this guide and exit.
+-r, --res RES       Set resolution of RES. Accepted values are: 120, 240, 480,
+                    720, 1080. Default is 240.
+-d, --dev DEV       Set input device. Default is /dev/video0.
+"
+}
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case $1 in
+        -h | --help)
+            _help
+            exit ;;
+        -r | --res)
+            [[ -z $2 ]] && _die "No resolution given."
+            resolution="$2"
+            shift ; shift ;;
+        -d | --dev)
+            [[ -z $2 ]] && _die "No device given."
+            device="$2"
+            shift ; shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+# Default values.
+resolution=${resolution:=240}
+device=${device:=/dev/video0}
+
+# Accepted resolutions.
+case $resolution in
+    120 | 240 | 480 | 720 | 1080) ;;
+    *) _die "Resolution '$resolution' not valid." ;;
+esac
+
+# Calculate dimensions.
+y=$resolution
+x=$(( y * 16/9 ))
+
+# Kill previous running instance.
+kill $(pgrep ffplay -a | grep webcam | cut -d' ' -f 1) &>/dev/null
+
+ffplay -alwaysontop -x $x -y $y -window_title webcam -fast $device &>/dev/null & disown

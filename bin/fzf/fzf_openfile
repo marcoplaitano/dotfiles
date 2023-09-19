@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# File:   fzf_openfile
+# Author: Marco Plaitano
+# Date:   18 Nov 2022
+# Brief:  Choose a config file via FZF and open it in the editor.
+
+
+# Create list of all possible files.
+files=$(find $HOME -maxdepth 1 -type f ! -path '*.git/*' 2>/dev/null)
+files+=' '
+files+=$(find $SCRIPTS_DIR -maxdepth 2 -type f ! -path '*.git/*' 2>/dev/null)
+files+=' '
+files+=$(find $DOTS_DIR -maxdepth 6 -type f \
+        ! -path '*.git/*' \
+        ! -path '*fonts/*' \
+        ! -path '*shell/plugins/*' 2>/dev/null)
+
+file=$(ask_fzf -p "file to edit: " -s -l "$files")
+[[ -z $file ]] && exit
+
+if [[ -n $TMUX ]]; then
+    tmux new-window -n "$EDITOR" "$EDITOR $file"
+else
+    $EDITOR $file
+fi

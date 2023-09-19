@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# File:   ytdl
+# Author: Marco Plaitano
+# Brief:  Download video and/or audio track from youtube video given its URL.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") URL [FILE] [OPTION]
+Download a video from Youtube. The user can choose the audio/video quality.
+
+-h, --help      Show this guide and exit.
+-a, --audio     To only download the audio track.
+URL             The Youtube video's URL.
+FILE            Name of the file in which to save the video. If not given, last
+                part of the URL is used.
+"
+}
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case $1 in
+        -h | --help)
+            _help
+            exit ;;
+        -a | --audio)
+            audio_only=1
+            shift ;;
+        *)
+            [[ -z $url ]] && url=$1 || file=$1
+            shift ;;
+    esac
+done
+
+
+if [[ -z $url ]]; then
+    _die "Please provide a Youtube video's URL."
+elif [[ $url != "https://www.youtube.com/watch?v="* ]]; then
+    _die "Please provide a valid Youtube video's URL."
+fi
+
+
+# Filename's default value is last part of video's URL.
+# If a value is provided, the extension is removed.
+[[ -z $file ]] && file=${url#*=} || file=${file%.*}
+
+
+# Clear cache.
+youtube-dl --rm-cache-dir
+
+if [[ -n $audio_only ]]; then
+    youtube-dl -f bestaudio --extract-audio --audio-quality 0 "$url" \
+        -o "$file".%\(ext\)s
+
+else
+    # Let the user choose the video quality.
+    youtube-dl -F "$url"
+    read -rp "Choose quality: " quality
+
+    youtube-dl -f "$quality" "$url" -o "$file".%\(ext\)s
+fi

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# File:   polybar_tray
+# Author: Marco Plaitano
+# Date:   13 Aug 2022
+# Brief:  Chooses which icons to show in the systray portion of polybar.
+
+
+exit
+pkill -f pasystray
+pkill -f blueman-applet
+pkill -f nm-applet
+
+pasystray --notify=all & disown

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# File:   polybar_donotdisturb
+# Author: Marco Plaitano
+# Date:   31 Mar 2023
+# Brief:  Print icon to show whether do not disturb is on.
+
+
+if [[ $(dunstctl is-paused 2>/dev/null) == true ]]; then
+    # echo ""
+    # echo ""
+    echo ""
+else
+    # echo ""
+    # echo ""
+    echo ""
+fi

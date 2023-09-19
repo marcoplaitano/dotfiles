@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# File:   screenrecord
+# Author: Marco Plaitano
+# Date:   25 Jan 2023
+# Brief:  Record screen and audio.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]...
+Record screen (and audio).
+
+-h, --help          Show this guide and exit.
+--stop              Stop any current recording.
+--fps FPS           Use specified FPS value. Default is 25.
+-m, --mute          Do not record audio.
+--audio-in          Record input audio from default microphone.
+--audio-out         Record output audio. (default)
+"
+}
+
+# Stop recording by writing a 'q' into the file the ffmpeg command is monitoring
+# as input stream.
+_stop_rec() {
+    echo "q" > "$REC_SIG_FILE"
+    sleep 0.5
+    notify-send "Screen Record" "Recording stopped."
+}
+
+
+
+# File in which to write logs.
+readonly REC_LOG_FILE="/var/tmp/screenrec.log"
+# File that will be monitored by the recording command as input stream; a 'q'
+# has to be written on it to stop the recording.
+readonly REC_SIG_FILE="/var/tmp/screenrec.sig"
+
+# Directory in which to save video file.
+readonly OUT_DIR="$HOME/Videos"
+mkdir -p "$OUT_DIR"
+# Put current timestamp in the name of the file in order to make it unique.
+readonly OUT_FILENAME="screen_$(date +%Y-%m-%d_%H.%M.%S)"
+readonly OUT_FILE="${OUT_DIR}/${OUT_FILENAME}.mp4"
+
+# Default parameters.
+readonly THREAD_QUEUE_SIZE="4096"
+readonly PRESET="veryfast"
+readonly RESOLUTION=$(xdpyinfo | grep dimensions | awk '{print $2;}')
+readonly FPS=30
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case $1 in
+        -h | --help)
+            _help ; exit ;;
+        --stop)
+            _stop_rec ; exit ;;
+        -m | --mute)
+            mute=1
+            shift ;;
+        --fps)
+            [[ -z $2 ]] && _die "No FPS given."
+            fps="$2"
+            shift ; shift ;;
+        --audio-in)
+            audioin=1
+            shift ;;
+        --audio-out)
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+
+# If this script is called (without the --stop option) but another recording is
+# already happening then kill the old one BUT DO NOT START A NEW ONE.
+rec_pid=$(pgrep -a ffmpeg | grep video_size | awk '{print $1}')
+if [[ -n $rec_pid ]]; then
+    _stop_rec
+    exit
+fi
+
+
+# Define (part of the) command to record audio.
+if [[ -n $mute ]]; then
+    audio_cmd=""
+# Record microphone audio.
+elif [[ -n $audioin ]]; then
+    # Check that microphone is turned on.
+    if [[ $(microphone --status) == *"OFF"* ]]; then
+        _die "Microphone is off."
+    fi
+    audio_cmd="-f pulse -thread_queue_size $THREAD_QUEUE_SIZE -i 1 -ac 1"
+# Record screen audio. Default behaviour.
+else
+    audio_cmd="-f pulse -thread_queue_size $THREAD_QUEUE_SIZE -i 0 -ac 2"
+fi
+
+# Set default value in case no argument is passed to the script.
+fps=${fps:=$FPS}
+
+
+# Clear signal file.
+:> "$REC_SIG_FILE"
+
+# Capture screen (and audio). Use the signal file as stdin stream, waiting for
+# a 'q' to be written on it to stop the recording.
+<"$REC_SIG_FILE" ffmpeg -video_size $RESOLUTION -r $fps \
+    -f x11grab -thread_queue_size $THREAD_QUEUE_SIZE -i $DISPLAY \
+    $audio_cmd \
+    -vcodec libx264 -preset $PRESET -crf 23 \
+    -pix_fmt yuv420p -threads 0 -acodec aac \
+    -y "$OUT_FILE" > "$REC_LOG_FILE" 2>&1 & disown

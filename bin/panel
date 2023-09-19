@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# File:   panel
+# Author: Marco Plaitano
+# Date:   14 Nov 2022
+# Brief:  Launch xfce4-panel.
+
+
+# Terminate already running panel instances.
+kill_process panel
+
+xfce4-panel &>/dev/null & disown

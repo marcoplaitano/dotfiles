@@ -1,0 +1,154 @@
+#!/bin/bash
+
+# File:   pomodoro
+# Author: Marco Plaitano
+# Brief:  Run a Pomodoro Timer to alternate work sprints with small pauses. The
+#         idea comes from https://en.wikipedia.org/wiki/Pomodoro_Technique
+#         This script is to be called as a polybar module with the flag
+#         "tail = true" (continuous output).
+# TODO:
+#  - avoid restarting if polybar is restarted.
+
+
+################################################################################
+###  FUNCTIONS
+################################################################################
+
+read_input() {
+    # Read from the input file. Its content is 1 word.
+    cmd=$(cat "$INPUT_FILE")
+
+    case "$cmd" in
+        # TOGGLE means either quit or restart the pomodoro timer.
+        # It always starts with a focus slice.
+        *toggle*)
+            curr_slice="FOCUS"
+            curr_iteration=1
+            [[ -n $stopped ]] && unset stopped || stopped=true ;;
+        # PAUSE means either pause or resume current slice.
+        # If the timer had been stopped, resuming is equal to a restart.
+        *pause*)
+            if [[ -z $stopped ]]; then
+                [[ -n $paused ]] && unset paused || paused=true
+            else
+                unset paused stopped
+            fi ;;
+        # INCREASE/DECREASE to modify remaining time.
+        *increase*)
+            end_time=$(( end_time + 60 )) ;;
+        *decrease*)
+            end_time=$(( end_time - 60 )) ;;
+    esac
+
+    # Clear the contents of the file so that the same command won't be read more
+    # than once.
+    > "$INPUT_FILE"
+}
+
+
+
+################################################################################
+###  VARIABLES
+################################################################################
+
+# Number of minutes for each slice.
+readonly FOCUS_TIME=25
+readonly RELAX_TIME=5
+readonly LONG_RELAX_TIME=15
+
+# Number of FOCUS slices to complete before a LONG RELAX is earned.
+readonly NUM_ITERATIONS=3
+
+# Notification sound to play when a new slice begins.
+# (yes, they are the same... but this way it is easy to replace one of them).
+readonly START_FOCUS_SOUND="/usr/share/sounds/freedesktop/stereo/complete.oga"
+readonly START_RELAX_SOUND="/usr/share/sounds/freedesktop/stereo/complete.oga"
+
+# File in which input commands are written when clicking on the polybar module.
+readonly INPUT_FILE="/var/tmp/.pomodoro"
+> "$INPUT_FILE"
+
+# Initial values.
+stopped=true
+curr_slice="FOCUS"
+curr_iteration=1
+echo "祥"
+
+
+
+################################################################################
+###  MAIN LOOP
+################################################################################
+
+while true; do
+    # Configure current slice with the correct lasting time and output prefix.
+    if [[ $curr_slice == "FOCUS" ]]; then
+        slice_time=$FOCUS_TIME
+        prefix="祥  focus: "
+    elif [[ $curr_slice == "RELAX" ]]; then
+        slice_time=$RELAX_TIME
+        prefix="祥  relax: "
+    elif [[ $curr_slice == "LONG_RELAX" ]]; then
+        slice_time=$LONG_RELAX_TIME
+        prefix="祥  relax: "
+    fi
+
+    # If the timer has been stopped there's nothing to do except wait for user
+    # input.
+    if [[ -n $stopped ]]; then
+        read_input
+        sleep 0.8
+        continue
+    fi
+
+    # Timestamp at which the timer should stop for the current slice.
+    end_time=$(( $(date +%s) + slice_time * 60 ))
+
+    # Start counting down the seconds.
+    while [[ $end_time -ge $(date +%s) ]]; do
+        # If the timer has been just stopped exit this loop.
+        if [[ -n $stopped ]]; then
+            unset paused
+            echo "祥"
+            break
+        fi
+
+        # If it is not paused show the remaining time.
+        if [[ -z $paused ]]; then
+            echo "$prefix""$(date -u --date @$((end_time - $(date +%s))) +%M:%S)"
+        else
+            echo "祥  pause"
+            # Keep adding 1 second to the end_time so as to keep the same
+            # difference with the current time from when the timer was paused.
+            end_time=$(( end_time + 1 ))
+        fi
+
+        # Check if there is any new input and wait 1s.
+        read_input
+        sleep 1
+    done
+
+    # When the timer is stopped it exits the loop above. It gets here and I
+    # start a new iteration of this outer loop so as to fall in the -n $stopped
+    # check above.
+    [[ -n $stopped ]] && continue
+
+    # If it gets here it means the current slice is done and a new one has to
+    # begin.
+    # Determine which slice follows next, play a sound and show a notification.
+    if [[ $curr_slice == "FOCUS" ]]; then
+        if [[ $curr_iteration -ge $NUM_ITERATIONS ]]; then
+            curr_iteration=0
+            curr_slice="LONG_RELAX"
+        else
+            curr_iteration=$(( curr_iteration + 1 ))
+            curr_slice="RELAX"
+        fi
+        paplay "$START_RELAX_SOUND" &
+        notify-send "🍅 Pomodoro" "Take a break!" -t 5000
+    else
+        curr_slice="FOCUS"
+        paplay "$START_FOCUS_SOUND" &
+        notify-send "🍅 Pomodoro" "Time to focus!" -t 5000
+    fi
+done

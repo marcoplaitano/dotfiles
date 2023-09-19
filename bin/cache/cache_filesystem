@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# File:   cache_filesystem
+# Author: Marco Plaitano
+# Date:   21 Jun 2023
+# Brief:  Update filesystem database for locate command.
+
+
+killall locate &>/dev/null
+echo "Updating locate database..."
+
+updatedb --require-visibility 0 -o /tmp/locate.db

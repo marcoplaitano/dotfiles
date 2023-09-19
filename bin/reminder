@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# File:   reminder
+# Author: Marco Plaitano
+# Brief:  Remind the user of something at a specified time with a system
+#         notification.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") TIME [OPTION]...
+Remind the user of something at a given time.
+The time of the reminder can be set in 3 different ways, see options below.
+
+-h, --help              Show this guide and exit.
+-n, --now               Display reminder right away.
+-t, --time TIME         Set the time at which the reminder should go off.
+-i, --in MINUTES        Set in \"how many minutes\" the reminder should pop up.
+-d DESCRIPTION          String that describes the reminder.
+"
+}
+
+
+show_confirmation() {
+    min=$((sleep_time / 60))
+    sec=$((sleep_time % 60))
+    if [[ $min -gt 0 ]]; then
+        [[ $sec -gt 0 ]] && wait_time="${min}m${sec}s" || wait_time="${min}m"
+    else
+        wait_time="${sec}s"
+    fi
+    echo "Ok. I'll remind you of '""$reminder_description""' in $wait_time."
+}
+
+
+
+# Need this variable to play sounds if reminder is called by a cron job.
+export XDG_RUNTIME_DIR="/run/user/1000"
+
+readonly sound="/usr/share/sounds/freedesktop/stereo/complete.oga"
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        -n | --now)
+            now=true
+            shift ;;
+        -t | --time)
+            [[ -z $2 ]] && _die "No time given."
+            reminder_time="$2"
+            shift ; shift ;;
+        -i | --in)
+            [[ -z $2 ]] && _die "No time given."
+            reminder_minutes="$2"
+            shift ; shift ;;
+        -d)
+            [[ -z $2 ]] && _die "No description given."
+            reminder_description="$2"
+            shift ; shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+
+done
+
+
+# Prefer time over minutes.
+if [[ -n $reminder_time ]] && [[ -n $reminder_minutes ]]; then
+    unset reminder_minutes
+fi
+
+
+# Check validity of time variable (must be a timestamp in the form HH:MM).
+if [[ -n $reminder_time ]]; then
+    if [[ ! $reminder_time =~ [0-9][0-9]:[0-9][0-9] ]]; then
+        _die "Time given must be in the form HH:MM"
+    fi
+    end_time=$(date +%s -d $reminder_time)
+# Check validity of minutes variable (it must be a number > 0).
+elif [[ -n $reminder_minutes ]]; then
+    if [[ ! $reminder_minutes =~ ^[0-9]+$ ]]; then
+        _die "Minutes given are not a positive number."
+    elif [[ ! $reminder_minutes -gt 0 ]]; then
+        _die "Minutes given must be greater than 0."
+    fi
+    end_time=$(( $(date +%s) + $reminder_minutes * 60 ))
+fi
+
+
+# Check presence and validity of end_time (must be greater than current time).
+if [[ -n $end_time ]]; then
+    if [[ $end_time -le $(date +%s) ]]; then
+        _die "Endtime is either now or already passed. Abort."
+    fi
+# If end_time does not exist at least the now flag should have been set.
+elif [[ -z $now ]]; then
+    _die "No time given. See --help for more information."
+fi
+
+
+sleep_time=$(( end_time - $(date +%s) ))
+
+show_confirmation
+
+# Wait time, send notification and play sound.
+{
+    sleep $sleep_time ;
+    {
+        notify-send "REMINDER" "$reminder_description"
+        paplay $sound &
+    }
+} &

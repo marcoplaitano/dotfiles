@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# File:   pass_backup
+# Author: Marco Plaitano
+# Date:   24 Feb 2023
+# Brief:  Export and backup passwords and GPG keys.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_zip_dir() {
+    local list_dirs out_zip
+    out_zip="$1" ; shift
+    list_dirs=("$@")
+
+    # Look in the array of possible locations for the first existing directory.
+    unset in_dir
+    for dir in "${list_dirs[@]}"; do
+        if [[ -d "$dir" ]]; then
+            in_dir="$dir"
+            break
+        fi
+    done
+
+    # Unnecessary checks.
+    [[ -z "$in_dir" ]] && _die "input dir not found."
+    [[ ! -d "$in_dir" ]] && _die "'$in_dir' is not a directory."
+
+    # Zip directory.
+    pushd "$in_dir"/.. >/dev/null
+    if zip -r "$out_zip" "$(basename $in_dir)" >/dev/null; then
+        echo "Exported file to '$out_zip'."
+    else
+        echo "Error in exporting to '$out_zip'."
+    fi
+    popd >/dev/null
+}
+
+
+probable_gpg_dirs=(
+    "$GNUPGHOME"
+    $HOME/.local/share/gnupg
+    $HOME/.gnupg
+)
+_zip_dir $HOME/Desktop/keys.zip "${probable_gpg_dirs[@]}"
+
+
+probable_pass_dirs=(
+    "$PASSWORD_STORE_DIR"
+    $HOME/.local/share/passwords
+    $HOME/.local/share/password-store
+    $HOME/.passwords
+    $HOME/.password-store
+)
+_zip_dir $HOME/Desktop/passwords.zip "${probable_pass_dirs[@]}"

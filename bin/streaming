@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# File:   streaming
+# Author: Marco Plaitano
+# Date:   24 Jun 2023
+# Brief:  Stream movie torrent.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename $0) TITLE
+Search for a streaming torrent for the specified movie/tv show.
+If multiple torrents are found, choose the one with fzf.
+
+-h, --help          Show this guide and exit.
+TITLE               Title of the movie/show to watch.
+"
+}
+
+
+_get_torrent_list() {
+    url="$1"
+    curl -s -o "$_URL_FILE" "$url"
+    options=$(cat $_URL_FILE | grep -E '<td><a href="htt' | awk -F '">' '{print $NF}' | awk -F '<' '{print $1}')
+    [[ -z $options ]] && _die "No streams found."
+
+    # Save these titles in a string, number them from 1 to N.
+    titles=""
+    i=1
+    while IFS= read -r line; do
+        titles+="$i. $line|"
+        i=$((i+1))
+    done <<< "$options"
+    titles=${titles::-1}
+}
+
+
+case "$1" in
+    -h | --help)
+        _help ; exit ;;
+esac
+
+
+readonly _URL_FILE="/var/tmp/url.html"
+
+# Get the title of the movie/tv-show to stream.
+if [[ $# -eq 0 ]]; then
+    # If no argument is given use dmenu to ask.
+    query=$(ask_dmenu -p "Movie: " -l " ")
+else
+    query="$*"
+fi
+query=$(printf '%s' "$query" | sed 's/ /\%20/g')
+[[ -z $query ]] && exit 1
+
+# Get all available torrents' titles.
+_get_torrent_list https://thepiratebay.party/search/$query/1/99/200
+
+# Use dmenu to choose one of the available titles.
+titles=$(echo "$titles" | tr '|' '\n')
+title=$(ask_dmenu -p "Stream: " -l "$titles")
+[[ -z $title ]] && exit
+
+# Get number and title from result string.
+num=$(echo $title | awk -F '.' '{print $1}')
+title=${title#*. }
+
+# Get the Nth magnet link corresponding to the chosen title.
+magnet=$(cat "$_URL_FILE" | grep -E 'magnet:\?' | sed 's/href\=/ /g' | awk '{print $2}' | sed 's/"/ /g' | head -n $num | tail -n 1 | sed 's/ //g')
+
+# Stream torrent.
+quiet_option="--quiet"
+[[ $TERM != "dumb" ]] && quiet_option=""
+echo "$magnet"
+peerflix $magnet --mpv --not-on-top "$quiet_option"

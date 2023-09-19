@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# File:   night_mode
+# Author: Marco Plaitano
+# Brief:  Toggle blue light filter and dark mode.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]
+Toggle night mode across the system. It consists of enabling dark theme and
+starting redshift (blue light filter).
+Default action (when no option is given) is to toggle it based on the current
+time of day.
+
+-h, --help      Show this guide and exit.
+--status        Print current status: 1 if on, 0 if off.
+--on
+--off
+--toggle
+"
+}
+
+
+_off() {
+    # Do nothing if it is already off.
+    [[ $(_status) == 0 ]] && return
+    blue_light_filter --off
+    dark_theme --off
+    [[ -f "$NIGHT_MODE_STATUS_FILE" ]] && :> "$NIGHT_MODE_STATUS_FILE"
+}
+
+_on() {
+    # Do nothing if it is already on.
+    [[ $(_status) == 1 ]] && return
+    blue_light_filter --on
+    dark_theme --on
+    echo "1" > "$NIGHT_MODE_STATUS_FILE"
+}
+
+_toggle() {
+    if [[ $(_status) == 0 ]]; then
+        _on
+    else
+        _off
+    fi
+}
+
+_status() {
+    if [[ -n $(cat "$NIGHT_MODE_STATUS_FILE" 2>/dev/null) ]]; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
+
+readonly BEGIN_TIME="19:00"
+readonly END_TIME="07:00"
+
+curr_time="$(date +%H:%M)"
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h|--help)
+            _help
+            exit ;;
+        --off | --on | --toggle | --status)
+            action=${1#*--}
+            _$action
+            exit ;;
+        *)
+            _die "Argument '$1' not recognized."
+            shift ;;
+    esac
+done
+
+
+if [[ $curr_time > $BEGIN_TIME ]] || [[ $curr_time < $END_TIME ]]; then
+    _on
+else
+    _off
+fi

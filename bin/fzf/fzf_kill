@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# File:   fzf_kill
+# Author: Marco Plaitano
+# Date:   27 Jan 2023
+# Brief:  Ask fzf which process(es) to kill.
+
+
+prompt="choose procs: "
+colors=$(get_fzf_colors)
+
+proc_line=$((date; ps ax -o pid,comm,args) \
+    | fzf-tmux -p $colors --bind='ctrl-r:reload(date; ps ax -o pid,user,time,comm,args)' \
+    --header=$'Press CTRL-R to reload' --header-lines=2 --prompt="$prompt" --tac)
+proc_name=$(echo $proc_line | awk '{print $2}')
+proc_pid=$(echo $proc_line | awk '{print $1}')
+
+if [[ -n $proc_pid ]]; then
+    echo "Killing process '$proc_name'  $proc_pid..."
+    kill $proc_pid
+fi

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# File:   quotes
+# Author: Marco Plaitano
+# Brief:  Print a random line from a file in quote style.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+readonly _QUOTES_FILE="$DOTS_DIR/_other/quotes.txt"
+
+if [[ ! -f "$_QUOTES_FILE" ]]; then
+    _die "Quotes file '$_QUOTES_FILE' does not exist."
+fi
+
+# Number of lines (= number of quotes) in the file.
+num_lines=$(wc -l "$_QUOTES_FILE")
+num_lines=${num_lines%% *}
+if [[ $num_lines == "0" ]]; then
+    _die "Quotes file '$_QUOTES_FILE' is empty."
+fi
+
+# Choose a random line.
+num=$(( RANDOM % num_lines + 1 ))
+line=$(head -$num "$_QUOTES_FILE" | tail -1)
+
+printf "${ITALIC}\"%b\"${RESET}\n\n" "$line"

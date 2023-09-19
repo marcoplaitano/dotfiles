@@ -160,7 +160,7 @@ if [[ ! -d "$XDG_CONFIG_HOME" ]]; then
     mkdir -p "$XDG_CONFIG_HOME"
 fi
 
-# Go into this repository.
+# Get into this repository.
 cd ${0%/*}
 
 # Default action is to install everything.

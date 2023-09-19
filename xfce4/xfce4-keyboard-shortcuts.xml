@@ -63,22 +63,22 @@
         <property name="startup-notify" type="bool" value="true"/>
       </property>
       <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal --command &quot;env USE_TMUX=0 bash&quot;"/>
-      <property name="&lt;Super&gt;m" type="string" value="/home/marco/dev/scripts/microphone --toggle"/>
+      <property name="&lt;Super&gt;m" type="string" value="/home/marco/dev/dotfiles/bin/microphone --toggle"/>
       <property name="XF86AudioLowerVolume" type="string" value="pactl set-sink-volume @DEFAULT_SINK@ -5%"/>
       <property name="XF86AudioRaiseVolume" type="string" value="pactl set-sink-volume @DEFAULT_SINK@ +5%"/>
       <property name="XF86AudioMute" type="string" value="pactl set-sink-mute @DEFAULT_SINK@ toggle"/>
-      <property name="F9" type="string" value="/home/marco/dev/scripts/microphone -t"/>
-      <property name="F10" type="string" value="/home/marco/dev/scripts/microphone -l"/>
-      <property name="F11" type="string" value="/home/marco/dev/scripts/microphone -r"/>
-      <property name="XF86AudioPlay" type="string" value="/home/marco/dev/scripts/polybar/polybar_music --play-pause"/>
-      <property name="XF86AudioPause" type="string" value="/home/marco/dev/scripts/polybar/polybar_music --play-pause"/>
-      <property name="XF86AudioNext" type="string" value="/home/marco/dev/scripts/polybar/polybar_music --next"/>
-      <property name="AudioPrev" type="string" value="/home/marco/dev/scripts/polybar/polybar_music --previous"/>
-      <property name="&lt;Super&gt;space" type="string" value="/home/marco/dev/scripts/menu/menu"/>
+      <property name="F9" type="string" value="/home/marco/dev/dotfiles/bin/microphone -t"/>
+      <property name="F10" type="string" value="/home/marco/dev/dotfiles/bin/microphone -l"/>
+      <property name="F11" type="string" value="/home/marco/dev/dotfiles/bin/microphone -r"/>
+      <property name="XF86AudioPlay" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --play-pause"/>
+      <property name="XF86AudioPause" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --play-pause"/>
+      <property name="XF86AudioNext" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --next"/>
+      <property name="AudioPrev" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --previous"/>
+      <property name="&lt;Super&gt;space" type="string" value="/home/marco/dev/dotfiles/bin/menu/menu"/>
       <property name="&lt;Super&gt;Return" type="string" value="alacritty"/>
-      <property name="&lt;Super&gt;c" type="string" value="/home/marco/dev/scripts/calculator"/>
-      <property name="Print" type="string" value="/home/marco/dev/scripts/screenshot --quick"/>
-      <property name="&lt;Shift&gt;Print" type="string" value="/home/marco/dev/scripts/screenshot --select"/>
+      <property name="&lt;Super&gt;c" type="string" value="/home/marco/dev/dotfiles/bin/calculator"/>
+      <property name="Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --quick"/>
+      <property name="&lt;Shift&gt;Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --select"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">

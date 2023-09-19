@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# File:   monitors
+# Author: Marco Plaitano
+# Date:   27 Apr 2023
+# Brief:  Handle internal and external monitors.
+# TODO:   option to show current status.
+
+
+readonly _INTERNAL="eDP-1"
+readonly _EXTERNAL="HDMI-1"
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename $0) [OPTION]...
+Handle internal and external monitors.
+
+-h, --help              Show this guide and exit.
+-el, --extend-left      Extend primary monitor to the left.
+-er, --extend-right     Extend primary monitor to the right.
+-m, --mirror            Mirror primary monitor.
+--on                    Turn internal monitor on.
+--off                   Turn internal monitor off.
+--toggle                Toggle internal monitor.
+--external-on           Turn external monitor on.
+--external-off          Turn external monitor off.
+--external-toggle       Toggle external monitor.
+"
+}
+
+_extend_left() {
+    xrandr \
+        --output $_EXTERNAL --primary --mode 1920x1080 --rate 60 --pos 1920x0 \
+        --output $_INTERNAL --mode 1920x1080 --pos 0x0
+}
+
+_extend_right() {
+    xrandr \
+        --output $_EXTERNAL --primary --mode 1920x1080 --rate 60 --pos 0x0 \
+        --output $_INTERNAL --mode 1920x1080 --pos 1920x0
+}
+
+_mirror() {
+    xrandr \
+        --output $_EXTERNAL --primary --mode 1920x1080 --rate 60 --pos 0x0 \
+        --output $_INTERNAL --mode 1920x1080 --same-as HDMI-1
+}
+
+_internal_off() {
+    xrandr --output $_INTERNAL --off
+}
+
+_internal_on() {
+    xrandr --output $_INTERNAL --auto
+}
+
+_internal_toggle() {
+    if xrandr --listactivemonitors | grep -q "$_INTERNAL"; then
+        _internal_off
+    else
+        _internal_on
+    fi
+}
+
+_external_off() {
+    xrandr --output $_EXTERNAL --off
+}
+
+_external_on() {
+    xrandr --output $_EXTERNAL --auto
+}
+
+_external_toggle() {
+    if xrandr --listactivemonitors | grep -q "$_EXTERNAL"; then
+        _external_off
+    else
+        _external_on
+    fi
+}
+
+
+# Parse command-line arguments.
+if [[ -n $1 ]]; then
+    cmd="$1"
+# If no argument is given, ask for one with dmenu.
+else
+    options=""
+    options+="internal-off\nextend-right\nmirror\n"
+    options+="extend-left\ninternal-on"
+    cmd=$(ask_dmenu -p "monitor:" -F -l "$options" --multiple-lines)
+fi
+
+
+if [[ -n $cmd ]]; then
+    case "$cmd" in
+        -h | --help)
+            _help ; exit ;;
+        -el | --extend-left | extend-left)
+            _extend_left
+            exit ;;
+        -er | --extend-right | extend-right)
+            _extend_right
+            exit ;;
+        -m | --mirror | mirror)
+            _mirror
+            exit ;;
+        --off | internal-off)
+            _internal_off
+            exit ;;
+        --on | internal-on)
+            _internal_on
+            exit ;;
+        --toggle | internal-toggle)
+            _internal_toggle
+            exit ;;
+        --external-off | external-off)
+            _external_off
+            exit ;;
+        --external-on | external-on)
+            _external_on
+            exit ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+fi

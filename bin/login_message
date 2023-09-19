@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# File:   login_message
+# Author: Marco Plaitano
+# Date:   18 Feb 2023
+# Brief:  Display a welcome message (on each first shell login after boot).
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]
+Show login message when a new shell is opened.
+
+-h, --help      Show this guide and exit.
+--once          Only display message at first login after system's (re)boot.
+"
+}
+
+_show_message() {
+    printf "%s\n" "$(date +%d' '%b' '%Y', '%H:%M:%S)"
+    printf "Welcome back %s!\n\n" "${USER^}"
+    # Show a random quote.
+    quotes
+    # Check state of local repositories.
+    repositories
+}
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        --once)
+            once=1 ; shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+
+if [[ -n $once ]]; then
+    # Time of last (re)boot.
+    login_time=$(last | head -n 50 | grep boot -m 1 | \
+                awk '{print $5, $6, $7, $8}' | \
+                xargs -rI {} date +%F' '%T --date={})
+    login_time=$(date -d"$login_time" +%s 2>/dev/null)
+    # If not found it means last login was too long ago, the message definitely
+    # has not to be displayed.
+    [[ -z $login_time ]] && exit
+
+    last_message_time=$(cat "$LOGIN_MESSAGE_STATUS_FILE" 2>/dev/null)
+    last_message_time=$(date -d"$last_message_time" +%s 2>/dev/null)
+    # Do nothing if the message has been already shown AFTER the last boot time.
+    if [[ "$last_message_time" -gt "$login_time" ]]; then
+        exit
+    fi
+
+    # Save new timestamp of last execution of this script.
+    curr_time="$(date +%F' '%T)"
+    echo "$curr_time" > "$LOGIN_MESSAGE_STATUS_FILE"
+fi
+
+
+_show_message

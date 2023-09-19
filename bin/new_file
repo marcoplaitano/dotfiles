@@ -1,0 +1,138 @@
+#!/bin/bash
+
+# File:   new_file
+# Author: Marco Plaitano
+# Brief:  Create a file with the given templates.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") FILE
+Create a file with the given extension and, if the extension is known, write
+some default stuff in it.
+
+-h, --help      Show this guide and exit.
+FILE            The file(s) to create. More than one can be given.
+"
+}
+
+# Ask the user a yes/no question.
+_ask_yes_no() {
+    local question="$1"
+    unset ans
+    while [[ -z $ans ]]; do
+        read -rp "$question" ans
+        case "${ans,,}" in
+            # answer is YES -> echo 0
+            y | yes | si | sí) echo 1 ; return ;;
+            # answer is NO  -> do not echo
+            n | no ) return ;;
+            # answer is anything else, keep asking.
+            *) unset ans ;;
+        esac
+    done
+}
+
+_create_c_file() {
+    $DOTS_DIR/_other/templates/template_C.sh "$file" "$name"
+}
+
+_create_cpp_file() {
+    $DOTS_DIR/_other/templates/template_CPP.sh "$file" "$name"
+}
+
+_create_h_file() {
+    $DOTS_DIR/_other/templates/template_H.sh "$file" "$name"
+}
+
+_create_make_file() {
+    $DOTS_DIR/_other/templates/template_MAKEFILE.sh "$file" "$name"
+}
+
+_create_py_file() {
+    $DOTS_DIR/_other/templates/template_PY.sh "$file" "$name"
+}
+
+_create_sh_file() {
+    $DOTS_DIR/_other/templates/template_SH.sh "$file" "$name"
+    chmod +x "$file"
+}
+
+_create_java_file() {
+    $DOTS_DIR/_other/templates/template_JAVA.sh "$file" "$name"
+}
+
+_create_html_file() {
+    $DOTS_DIR/_other/templates/template_HTML.sh "$file" "$name"
+}
+
+_create_md_file() {
+    if [[ "$name" == "README" ]]; then
+        name=$(basename "$(pwd)")
+    fi
+    name=${name//_/ }
+    echo "# ${name^^}" > "$file"
+}
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        *)
+            files+=("$1")
+            shift ;;
+    esac
+done
+
+
+if [[ ${#files[@]} == 0 ]]; then
+    _die "Please provide the name of the file you want to create."
+fi
+
+
+for file in "${files[@]}"; do
+    dir=$(dirname "$file")
+    name=$(basename "$file")
+    # Save lowercase extension of file.
+    extension="${name#*.}"
+    extension=${extension,,}
+    # Remove extension from name.
+    name=${name%.*}
+
+    # Ask for overwriting confirmation if the file already exists.
+    if [[ -f "$file" ]]; then
+        if [[ -z $(_ask_yes_no "overwrite existing '""$file""' file? ") ]]; then
+            echo "Aborted"
+            continue
+        fi
+    fi
+
+    # Create the directory.
+    [[ ! -d "$dir" ]] && mkdir -p "$dir"
+
+    # Temporarily change default language for time and date to English.
+    LC_TIME=en_US.utf8
+
+
+    case $extension in
+        c | cpp | h | py | sh | java | js | html | md )
+            _create_${extension}_file ;;
+        make*)
+            _create_make_file ;;
+        *)
+            touch "$file" ;;
+    esac
+done

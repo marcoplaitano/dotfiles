@@ -1,0 +1,276 @@
+#!/bin/bash
+
+# File:   menu
+# Author: Marco Plaitano
+# Brief:  Let the user launch anything via dmenu.
+
+
+################################################################################
+################################################################################
+###  SCRIPT FUNCTIONS
+################################################################################
+################################################################################
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+
+################################################################################
+################################################################################
+###  MENU FUNCTIONS
+################################################################################
+################################################################################
+
+# Choose a directory to open in a new VS Code window.
+_choose_editor_directory() {
+    declare -A paths
+
+    # Add options to open default workspace or an empty one.
+    dirs_string="default\nempty"
+    # Read list of directories and their global path.
+    while IFS="," read -r dir path; do
+        dirs_string+="\n$dir"
+        paths+=(["$dir"]="$path")
+    done < "$CACHE_FILE_CODE_DIRS"
+
+    # Ask which one to open.
+    local dir
+    dir=$(ask_dmenu -p "directory:" -l "$dirs_string" --num-lines 10 -F)
+    [[ -z $dir ]] && exit
+
+    if [[ "$dir" == "CACHE" ]]; then
+        cache_code_dirs
+    elif [[ "$dir" == "empty" ]]; then
+        code -n & disown
+    elif [[ "$dir" == "default" ]]; then
+        code & disown
+    else
+        path="${paths[$dir]}"
+        [[ -z $path ]] && exit
+        code "$path" & disown
+    fi
+}
+
+
+# Choose which process to kill.
+_choose_kill() {
+    local processes
+    processes="lofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
+    processes+="screenrecorder\nspotify\ntelegram\nteams\nvlc\nwebcam"
+    # Accepts any input, even ones not included in the list.
+    local process=$(ask_dmenu -p "process:" -l $processes)
+    [[ -z $process ]] && exit
+    kill_process "$process"
+}
+
+
+# Open the given Google's site with the account the user chooses.
+_choose_account() {
+    local accounts account
+    accounts="99\nuni\n23\nea"
+    account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
+    case $account in
+        99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
+        uni)  $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
+        23)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
+        ea)   $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
+    esac
+}
+
+
+# Show/hide desktop icons.
+_toggle_desktop_icons() {
+    local options option
+    options="toggle\nhide\nshow"
+    option=$(ask_dmenu -p "do:" -l "$options")
+    [[ -z $option ]] && return
+    icons_desktop --$option
+}
+
+
+# Ask for the title of some content and look for it in a streaming website in
+# a browser's private session.
+_search_streaming() {
+    local site title
+    site="https://gomovies.sx"
+    title=$(ask_dmenu -p "title: " -l "home")
+    if [[ $title == home ]]; then
+        $WEBBROWSER --private-window $site/home &>/dev/null & disown
+    elif [[ -n $title ]]; then
+        title=${title// /-}
+        $WEBBROWSER --private-window $site/search/$title &>/dev/null & disown
+    fi
+}
+
+
+# Turn on or off the VM.
+_control_vm() {
+    local vms vm
+    vms=$(vboxmanage list vms | awk '{print $1}' | sed 's/"//g' | tr ' ' '\n')
+    vm=$(ask_dmenu -l "$vms")
+    [[ -z $vm ]] && exit
+    cmd=$(ask_dmenu -l "off\non")
+    if [[ $cmd == on ]]; then
+        if [[ $(vboxmanage list runningvms) == *"$vm"* ]]; then
+            notify-send "VM: $vm" "Already on!"
+            exit 1
+        fi
+        notify-send "VM: $vm" "Turning on..."
+        vboxmanage startvm $vm --type headless
+    elif [[ $cmd == off ]]; then
+        if [[ $(vboxmanage list runningvms) != *"$vm"* ]]; then
+            notify-send "VM: $vm" "Already off!"
+            exit 1
+        fi
+        notify-send "VM: $vm" "Turning off..."
+        vboxmanage controlvm $vm poweroff --type headless
+    fi
+}
+
+
+_screenrecord() {
+    local audio_options
+    audio_options="audio-in\naudio-out\nmute"
+    audio_option=$(ask_dmenu -p "audio:" -l $audio_options --multiple-lines)
+    [[ -z $audio_option ]] && exit
+    screenrecord --$audio_option & disown
+}
+
+
+_change_theme() {
+    local themes theme
+    themes="catppuccin\ncatppuccin-latte\ndefault\n"
+    themes+="everblush\ngruvbox\nnord\none-dark"
+    theme=$(ask_dmenu -p "theme:" -l $themes --multiple-lines)
+    [[ -z $theme ]] && exit
+    case "$theme" in
+        default)
+            wallpaper --random $WALLPAPERS_DIR ;;
+        *)
+            wallpaper --random $WALLPAPERS_DIR/$theme ;;
+    esac
+}
+
+
+
+################################################################################
+################################################################################
+###  VARIABLES
+################################################################################
+################################################################################
+
+# Key-Value containing all the possible actions and their command.
+declare -A actions=(
+    [all]="ask_dmenu -p run:"
+    [amazon]="$WEBBROWSER amazon.it"
+    [appearance]="xfce4-appearance-settings"
+    [baobab]="baobab"
+    [biblioteca]="$WEBBROWSER https://easycourse.unisa.it/PortalePlanning/UNISA-BIBL"
+    [calculator]="calculator"
+    [calendar]="$WEBBROWSER calendar.google.com"
+    [chatgpt]="$WEBBROWSER https://chat.openai.com/"
+    [chromium]="chromium"
+    [code]="_choose_editor_directory"
+    [darktheme]="dark_theme --toggle"
+    [discord]="discord"
+    [drive]="_choose_account drive.google.com/drive my-drive"
+    [esse3]="$WEBBROWSER https://esse3web.unisa.it/"
+    [exit]="exit.sh"
+    [firefox]="$WEBBROWSER"
+    [github]="$WEBBROWSER https://github.com/marcoplaitano"
+    [hibernate]="exit.sh --hibernate"
+    [ibs]="$WEBBROWSER https://www.ibs.it/"
+    [icons]="_toggle_desktop_icons"
+    [icloud]="$WEBBROWSER https://www.icloud.com/"
+    [imageColorPalette]="$WEBBROWSER https://imagecolorpicker.com/"
+    [kill]="_choose_kill"
+    [linkedin]="$WEBBROWSER https://www.linkedin.com/"
+    [localhost]="$WEBBROWSER --private-window http://localhost/"
+    [lock]="exit.sh --lock"
+    [lofi]="lofi"
+    [logout]="exit.sh --logout"
+    [magistrale]="$WEBBROWSER https://corsi.unisa.it/ingegneria-informatica-magistrale"
+    [mail]="_choose_account mail.google.com/mail \#inbox"
+    [maps]="$WEBBROWSER https://www.google.com/maps"
+    [marcoplaitano]="$WEBBROWSER https://www.marcoplaitano.xyz"
+    [medium]="$WEBBROWSER https://medium.com"
+    [modernfamily]="$WEBBROWSER --private-window https://gomovies.sx/tv/watch-modern-family-gomovies-39507"
+    [moodle]="$WEBBROWSER https://elearning.unisa.it/my/"
+    [monitor]="monitors"
+    [mousepad]="mousepad"
+    [music]="music"
+    [nightmode]="night_mode --on"
+    [notion]="$WEBBROWSER https://www.notion.so"
+    [paletteGenerator]="$WEBBROWSER https://coolors.co/generate"
+    [panel]="panel"
+    [passwords]="get_password"
+    [peerflix]="streaming"
+    [photos]="$WEBBROWSER https://photos.google.com/"
+    [pinterest]="$WEBBROWSER https://www.pinterest.co.uk"
+    [plank]="plank"
+    [polybar]="polybar.sh"
+    [poweroff]="exit.sh --poweroff"
+    [primevideo]="$WEBBROWSER https://www.primevideo.com"
+    [private]="$WEBBROWSER --private-window"
+    [radio]="radio"
+    [reboot]="exit.sh --reboot"
+    [redshift]="blue_light_filter --on"
+    [screenrecord]="_screenrecord"
+    [screenshot]="xfce4-screenshooter"
+    [session]="xfce4-session-settings"
+    [settings]="xfce4-settings-manager"
+    [shazam]="shazam"
+    [simplescreenrecorder]="simplescreenrecorder"
+    [speedtest]="speedtest"
+    [spotify]="spotify"
+    [streaming]="_search_streaming"
+    [suspend]="exit.sh --suspend"
+    [teams]="teams-for-linux"
+    [telegram]="telegram-desktop"
+    [theme]="_change_theme"
+    [transmission]="transmission-gtk"
+    [unidrive]="$WEBBROWSER https://drive.google.com/drive/u/1/my-drive"
+    [unimail]="$WEBBROWSER https://mail.google.com/mail/u/1/"
+    [virtualbox]="VirtualBox %U"
+    [vm]="_control_vm"
+    [youtube]="$WEBBROWSER www.youtube.com"
+    [wallpaper]="wallpaper"
+    [webcam]="webcam"
+    [whatsapp]="$WEBBROWSER web.whatsapp.com"
+)
+
+
+
+################################################################################
+################################################################################
+###  MAIN SECTION
+################################################################################
+################################################################################
+
+# Sort the keys in alphabetical order and create one huge string separating them
+# with a '\n'.
+keys=( $( echo ${!actions[@]} | tr ' ' $'\n' | sort ) )
+for k in "${keys[@]}"; do
+    choices+="$k\n"
+done
+# Remove last 2 characters (an exceeding \n).
+choices=${choices::-2}
+
+# The user chooses the action to perform via dmenu.
+selected=$(ask_dmenu -F -p "run:" -l "$choices")
+[[ -z $selected ]] && exit
+
+# Perform the selected action.
+if [[ -v actions[$selected] ]]; then
+    ${actions[$selected]} & disown
+else
+    _die "Action '$selected' not found"
+fi

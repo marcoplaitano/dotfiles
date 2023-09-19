@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# File:   theme_bat
+# Author: Marco Plaitano
+# Date:   23 Mar 2023
+# Brief:  Update batcat's theme.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") THEME
+Apply new batcat theme.
+
+-h, --help      Show this guide and exit.
+"
+}
+
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        *)
+            theme="$1"
+            shift ;;
+    esac
+done
+[[ -z $theme ]] && exit
+
+
+readonly BAT_CONFIG_FILE="$(bat --config-file 2>/dev/null)"
+[[ ! -f $BAT_CONFIG_FILE ]] && exit
+
+sed -i -e "0,/--theme=.*/s//--theme=\"$theme\"/" "$BAT_CONFIG_FILE"

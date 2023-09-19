@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# File:   theme_vim
+# Author: Marco Plaitano
+# Date:   07 Mar 2023
+# Brief:  Set new vim theme.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") THEME
+Apply new vim theme.
+
+-h, --help      Show this guide and exit.
+"
+}
+
+
+_background_mode() {
+    # Determine whether terminal's background color is light or dark so that
+    # vim's background mode can be chosen accordingly.
+
+    # Xfce4 Terminal
+    #background=$(grep Background "$HOME/.config/xfce4/terminal/terminalrc")
+    #background=${background#*"ColorBackground="}
+
+    # Alacritty
+    theme_file="$ALACRITTY_THEME_FILE"
+    colors_file="$DOTS_DIR/alacritty/colorschemes.yml"
+    terminal_theme="$(tail -n1 $ALACRITTY_THEME_FILE | awk '{print $NF}')"
+    terminal_theme="${terminal_theme:1}"
+    background="$(grep $terminal_theme $colors_file -A4 | grep background | awk '{print $NF}')"
+    background=${background//\'/}
+
+    is_background_light=$(cat <<EOF
+from math import sqrt
+c = "$background"
+r,g,b = tuple(int(c.lstrip('#')[i:i+2], 16) for i in (0,2,4))
+hsp = sqrt(0.299 * r*r + 0.587 * g*g + 0.114 * b*b)
+print("light") if hsp > 127.5 else print("dark")
+EOF
+    )
+    if [[ $(python -c "$is_background_light") == light ]]; then
+        echo "light"
+    else
+        echo "dark"
+    fi
+}
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        *)
+            theme="$1"
+            shift ;;
+    esac
+done
+[[ -z $theme ]] && exit
+
+_VIM_THEME_FILE="$HOME/.config/nvim/lua/moonvim/colorscheme.lua"
+# Clear contents of the configuration file.
+:> "$_VIM_THEME_FILE"
+
+# Specify whether to keep light or dark background.
+echo "vim.go.background = \"$(_background_mode)\"" > "$_VIM_THEME_FILE"
+
+# Set theme.
+echo "vim.cmd([[ colorscheme $theme ]])" >> "$_VIM_THEME_FILE"
+echo "return \"$theme\"" >> "$_VIM_THEME_FILE"

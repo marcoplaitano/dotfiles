@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# File:   theme_i3
+# Author: Marco Plaitano
+# Date:   07 Mar 2023
+# Brief:  Apply new i3wm theme.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        *)
+            theme_file="$1"
+            shift ;;
+    esac
+done
+[[ -z $theme_file ]] && exit
+
+i3_THEME_FILE="/var/tmp/i3_theme.conf"
+
+# Check that file exists.
+if [[ ! -f "$theme_file" ]]; then
+    _die "i3 theme file '$theme_file' does not exist."
+fi
+
+cp "$theme_file" "$i3_THEME_FILE"
+# create i3 theme based on wallpaper palette.
+if [[ $theme_file == *"wallpaper"* ]]; then
+    source $HOME/.cache/wal/colors.sh
+    sed -i -e "s/set \$background .*/set \$background $background/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$foreground .*/set \$foreground $foreground/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$primary .*/set \$primary $color1/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$black .*/set \$black $color0/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$red .*/set \$red $color1/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$green .*/set \$green $color2/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$yellow .*/set \$yellow $color3/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$blue .*/set \$blue $color4/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$magenta .*/set \$magenta $color5/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$cyan .*/set \$cyan $color6/g" "$i3_THEME_FILE"
+    sed -i -e "s/set \$white .*/set \$white $color7/g" "$i3_THEME_FILE"
+fi
+
+if pgrep -x i3 &>/dev/null; then
+    i3-msg restart
+fi

@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# File:   streamcut
+# Author: Marco Plaitano
+# Brief:  Given an audio/video file and a number N, this script cuts the last N
+#         seconds from the end/beginning of that video. The result is saved in a
+#         new file.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") FILE -t TIME [OPTION]
+Cut a certain amount of seconds from the given audio/video file.
+
+-h, --help              Show this guide and exit.
+-t, --time  TIME        Number of seconds to cut.
+-e, --end               Cut from the end of the file. (default)
+-b, --beginning         Cut from the beginning of the file.
+FILE                    Input file.
+"
+}
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        -t | --time)
+            cut_time=$2
+            shift ; shift ;;
+        -e | --end)
+            [[ -z $where ]] && where="end"
+            shift ;;
+        -b | --beginning)
+            [[ -z $where ]] && where="beginning"
+            shift ;;
+        *)
+            [[ -z $file ]] && {
+                file="${1%.*}"
+                ext="${1##*.}"
+            }
+            shift ;;
+    esac
+done
+
+
+if [[ -z $file ]] || [[ ! -f $file.$ext ]]; then
+    _die "Provide a valid video filename."
+fi
+
+if [[ -z $cut_time ]]; then
+    _die "Provide the number of seconds to cut."
+fi
+
+
+# By default the cut is made at the end.
+where=${where:="end"}
+
+
+# Print all info so that the user knows what is going to happen.
+echo "Cutting $cut_time seconds from the $where of $file.$ext..."
+
+
+# Get the total length of the video (as an integer).
+l=$(ffprobe -i "$file".$ext -show_entries format=duration -v quiet -of csv="p=0")
+len=${l%.*}
+
+
+#new_len=$(($len - $cut_time))
+new_len=$((len - cut_time))
+
+
+# Can't trim video if the number of seconds left is <= 0
+# Won't trim video if there are no seconds to cut
+if (( new_len <= 0 )) || (( new_len >= len )); then
+    _die "Can not cut $cut_time seconds from video."
+fi
+
+
+# Keep increasing i until it can create a file named $file_$i.$ext
+version=${file##*_}
+i=1
+while [[ -z $out_file ]]; do
+    if [[ $version =~ ^_[0-9]+$ ]]; then
+        if [[ $version == $i ]]; then
+            i=$(( i+1 ))
+        elif [[ $(( i-version )) == 1 ]]; then
+            out_file="${file%_*}"_$i
+        fi
+    elif [[ -z $(find . -maxdepth 1 -type f -name "$file"_$i.$ext) ]]; then
+        out_file="$file"_$i
+    else
+        i=$(( i+1 ))
+    fi
+done
+
+
+if [[ $where == "end" ]]; then
+    ffmpeg -i "$file".$ext -t $new_len -c copy $out_file.$ext &>/dev/null
+elif [[ $where == "beginning" ]]; then
+    ffmpeg -i "$file".$ext -ss 00:00:$cut_time -t $len -async 1 "$out_file".$ext &>/dev/null
+fi

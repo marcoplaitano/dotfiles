@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# File:   cache_code_dirs
+# Author: Marco Plaitano
+# Date:   18 Dec 2022
+# Brief:  Save the paths of all directories suited to be opened in a code editor
+#         into a cache file.
+#         This file will be read from the menu utility when needed.
+#         The purpose of this is to speed up the creation of the directories'
+#         list the user can choose from when starting the code editor.
+#         This script is called both on login and at regular intervals by a cron
+#         job. It can be called manually by the menu code action (selecting
+#         this option instead of one of the proposed directories).
+
+
+# How far down from the CODE_DIR to look for directories to add.
+readonly DEPTH=4
+
+list=()
+
+
+# Add any directory that satisfies ANY of the following requirements:
+#   - dir is in "first level of depth" from CODE_DIR (e.g. CODE_DIR/dir).
+#   - dir is a git repository.
+#   - dir has a source/script file in it.
+#   - dir's name contains "workspace".
+dirs=$(find "$CODE_DIR" -mindepth 1 -maxdepth $DEPTH -type d ! -path '*.git*')
+for dir in $dirs; do
+    if [[ -d "$CODE_DIR"/"$(basename "$dir")" ]] ||
+       [[ -d "$dir"/.git ]] ||
+       ls "$dir"/*.*sh &>/dev/null ||
+       ls "$dir"/*.vim &>/dev/null ||
+       ls "$dir"/*.lua &>/dev/null ||
+       ls "$dir"/*.c &>/dev/null ||
+       ls "$dir"/*.cpp &>/dev/null ||
+       ls "$dir"/*.py &>/dev/null ||
+       ls "$dir"/.catkin_tools &>/dev/null ||
+       ls "$dir"/*.java &>/dev/null ||
+       ls "$dir"/*.r &>/dev/null ||
+       ls "$dir"/*.m &>/dev/null ||
+       ls "$dir"/*.html &>/dev/null ||
+       ls "$dir"/*.js &>/dev/null ||
+       [[ "$dir" == *workspace* ]]; then
+        list+=("$dir")
+    fi
+done
+
+# Avoid race conditions.
+killall menu &>/dev/null
+
+# Clear contents of the cache file.
+:> "$CACHE_FILE_CODE_DIRS"
+
+# Write the cache file. Each line will contain 2 comma-separated fields:
+# name,path
+# Where name is either the basename of the directory or the last 2 levels of its
+# path (only it the latter is deeper than 5 levels); and path is the global path
+# to the directory.
+for p in ${list[@]}; do
+    if [[ $(echo "$p" | awk -F"/" '{print NF-1}') -ge 5 ]]; then
+        name=$(basename "$(dirname "$p")")/$(basename "$p")
+    else
+        name=$(basename "$p")
+    fi
+    line="$name,$p"
+    echo $line >> "$CACHE_FILE_CODE_DIRS"
+done
+
+# Add option to update cache.
+echo CACHE >> "$CACHE_FILE_CODE_DIRS"

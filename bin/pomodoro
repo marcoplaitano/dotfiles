@@ -1,0 +1,141 @@
+#!/bin/bash
+
+# File:   pomodoro
+# Author: Marco Plaitano
+# Brief:  Run a Pomodoro Timer to alternate work sprints with small pauses. The
+#         idea comes from https://en.wikipedia.org/wiki/Pomodoro_Technique
+
+
+safe_exit() {
+    # Delete any output.
+    printf "\r"
+    clear
+    # Turn cursor blinking back on.
+    tput cnorm
+    exit
+}
+
+
+read_input() {
+    # Wait 1 second listening for 1 key press. (no need to send the input with
+    # ENTER)
+    read -t 1 -rs -N 1 && {
+        # If the input is the letter 'q' then exit the script.
+        if [[ $REPLY == 'q' ]]; then
+            safe_exit
+        # If the input is SPACE then pause or resume the timer.
+        elif [[ $REPLY == ' ' ]]; then
+            if [[ $is_paused == false ]]; then
+                is_paused=true
+            else
+                is_paused=false
+            fi
+        fi
+    }
+}
+
+
+show_countdown() {
+    # Timestamp at which the timer should stop.
+    local end_time=$(( $(date +%s) + slice_time * 60 ))
+
+    # Show slice title.
+    printf "$color $curr_slice $RESET_COLOR\n"
+
+    while [[ $end_time -ge $(date +%s) ]]; do
+        if [[ $is_paused == false ]]; then
+            printf "  $(date -u --date @$((end_time - $(date +%s))) +%M:%S) \r"
+        else
+            printf "  PAUSED \r"
+            # Keep adding 1 second to the end_time so as to keep the same
+            # difference with the current time from when the timer was paused.
+            end_time=$(( end_time + 1 ))
+        fi
+
+        # Wait 1 second listening for key presses.
+        read_input
+    done
+}
+
+
+
+####################################
+#             VARIABLES            #
+####################################
+
+# Number of minutes for each slice.
+readonly FOCUS_TIME=25
+readonly PAUSE_TIME=5
+readonly LONG_PAUSE_TIME=15
+
+# Number of Focus slices to complete before a long pause is earned.
+readonly NUM_ITERATIONS=3
+
+# Which color to tint the text with, based on the current slice.
+# The colors are defined in ~/.profile
+readonly FOCUS_COLOR=$RED
+readonly PAUSE_COLOR=$GREEN
+readonly RESET_COLOR=$RESET
+
+# Notification sound to play when a new slice begins.
+# (yes, they are the same... but it is easy to replace one of them)
+readonly START_FOCUS_SOUND="/usr/share/sounds/freedesktop/stereo/complete.oga"
+readonly START_PAUSE_SOUND="/usr/share/sounds/freedesktop/stereo/complete.oga"
+
+curr_slice="FOCUS"
+curr_iteration=1
+is_paused=false
+
+
+
+####################################
+#          INITIAL CONFIG          #
+####################################
+
+# Redirect any signal that might stop the timer to the safe_exit function.
+trap "safe_exit" SIGINT SIGQUIT SIGKILL SIGTERM
+
+# Hide the cursor.
+tput civis
+
+
+
+####################################
+#             MAIN LOOP            #
+####################################
+
+while [ : ]; do
+    clear
+    printf "Press SPACE to pause/resume, q to quit.\n\n"
+
+    # Configure current slice with the correct lasting time and output color.
+    if [[ $curr_slice == "FOCUS" ]]; then
+        slice_time=$FOCUS_TIME
+        color=$FOCUS_COLOR
+    elif [[ $curr_slice == "PAUSE" ]]; then
+        slice_time=$PAUSE_TIME
+        color=$PAUSE_COLOR
+    elif [[ $curr_slice == "LONG_PAUSE" ]]; then
+        slice_time=$LONG_PAUSE_TIME
+        color=$PAUSE_COLOR
+    fi
+
+    show_countdown
+
+    # Determine which slice follows next, play a sound and show a notification.
+    if [[ $curr_slice == "FOCUS" ]]; then
+        if [[ $curr_iteration -ge $NUM_ITERATIONS ]]; then
+            curr_iteration=0
+            curr_slice="LONG_PAUSE"
+        else
+            curr_iteration=$(( curr_iteration + 1 ))
+            curr_slice="PAUSE"
+        fi
+        paplay "$START_PAUSE_SOUND" &
+        notify-send "🍅 Pomodoro" "Take a break!"
+    else
+        curr_slice="FOCUS"
+        paplay "$START_FOCUS_SOUND" &
+        notify-send "🍅 Pomodoro" "Time to focus!"
+    fi
+done

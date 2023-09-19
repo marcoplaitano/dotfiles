@@ -1,0 +1,144 @@
+#!/bin/bash
+
+# File:   polybar_music
+# Author: Marco Plaitano
+# Date:   12 Aug 2022
+# Brief:  Get info about the current playing song from the running media player
+#         to display on a polybar module. The script is also called to display
+#         prev - play/pause - next  icons and to execute these commands.
+
+
+
+# Read file containing info about current status of radio player and show the
+# content.
+show_status_radio() {
+    station=$(cat "$RADIO_STATUS_FILE")
+    if [[ "$station" == Stop ]]; then
+        exit
+    fi
+    echo "露  $station"
+}
+
+show_status_lofi() {
+    echo "  lofi beats"
+}
+
+show_status_vlc() {
+    format="{{ album }} - {{ title }}"
+    info=$(playerctl --player=$player metadata --format "$format")
+    echo "ﱘ   $info" | sed 's/\(.\{70\}\).*/\1.../'
+}
+
+show_status_spotify() {
+    format="{{ artist }} - {{ title }}"
+    info=$(playerctl --player=$player metadata --format "$format")
+    echo "   $info" | sed 's/\(.\{70\}\).*/\1.../'
+}
+
+show_status() {
+    case "${player,,}" in
+        radio | vlc | lofi | spotify)
+            show_status_"${player,,}" ;;
+        firefox | *)
+            format="{{ title }}"
+            info=$(playerctl --player=$player metadata --format "$format")
+            echo "ﱘ   $info" | sed 's/\(.\{70\}\).*/\1.../' ;;
+    esac
+}
+
+
+show_prev() {
+    case "${player,,}" in
+        radio | lofi)
+            echo "" ;;
+        *)
+            echo "" ;;
+    esac
+}
+
+show_play_pause() {
+    case "${player,,}" in
+        radio | lofi)
+            echo "" ;;
+        *)
+            STATUS=$(playerctl --player=$player status 2>/dev/null)
+            [[ "$STATUS" == "Paused" ]] && echo "" || echo "" ;;
+    esac
+}
+
+show_next() {
+    case "${player,,}" in
+        radio | lofi)
+            echo "" ;;
+        *)
+            echo "" ;;
+    esac
+}
+
+action_prev() {
+    case "${player,,}" in
+        radio | lofi) ;;
+        *)
+            playerctl previous -p $player ;;
+    esac
+}
+
+action_play_pause() {
+    case "${player,,}" in
+        radio | lofi)
+            kill_process $player ;;
+        *)
+            playerctl play-pause -p $player ;;
+    esac
+}
+
+action_next() {
+    case "${player,,}" in
+        radio | lofi) ;;
+        *)
+            playerctl next -p $player ;;
+    esac
+}
+
+action_stop() {
+    case "${player,,}" in
+        radio)
+            kill_process radio ;;
+        spotify)
+            kill_process spotify ;;
+        *)
+            kill_process music ;;
+    esac
+}
+
+
+
+# Get the current media player.
+player=$(curr_player 2>/dev/null)
+if [[ -z $player ]]; then
+    echo "" ; exit 1
+fi
+
+
+# Parse command line option.
+case "$1" in
+    # Action to execute (either by clicking on polybar module or by using media
+    # playback keys).
+    --previous | --prev)
+        action_prev ;;
+    --play-pause | --play | --pause)
+        action_play_pause ;;
+    --next)
+        action_next ;;
+    --stop)
+        action_stop ;;
+    # Strings to display on polybar.
+    --show-previous)
+        show_prev ;;
+    --show-play-pause)
+        show_play_pause ;;
+    --show-next)
+        show_next ;;
+    --show-status)
+        show_status ;;
+esac

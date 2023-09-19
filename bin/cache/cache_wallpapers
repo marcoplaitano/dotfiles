@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# File:   cache_wallpapers
+# Author: Marco Plaitano
+# Date:   21 Mar 2023
+# Brief:  Save the paths of all available images in the wallpapers directory
+#         into a cache file.
+#         This file will be read from the menu utility when needed.
+#         The purpose of this is to speed up the creation of the list of
+#         wallpapers the user can choose from.
+#         This script is called both on login and at regular intervals by a cron
+#         job.
+
+
+[[ -z $WALLPAPERS_DIR ]] && exit
+[[ ! -d "$WALLPAPERS_DIR" ]] && exit
+
+
+# Create list of images. Only the filename will be stored; the path will be
+# reconstructed from the actual script that sets the wallpaper.
+list=()
+for file in $(find "$WALLPAPERS_DIR" -maxdepth 3 -type f ! -path '*.git*' \
+              | sort -n)
+do
+    img="$(basename $file)"
+    img="${img%.*}"
+    list+=("$img")
+done
+# Add special options to the list of images:
+#  SELECTOR calls script that uses graphical image viewer to select the desired
+#  wallpaper;
+#  CACHE calls this script to update the cache.
+list+=(SELECTOR CACHE)
+
+
+# Avoid race conditions.
+killall menu &>/dev/null
+
+# Clear contents of the cache file.
+> "$CACHE_FILE_WALLPAPERS"
+
+# Save the paths onto the cache file.
+for img in ${list[@]}; do
+    echo $img >> "$CACHE_FILE_WALLPAPERS"
+done

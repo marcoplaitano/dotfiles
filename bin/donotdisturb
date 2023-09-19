@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# File:   donotdisturb
+# Author: Marco Plaitano
+# Date:   31 Mar 2023
+# Brief:  Toggle Do Not Disturb mode by pausing dunst.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]...
+Toggle Do Not Disturb by pausing dunst.
+
+-h, --help      Show this guide and exit.
+--on            Silence notifications.
+--off           Enable notifications.
+--toggle        Toggle state.
+"
+}
+
+_turn_on() {
+    dunstctl set-paused true
+}
+
+_turn_off() {
+    dunstctl set-paused false
+}
+
+_toggle() {
+    if [[ $(dunstctl is-paused) == true ]]; then
+        _turn_off
+    else
+        _turn_on
+    fi
+}
+
+
+
+# Parse command-line arguments.
+if [[ -n $1 ]]; then
+    case "$1" in
+        -h | --help)
+            _help ;;
+        --on | --off)
+            _turn_${1#--} ;;
+        --toggle)
+            _toggle ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+# Default action if none is specified.
+else
+    _toggle
+fi

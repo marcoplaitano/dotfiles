@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# File:   screenshot
+# Author: Marco Plaitano
+# Date:   24 Mar 2023
+# Brief:  Use scrot to take a screenshot of the screen.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]...
+Use scrot to take a screenshot of the screen.
+
+-h, --help      Show this guide and exit.
+--quick         Capture entire screen now.
+--delay N       Wait N seconds before capturing.
+--focused       Only capture focused window.
+--select        Manually select area to grab.
+"
+}
+
+
+_get_filename() {
+    echo "$_SAVE_DIR/screenshot_$(date +%m-%d_%H.%M.%S).png"
+}
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        --quick)
+            break ;;
+        --delay)
+            [[ -z $2 ]] && _die "No delay given."
+            delay="$2"
+            # -c option displays count of remaining seconds to capture.
+            options+=" -d $delay -c "
+            shift ; shift ;;
+        --focused)
+            options+=" -u "
+            shift ;;
+        --select)
+            # -f freezes the screen while waiting for area selection. Remove
+            # this option if the screen has to update its content while
+            # selecting.
+            options+=" -s -f "
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+readonly _SAVE_DIR="$HOME/Pictures/screenshots"
+[[ ! -d "$_SAVE_DIR" ]] && mkdir -p "$_SAVE_DIR"
+
+# Path + name + extension.
+img_filename="$(_get_filename)"
+
+# Take screenshot.
+# -q 100 best quality
+# -p     capture the mouse pointer too
+# -F     specify a custom filename
+scrot -q 100 -p $options -F "$img_filename" || _die
+# Play sound to alert that the screenshot has been taken.
+paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga & disown
+
+# Only when selecting area, ask whether to save image (already done) or to paste
+# it into the clipboard.
+if [[ $options == *"-f"* ]]; then
+    choice="$(ask_dmenu -F -l "clipboard\nsave" -nl 2)"
+    if [[ $choice == "clipboard" ]]; then
+        xclip -selection clipboard -target image/png -i "$img_filename"
+        rm "$img_filename"
+    elif [[ $choice == "save" ]]; then
+        true
+    else
+        rm "$img_filename"
+    fi
+fi

@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# File:   ask_fzf
+# Author: Marco Plaitano
+# Date:   26 Nov 2022
+# Brief:  Wrapper script for FZF.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]... -l LIST
+Pass a query along to fzf and return choice(s).
+
+-h, --help              Show this guide and exit.
+-a, --accept-all        Accept any input, even if it matches no choice.
+-p PROMPT               Prompt to show in the fzf window.
+-s, --sort              Sort input list.
+-l LIST                 List of choices. MUST BE LAST ARGUMENT GIVEN.
+"
+}
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        -l)
+            shift
+            list="$*"
+            break ;;
+        -a | --accept-all)
+            accept_all=1
+            shift ;;
+        -p)
+            prompt="$2"
+            shift ; shift ;;
+        -s | --sort)
+            sort_list=1
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized."
+            shift ;;
+    esac
+done
+
+# Can't work without a list of choices.
+[[ -z $list ]] && _die "No list of choices given."
+
+# Default prompt value is "> ".
+prompt=${prompt:="> "}
+
+# Get all the needed options.
+options="-p "
+[[ -n $accept_all ]] && options+=" --print-query "
+options+="$(get_fzf_colors)"
+
+
+
+if [[ -n $sort_list ]]; then
+    result=$(echo $list | tr ' ' '\n' \
+            | sort -u \
+            | fzf-tmux $options --prompt="$prompt" \
+            | xargs | awk '{print $NF}')
+else
+    result=$(echo $list | tr ' ' '\n' \
+            | fzf-tmux $options --prompt="$prompt" \
+            | xargs | awk '{print $NF}')
+fi
+
+echo "$result"

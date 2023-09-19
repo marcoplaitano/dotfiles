@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# File:   microphone
+# Author: Marco Plaitano
+# Brief:  Mute or unmute microphone or increase/decrease capture volume.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]
+Mute or unmute system microphone, or increase/decrease capture volume. If no
+action is specified, a dmenu instance is launched to ask what to do.
+
+-h, --help          Show this guide and exit.
+--status            Print current status.
+-l, --lower         Lower input capture volume by 5%%.
+-r, --raise         Raise input capture volume by 5%%.
+-t, --toggle        Toggle microphone.
+--on                Turn microphone on.
+--off               Turn microphone off.
+--sound-on          Enable audio confirmation of state change.
+--soudn-off         Disable audio confirmation of state change.
+"
+}
+
+_play_sound() {
+    [[ $PLAY_SOUND == yes ]] && paplay $1
+}
+
+_save_state() {
+    state="$1"
+    echo "$state" > "$MICROPHONE_STATUS_FILE"
+}
+
+_read_state() {
+    cat "$MICROPHONE_STATUS_FILE"
+}
+
+_get_volume() {
+    echo $(amixer get Capture | grep 'Left:' | awk -F'[][]' '{ print $2 }')
+}
+
+_mic_lower() {
+    amixer set Capture 5%-
+    if [[ "$(_read_state)" == "off"* ]]; then
+        _save_state "off $(_get_volume)"
+    else
+        _save_state $(_get_volume)
+    fi
+}
+
+_mic_raise() {
+    amixer set Capture 5%+
+    if [[ "$(_read_state)" == "off"* ]]; then
+        _save_state "off $(_get_volume)"
+    else
+        _save_state $(_get_volume)
+    fi
+}
+
+_mic_off() {
+    if amixer set Capture nocap ; then
+        _play_sound $sound_off
+        _save_state "off $(_get_volume)"
+    else
+        paplay $sound_error
+    fi
+}
+
+_mic_on() {
+    if amixer set Capture cap ; then
+        _play_sound $sound_on
+        _save_state $(_get_volume)
+    else
+        paplay $sound_error
+    fi
+}
+
+_mic_toggle() {
+    if [[ $(amixer get Capture) == *"off"* ]]; then
+        _mic_on
+    else
+        _mic_off
+    fi
+}
+
+_mic_status() {
+    status="ON"
+    if [[ $(amixer get Capture) == *"off"* ]]; then
+        status="OFF"
+    fi
+    echo "Mic is $status."
+}
+
+
+# Choose whether to play notification sound or not. Values are "yes", "no".
+PLAY_SOUND=yes
+_set_notification_sound() {
+    value="$1"
+    sed -i "0,/PLAY_SOUND=.*/s//PLAY_SOUND=$value/" "$SCRIPTS_DIR"/microphone
+}
+
+
+
+# Notification sounds.
+readonly sound_on="/usr/share/sounds/freedesktop/stereo/device-added.oga"
+readonly sound_off="/usr/share/sounds/freedesktop/stereo/device-removed.oga"
+readonly sound_error="/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
+
+
+# Parse command line arguments.
+if [[ -n $1 ]]; then
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        -l | --lower)
+            action="lower" ;;
+        -r | --raise)
+            action="raise" ;;
+        --off | --on | --sound-off | --sound-on | --status)
+            action="${1#--}" ;;
+        -t | --toggle)
+            action="toggle" ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+fi
+
+
+# If no action has been specified show status.
+if [[ -z $action ]]; then
+    action="status"
+fi
+
+# Perform action.
+_mic_"$action"

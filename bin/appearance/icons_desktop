@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# File:   icons_desktop
+# Author: Marco Plaitano
+# Date:   24 Feb 2023
+# Brief:  Toggle visibility of xfce4 desktop icons.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]
+Show or hide icons on the desktop.
+
+-h, --help      Show this guide and exit.
+--hide          Hide icons.
+--show          Show icons.
+--toggle        Toggle icons. (default)
+"
+}
+
+
+_icons_hide() {
+    xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0
+}
+
+_icons_show() {
+    xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 2
+}
+
+_icons_toggle() {
+    curr_state=$(xfconf-query -lvc xfce4-desktop -p /desktop-icons/style | \
+        awk '{print $2}')
+    case $curr_state in
+        0) _icons_show ;;
+        *) _icons_hide ;;
+    esac
+}
+
+
+# Parse command-line arguments.
+if [[ -n $1 ]]; then
+    case "$1" in
+        -h | --help)
+            _help ;;
+        --hide | --show | --toggle)
+            _icons_${1#--} ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+# Default action if none is specified.
+else
+    _icons_toggle
+fi

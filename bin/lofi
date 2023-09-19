@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# File:   lofi
+# Author: Marco Plaitano
+# Date:   10 Mar 2023
+# Brief:  Play lofi audio stream from official LoFi Girl YouTube livestream.
+# Dependencies: ffplay (ffmpeg) and yt-dlp (python3 -m pip install yt-dlp).
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [URL] [OPTION]
+Play lofi audio stream from official LoFi Girl YouTube livestream.
+
+-h, --help      Show this guide and exit.
+URL             Youtube URL to stream audio from. By default it uses the
+                LoFi Girl live stream.
+"
+}
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        *youtube.com/watch?v=*)
+            video_url="$1"
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+# Original Lo-Fi girl stream.
+video_url="${video_url:=https://www.youtube.com/watch?v=jfKfPfyJRdk}"
+# Lo-Fi girl sleep stream.
+# video_url="${video_url:=https://www.youtube.com/watch?v=rUxyKA_-grg}"
+
+yt-dlp "$video_url" -o - 2>/dev/null \
+    | ffplay - -autoexit -nodisp -loglevel quiet &>/dev/null & disown
+
+sleep 5
+if ! pgrep ffplay; then
+    _die "Could not play lofi."
+fi

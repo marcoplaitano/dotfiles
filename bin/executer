@@ -1,0 +1,240 @@
+#!/bin/bash
+
+# File:   executer
+# Author: Marco Plaitano
+# Brief:  Compile and run the given source file.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") FILE [OPTION]...
+Compile (and run) the given source file.
+Supported extensions are: .c .cpp .out .java .jar .py .sh .r .m
+
+-h, --help                  Show this guide and exit.
+FILE                        The source file to compile and run.
+-v, --verbose               Show how the parameters and options for this script
+                            have been parsed.
+-d, --debug                 Enable warning and debug flags for compilation.
+                            Only available for C/C++ files.
+--plot, --show-plot         Open any plot file created by the execution of the
+                            script. Only available for R files.
+-*                          Compile flag.
+--execute                   Execute the file after compilation.
+                            NOTE: some files require no compilation (e.g. shell
+                            scripts) and therefore will always be executed.
+*                           (AFTER FILE) Command line argument to pass to the
+                            executable.
+"
+}
+
+_show_verbose() {
+    echo "FILE:" "$file"
+    if [[ -n $compile_flags ]]; then
+        echo "COMPILE FLAGS: $compile_flags"
+        echo
+    fi
+    if [[ -n $run_args ]]; then
+        echo "RUN ARGS: $run_args"
+    fi
+}
+
+_find_executable_file() {
+    file=$(find . -maxdepth 2 -type f -printf '%T@ %P\n' | sort -rn | head -n 1)
+    file=${file##*' '}
+    if [[ ! $file == ./* ]]; then
+        file=./$file
+    fi
+    echo $file
+}
+
+
+
+# Flag to add if Java source file is a JavaFX application.
+readonly JAVA_FLAG_FX="--module-path /usr/local/javafx-18/lib \
+--add-modules javafx.controls --add-modules javafx.fxml \
+--add-modules javafx.swing"
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        --execute)
+            execute=1
+            shift ;;
+        -v | --verbose)
+            verbose=1
+            shift ;;
+        -d | --debug)
+            debug=1
+            compile_flags+=" -D_DEBUG -Wall -Wextra"
+            shift ;;
+        --plot | --show-plot)
+            show_plot=1
+            shift ;;
+        -*)
+            compile_flags+="$1 "
+            shift ;;
+        *)
+            # TODO: accept arguments both with and without double quotes.
+            [[ -z $file ]] && file="$1" || run_args+="$1 "
+            shift ;;
+    esac
+done
+
+[[ -z $file ]] && _die "Error: please provide a source file."
+
+# File without the extension.
+filename=${file%.*}
+
+[[ -n $verbose ]] && _show_verbose
+
+
+
+
+################################## C ###########################################
+if [[ -f "$filename".c ]]; then
+    if [[ -f makefile ]]; then
+        if [[ -n $debug ]]; then make debug ; else make; fi
+    else
+        gcc -g $compile_flags "$filename".c -o "$filename".out
+    fi
+    # Exit the script if the compilation was not successful.
+    [[ $? != 0 ]] && exit 1
+    # Exit if program should not be executed.
+    [[ -z $execute ]] && exit
+    $(_find_executable_file) $run_args
+
+
+
+################################## C++ #########################################
+elif [[ -f "$filename".cpp ]]; then
+    if [[ -f makefile ]]; then
+        if [[ -n $debug ]]; then make debug ; else make; fi
+    else
+        g++ -g $compile_flags "$filename".cpp -o "$filename".out
+    fi
+    # Exit the script if the compilation was not successful.
+    [[ $? != 0 ]] && exit 1
+    # Exit if program should not be executed.
+    [[ -z $execute ]] && exit
+    $(_find_executable_file) $run_args
+
+
+
+################################## OUT #########################################
+# Only when source C/C++ file not found in current directory.
+elif [[ -f "$filename".out ]]; then
+    "$(pwd)/$filename".out $run_args
+
+
+
+################################## JAVA ########################################
+elif [[ -f "$filename".java ]]; then
+    # Clean project before compiling.
+    clean -d 6
+
+    # If the string "javafx" is found in the file add the needed flag.
+    if grep -Fiq "javafx" "$filename".java; then
+        compile_flags+=" $JAVA_FLAG_FX"
+    fi
+    # If either the string "Bouncy" or "cipher" is found in the file it means
+    # this Java program requires the bouncycastle.jar file to be explicitely
+    # linked via the classpath flag.
+    if grep -Fiq "bouncy" "$filename".java || \
+       grep -Fiq "cipher" "$filename."java; then
+        compile_flags+=" $JAVA_FLAG_BC"
+    fi
+    # If the file is a JavaFX file, compile every file in the directory.
+    if grep -Fiq "javafx" "$filename".java; then
+        for file in $(find "$(pwd)" -maxdepth 6 -type f -name '*.java'); do
+            file=${file%.*}
+            # Don't compile test files or already compiled classes.
+            [[ "$file" == *Test* ]] && continue
+            [[ -f "$file".class ]] && continue
+            echo "Compiling $(basename "$file")..."
+            javac $compile_flags "$file".java || exit
+        done
+    # If the file is not a Controller then it just has to compile it.
+    else
+        javac $compile_flags "$filename".java || exit
+    fi
+    [[ -z $execute ]] && exit
+    java $compile_flags "${filename//\//.}" ${run_args}
+
+
+
+################################## JAR #########################################
+elif [[ -f "$filename".jar ]]; then
+    java -jar "$file"
+
+
+
+################################## PYTHON ######################################
+elif [[ -f "$filename".py ]]; then
+    python3 "$file" $compile_flags $run_args
+
+
+
+################################## SHELL #######################################
+elif [[ -f "$filename".sh ]]; then
+    $SHELL ./"$file" $compile_flags $run_args
+
+# Check for the presence of a shell shebang if the file has no extension.
+elif [[ -f "$filename" && "$(head -n 1 $filename)" =~ \#\!/bin/(env )*[ba|z]*sh ]]; then
+        $SHELL ./"$file" $compile_flags $run_args
+
+
+
+################################## R ###########################################
+elif [[ -f "$filename".r ]]; then
+    Rscript "$filename".r $compile_flags $run_args
+    # Show any pdf plot file.
+    if [[ -n $show_plot ]]; then
+        # Get current time.
+        curr_time=$(date +%s)
+        i=0
+        while true; do
+            if [[ $i -gt 0 ]]; then
+                pdffile="Rplots${i}.pdf"
+            else
+                pdffile="Rplots.pdf"
+            fi
+            [[ ! -f "$pdffile" ]] && break
+            # Get time of last modification of the plot file.
+            last_mod_time=$(date +%s -r $pdffile 2>/dev/null)
+
+            # If the file has been modified less than N seconds ago then open
+            # it to show the plots.
+            if [[ $(( curr_time - last_mod_time )) -lt 3 ]]; then
+                xdg-open $pdffile &>/dev/null & disown
+            fi
+            i=$((i+1))
+        done
+    fi
+
+
+
+################################## MATLAB ######################################
+elif [[ -f "$filename".m ]]; then
+    matlab -nosplash -nodesktop -r "run('$filename.m');"
+
+
+
+################################################################################
+else
+    _die "Error: the file does not exist or its type is not supported."
+fi

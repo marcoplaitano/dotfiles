@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# File:   wallpaper
+# Author: Marco Plaitano
+# Brief:  Set new wallpaper image and update system's color palette accordingly.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [IMAGE] [OPTION]
+Change current wallpaper with a new image and update system's color palette
+accordingly.
+If no image is provided, the user is asked to choose one from the system's
+wallpapers folder via dmenu or fzf.
+
+-h, --help              Show this guide and exit.
+IMAGE                   Global path to the image to use as wallpaper.
+-r, --random [DIR]      Use random image from wallpapers' directory. Optionally,
+                        specify a directory to choose from.
+"
+}
+
+
+# Return a random image from the specified/default directory.
+random_image() {
+    # Probably called by a cron job to update wallpaper (and wal colors) with
+    # a random image.
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
+
+    if [[ -z $dir ]] || [[ ! -d "$dir" ]]; then
+        dir="$WALLPAPERS_DIR"
+    fi
+    img=$(find "$dir" -maxdepth 1 -type f ! -path '*.git*' 2>/dev/null | shuf -n 1)
+    echo $img
+}
+
+
+ask_image() {
+    if [[ $TERM != dumb ]]; then
+        images=$(echo $images | tr '|' ' ')
+        image=$(ask_fzf -s -p "image: " -l "$images")
+    else
+        images=$(echo $images | tr '|' '\n')
+        image=$(ask_dmenu -p "image:" -l "$images" --num-lines 10 -F)
+    fi
+}
+
+
+# Need this environment variable when this script is called by a cron job.
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        -r | --random)
+            dir="$2"
+            image=$(random_image)
+            break ;;
+        *)
+            image="$1"
+            break ;;
+    esac
+done
+
+
+
+################################################################################
+###  (GET AND) SET NEW IMAGE
+################################################################################
+
+# If no image has been given, ask for one in input.
+if [[ -z $image ]]; then
+    # Create cache file if it does not exists yet.
+    export CACHE_FILE_WALLPAPERS="${CACHE_FILE_WALLPAPERS:=/var/tmp/cache_wallpapers}"
+    if [[ ! -f "$CACHE_FILE_WALLPAPERS" ]]; then
+        cache_wallpapers "$CACHE_FILE_WALLPAPERS"
+    fi
+    # Create a string containing all the files in the backgrounds folder,
+    # separating them with a '|'. The list is read from the cache file.
+    while read -r img; do
+        [[ -n $images ]] && images+="|"
+        images+="$img"
+    done < "$CACHE_FILE_WALLPAPERS"
+
+    [[ -z $images ]] && _die "Error: list of images is empty."
+
+    # Ask the user to choose an image either via FZF or DMENU.
+    ask_image
+    # Some choices are special options and not really images.
+    case "$image" in
+        # Select image with graphical image viewer.
+        SELECTOR)
+            image=$(wallpaper_selector) ;;
+        # Update cache list.
+        CACHE)
+            cache_wallpapers
+            exit ;;
+        *)
+            # Because output of dmenu is just the filename; I have to find the
+            # global path and the extension.
+            image=$(find "$WALLPAPERS_DIR" -maxdepth 2 -type f -name "${image}.*")
+            ;;
+    esac
+    [[ -z $image ]] && exit
+fi
+
+
+# Check whether the image exists.
+[[ ! -f "$image" ]] && _die "Error: image '$image' does not exist."
+
+# Change the wallpaper.
+echo "Setting wallpaper '$image'..."
+set_wallpaper "$image"
+
+
+
+################################################################################
+###  UPDATE THEMES & COLORS
+################################################################################
+
+case "$image" in
+    *ctpcn-latte-*)
+        theme="catppuccin-latte" ;;
+    *ctpcn-*)
+        theme="catppuccin" ;;
+    *everblush*)
+        theme="everblush" ;;
+    *gruv-*)
+        theme="gruvbox" ;;
+    *nord-*)
+        theme="nord" ;;
+    *onedark-*)
+        theme="one-dark" ;;
+    *)
+        theme="wal" ;;
+esac
+
+echo "Updating system theme..."
+change_theme "$theme" -i "$image"
+
+
+
+################################################################################
+###  SET NEW LOCK SCREEN IMAGE
+################################################################################
+
+echo "Updating lockscreen..."
+betterlockscreen -u "$image" --fx blur

@@ -1,0 +1,494 @@
+#!/bin/bash
+
+# File:   syssetup
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+# Brief:  Perform initial configuration for a fresh installation of a (xfce)
+#         Arch based distribution.
+
+
+if [[ "$EUID" -eq 0 ]]; then
+    echo "Please, DO NOT run as root."
+    exit
+fi
+
+# Get into this repository.
+cd ${0%/*}
+
+
+
+################################################################################
+################################################################################
+##################################  FUNCTIONS  #################################
+################################################################################
+################################################################################
+
+# Display a string in such a way to catch the user's attention.
+_show_section() {
+    local title="${1^^}"
+    echo
+    echo "============================================================"
+    echo "==========    $title"
+    echo "============================================================"
+}
+
+# Print error string and exit script.
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+# Print question and wait for user to input "ok".
+_wait_ok() {
+    local question ans
+    question="$1"
+    while [[ -z $ans ]]; do
+        read -rp "$question " ans
+        case "${ans,,}" in
+            ok) ;;
+            *) unset ans ;;
+        esac
+    done
+}
+
+# Ask the user a yes/no question.
+_ask_yes_no() {
+    local question ans
+    question="$1"
+    while [[ -z $ans ]]; do
+        read -rp "$question" ans
+        case "${ans,,}" in
+            # answer is YES -> echo something
+            y | yes | si | sí) echo 0 ; return ;;
+            # answer is NO  -> do not echo
+            n | no ) return ;;
+            # answer is anything else, keep asking.
+            *) unset ans ;;
+        esac
+    done
+}
+
+# Unzip directory whose path is given in the first argument.
+# Output path is $HOME/.local/share
+_unzip_dir() {
+    local default_path zipfile
+    default_path="$1"
+    read -rp "Location of zip file ($default_path): " zipfile
+    zipfile=${zipfile:="$default_path"}
+    if [[ ! -f "$zipfile" ]]; then
+        _die "File '$zipfile' not found."
+    fi
+    if [[ "$zipfile" != *'.zip' ]]; then
+        _die "File '$zipfile' does not seem to be a ZIP file."
+    fi
+    mkdir -p "$HOME/.local/share"
+    unzip "$zipfile" -d $HOME/.local/share || _die
+    rm "$zipfile"
+}
+
+# Give me ownership of the given directory.
+_own() {
+    dir="$1"
+    if [[ -d "$1" ]]; then
+        sudo chown -R $USER:$USER "$dir"
+        return $?
+    else
+        return 1
+    fi
+}
+
+# Install the given package(s).
+_install() {
+    for pkg in "$@"; do
+        case "$pkg" in
+            youtube-dl | pywal | "python-lsp-server[all]")
+                pipx install "$pkg" ;;
+            *)
+                sudo pacman -S --needed --noconfirm "$pkg" ;;
+        esac
+    done
+}
+
+
+
+################################################################################
+################################################################################
+#################################  PRE INSTALL  ################################
+################################################################################
+################################################################################
+
+# Ask whether to actually perform the installation/downloading of some packages.
+while [[ -z $confirm_proceed ]]; do
+    do_zsh=$(_ask_yes_no "Install ZSH? ")
+    do_gpg=$(_ask_yes_no "Import GPG keys/passwords from zip? ")
+    do_dotfiles=$(_ask_yes_no "Clone personal dotfiles repo? ")
+    do_wallpapers=$(_ask_yes_no "Clone personal wallpapers repo? ")
+    do_dmenu=$(_ask_yes_no "Install dmenu? ")
+    do_docker=$(_ask_yes_no "Install docker? ")
+    do_spotify=$(_ask_yes_no "Install Spotify? ")
+    do_telegram=$(_ask_yes_no "Install Telegram? ")
+    # Confirm previous choices.
+    confirm_proceed=$(_ask_yes_no "Confirm all choices? ")
+done
+
+
+# Define path to log file and clear its content.
+LOGFILE="/var/tmp/installation.log"
+:> "$LOGFILE"
+
+# Append xtrace of every command of this script to the LOGFILE.
+exec {BASH_XTRACEFD}>>$LOGFILE
+
+# Define the format for the current command's xtrace:
+# - exit status (OF PREVIOUS COMMAND)
+# - timestamp of execution
+# - filename
+# - line number
+# - (not defined) name & params
+PS4='$?\011 $(date +%H:%M:%S.%3N)  $BASH_SOURCE@$LINENO   \011'
+
+# Start xtracing every command from this point onward.
+set -x
+
+
+
+################################################################################
+################################################################################
+#################################  SYSTEM SETUP ################################
+################################################################################
+################################################################################
+
+_show_section "GENERAL CONFIGURATION"
+################################################################################
+###  GENERAL CONFIGURATION
+################################################################################
+
+# Update.
+sudo pacman -Syu --noconfirm
+
+# Create a link to the python3 executable.
+sudo ln -fs /usr/bin/python3 /usr/bin/python
+
+# Disable network notifications.
+gsettings set org.gnome.nm-applet disable-connected-notifications true
+gsettings set org.gnome.nm-applet disable-disconnected-notifications true
+
+# Give permissions to some directories.
+_own /usr/share/xfce4/terminal
+_own /usr/share/themes
+_own /etc/lightdm
+if _own /usr/share/git/credential/netrc; then
+    chmod +x /usr/share/git/credential/netrc/*
+fi
+
+# Set current city in private file (to be sourced when determing weather).
+unset city
+while [[ -z $city ]]; do
+    read -rp "City you live in (for weather): " city
+done
+echo "$city" > /var/tmp/location
+
+# Create some directories.
+_CODE_DIR="$HOME/dev"
+mkdir -p "$_CODE_DIR"
+mkdir -p "$HOME/.local/bin"
+
+
+
+################################################################################
+###  GPG KEYS & PASSWORDS
+################################################################################
+
+if [[ -n $do_gpg ]]; then
+    _show_section "GPG KEYS & PASSWORDS"
+    echo
+    echo "This section of the script will install GPG keys and passwords."
+    echo "The following files are needed:"
+    echo "   ~/keys.zip             (GPG keys)"
+    echo "   ~/passwords.zip        (pass files)"
+    _wait_ok "When all the needed files are in place write 'ok': "
+
+    # Install needed packages.
+    _install zip unzip xclip git pass pinentry
+
+    # Import keys and passwords from ZIP files.
+    _unzip_dir "$HOME/keys.zip"
+    _unzip_dir "$HOME/passwords.zip"
+
+    # Set default directories in which to look for keys and credentials.
+    export GNUPGHOME="$HOME/.local/share/gnupg"
+    export PASSWORD_STORE_DIR="$HOME/.local/share/passwords"
+
+    rm -rf "$HOME/.gnupg"
+fi
+
+
+
+_show_section "SUDOERS FILE"
+################################################################################
+###  SUDOERS FILE
+################################################################################
+
+_EDITOR=/usr/bin/nvim
+
+# Define what lines have to be added to the sudoers file.
+lines=(
+    "Defaults    passprompt=\"Password: \""
+    "Defaults    pwfeedback"
+    "Defaults    editor=$_EDITOR"
+    "Defaults    timestamp_timeout=-1"
+)
+
+temp_file="/tmp/suers"
+
+for line in "${lines[@]}"; do
+    # For each line, it checks whether the file already contains it and, if not,
+    # the line is appended (to a separate, temporary file).
+    if sudo grep -Fxq "$line" /etc/sudoers &>/dev/null; then
+        echo "Line: '$line' already exists."
+        continue
+    fi
+    sudo cat /etc/sudoers > "$temp_file"
+    echo "$line" >> "$temp_file"
+
+    # The purpose of the temporary file is to check its validity with the visudo
+    # command.
+    # If the file, with this new added line, passes the check, the content is
+    # copied back to the original sudoers file.
+    if ! sudo visudo -c -q -f "$temp_file"; then
+        echo "Line: '$line' is not valid. Not added to sudoers file."
+        continue
+    else
+        sudo cp "$temp_file" /etc/sudoers
+    fi
+done
+
+# Remove the temporary file.
+if [[ -f "$temp_file" ]]; then rm "$temp_file" ; fi
+
+# Add the user to the needed groups.
+sudo usermod -aG video $USER
+
+
+
+################################################################################
+###  ZSH
+################################################################################
+
+if [[ -n $do_zsh ]]; then
+    _show_section "ZSH"
+    _install zsh
+    sudo chsh -s /usr/bin/zsh $USER
+fi
+
+
+
+_show_section "PACKAGES"
+################################################################################
+###  PACKAGES
+################################################################################
+
+_install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
+         tree mlocate python-pip python-pipx vim xclip evince gimp neofetch \
+         redshift shellcheck transmission-gtk vlc mplayer mpv songrec baobab \
+         tmux fzf bc fd plank mousepad playerctl brightnessctl lm_sensors \
+         polybar ffmpeg feh pinentry scrot bat ripgrep jq \
+         ttf-roboto-mono-nerd numlockx xwallpaper
+
+if _install cronie ; then
+    sudo systemctl enable --now cronie.service
+fi
+
+if _install youtube-dl ; then
+    sudo mv $HOME/.local/bin/youtube-dl /usr/local/bin/
+fi
+_install yt-dlp
+
+_install imagemagick
+if _install pywal ; then
+    sudo mv $HOME/.local/bin/wal /usr/local/bin/
+fi
+
+
+
+################################################################################
+###  AUR PACKAGES
+################################################################################
+
+# Install aur package manager script.
+if git clone https://github.com/marcoplaitano/paura "$_CODE_DIR/paura" ; then
+    ln -s $_CODE_DIR/paura/paura $HOME/.local/bin/paura
+
+    # Install AUR packages.
+    $HOME/.local/bin/paura "https://aur.archlinux.org/i3lock-color.git"
+    $HOME/.local/bin/paura "https://aur.archlinux.org/visual-studio-code-bin"
+    $HOME/.local/bin/paura "https://aur.archlinux.org/xfce-theme-greybird.git"
+    $HOME/.local/bin/paura "https://aur.archlinux.org/peerflix.git"
+    $HOME/.local/bin/paura "https://aur.archlinux.org/betterlockscreen.git"
+    cp betterlockscreen@.service /usr/lib/systemd/system/
+    systemctl enable betterlockscreen@$USER
+else
+    echo
+    echo "Could not install AUR helper and packages."
+    _wait_ok "Type 'ok' to continue: "
+fi
+
+
+
+################################################################################
+###  REPOSITORY: DOTFILES
+################################################################################
+_show_section "REPOSITORY: DOTFILES"
+dir=$_CODE_DIR/dotfiles
+
+if [[ -n $do_dotfiles && ! -d "$dir" ]]; then
+    git clone https://github.com/marcoplaitano/dotfiles "$dir"
+else
+    [[ ! -d "$dir" ]] && mv "$(pwd)" "$dir"
+fi
+
+# Set up the dotfiles with the installation script.
+if pushd "$dir" &>/dev/null ; then
+    bash ./install.sh
+    source $HOME/.profile
+    bash ./bin/appearance/change_theme default
+    popd &>/dev/null
+fi
+
+
+
+################################################################################
+###  REPOSITORY: WALLPAPERS
+################################################################################
+
+if [[ -n $do_wallpapers ]]; then
+    _show_section "REPOSITORY: WALLPAPERS"
+    dir=$HOME/Pictures/wallpapers
+
+    git clone https://github.com/marcoplaitano/wallpapers "$dir"
+fi
+
+
+
+_show_section "NEOVIM"
+################################################################################
+###  NEOVIM
+################################################################################
+
+# Install language servers.
+_install npm
+sudo npm install -g n
+sudo n stable
+sudo npm install -g bash-language-server
+_install "python-lsp-server[all]"
+
+_install neovim
+
+
+
+################################################################################
+###  DMENU
+################################################################################
+
+if [[ -n $do_dmenu ]]; then
+    _show_section "DMENU"
+    dir="$HOME/dmenu"
+
+    # Delete any pre-existing build.
+    if [[ -d "$dir" ]]; then rm -r "$dir" ; fi
+
+    # Get the source code from the personal fork repository.
+    git clone https://github.com/marcoplaitano/dmenu "$dir"
+
+    # Launch the installation script.
+    if pushd "$dir" >/dev/null ; then
+        bash ./install.sh
+        popd >/dev/null
+    fi
+    if [[ -d "$dir" ]]; then rm -rf "$dir" ; fi
+fi
+
+
+
+################################################################################
+###  DOCKER
+################################################################################
+
+if [[ -n $do_docker ]]; then
+    _show_section "DOCKER"
+
+    if _install docker ; then
+        _install xorg-xhost
+        sudo systemctl enable --now docker.service
+        sudo usermod -aG docker $USER
+    fi
+fi
+
+
+
+################################################################################
+###  SPOTIFY
+################################################################################
+
+if [[ -n $do_spotify ]]; then
+    _show_section "SPOTIFY"
+
+    if _install spotify-launcher ; then
+        sudo mv $(which spotify-launcher) /usr/bin/spotify
+        # Launch installer.
+        spotify &>/dev/null & disown
+    fi
+fi
+
+
+
+################################################################################
+###  TELEGRAM
+################################################################################
+
+if [[ -n $do_telegram ]]; then
+    _show_section "TELEGRAM"
+
+    _install telegram-desktop
+fi
+
+
+
+################################################################################
+################################################################################
+################################  POST INSTALL  ################################
+################################################################################
+################################################################################
+
+# Disable tracing of the commands.
+set +x
+echo
+
+# Result log files for the user.
+readonly log_errors_file="$HOME/Desktop/syssetup_errors.log"
+readonly log_file="$HOME/Desktop/syssetup.log"
+
+# Get a list of all the lines in the log file starting with a number that is not
+# 0. These are the lines containing the commands that failed.
+# (the actual error happens at the line above, that is why I also display 1 line
+# before (-B1) the actual grep match).
+failed=$(grep --color=yes -n -T -B1 --no-group-separator -E '^[1-9]+' "$LOGFILE")
+
+# Print and save results.
+if [[ -n $failed ]]; then
+    echo "$failed" > "$log_errors_file"
+    printf "\nThe commands listed below failed.\nNotice that a non-zero exit "
+    printf "status on line N means the error occurred at line N-1.\n\n"
+    printf "%s\n" "$failed"
+    printf "\nThese errors are stored in '%s'.\n" "$log_errors_file"
+else
+    printf "\nAll good.\n"
+fi
+printf "A copy of the complete log file is in '%s'.\n" "$log_file"
+
+cat "$LOGFILE" > "$log_file"

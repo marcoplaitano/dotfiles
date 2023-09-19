@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# File:   ask_dmenu
+# Author: Marco Plaitano
+# Brief:  Run dmenu with the the given options and colors.
+# See:    menu
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+################################################################################
+###  DMENU APPEARANCE
+################################################################################
+
+font="NotoSansRegular-12"
+
+# Height in pixels.
+height="26"
+
+# Sourcing this to get fuzzy highlight default colors in case the current theme
+# does not have them.
+source "$DOTS_DIR/_other/colors/dmenu/default.sh"
+source "$DMENU_THEME_FILE"
+
+
+
+################################################################################
+###  PARSE OPTIONS
+################################################################################
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        # Prompt to display.
+        -p | --prompt)
+            prompt="$2"
+            shift; shift ;;
+        # List of choices.
+        -l | --list)
+            list="$2"
+            shift; shift ;;
+        # Display each option on its line.
+        --multiple-lines)
+            multiple_lines=1
+            shift ;;
+        # Display exactly N lines.
+        -nl | --num-lines)
+            lines=$2
+            shift ; shift ;;
+        # Accept all user input.
+        --accept-all)
+            accept_all=1
+            shift ;;
+        # Use fuzzy match.
+        -F | --fuzzy)
+            fuzzy="-F"
+            shift ;;
+        -P | --password)
+            password="-P"
+            # Use monospaced font when inserting passwords so that the cursor
+            # will not shift from the * (character used to hide actual letters)
+            # because some characters are larger and other thinner.
+            font="monospace-12"
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+
+lines=${lines:=0}
+# If requested, calculate the number of lines in the list string.
+if [[ -n $multiple_lines ]] && [[ $lines -eq 0 ]]; then
+    lines=$(echo -e "$list" | wc -l)
+fi
+
+# Default values.
+prompt=${prompt:="choose:"}
+
+
+options="$fuzzy $password -i -h $height -fn $font -nb $nb -nf $nf \
+         -sb $sb -sf $sf -nhb $nhb -nhf $nhf -shb $shb -shf $shf "
+
+# Only center dmenu when using tiling window manager.
+if pgrep -x picom &>/dev/null; then
+    lines=10
+    prompt=""
+    options+=" -c -bw 2 -a "
+else lines=10 ; prompt="" ; options+=" -c "
+fi
+
+options+=" -l $lines "
+
+
+
+################################################################################
+###  LAUNCH DMENU
+################################################################################
+
+# Ask for any input.
+if [[ -n $accept_all ]]; then
+    echo $(dmenu -p "$prompt" $options)
+
+# Launch regular dmenu (with a list of all system applications).
+elif [[ -z $list ]]; then
+    echo $(dmenu_run -p "$prompt" $options)
+
+# Ask for a choice from the given list.
+else
+    echo $(echo -e "$list" | dmenu -p "$prompt" $options)
+fi

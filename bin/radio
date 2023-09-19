@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# File:   radio
+# Author: Marco Plaitano
+# Brief:  With this script the user can select a radio station and it will start
+#         playing via audio streaming.
+#         No output will be printed to stdout because, ideally, the script is
+#         launched via menu.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") [STATION]
+Play radio station.
+
+-h, --help      Show this guide and exit.
+STATION         Station to play. If not given it will be asked via dmenu.
+"
+}
+
+_play_radio() {
+    local station="$1"
+    [[ -z $station ]] && exit 1
+
+    ffplay -autoexit -nodisp -loglevel quiet $station &>/dev/null & disown
+
+    # Check that it is actually playing.
+    sleep 3
+    if ! pgrep ffplay; then
+        _die "Could not play station."
+    fi
+}
+
+_record_status() {
+    echo "$1" > "$RADIO_STATUS_FILE"
+}
+
+
+declare -A radioURLs=(
+    ["capital"]="https://streamcdnr8-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiocapital/radiocapital/master_ma.m3u8"
+    ["classica"]="http://icestreaming.rai.it/5.mp3"
+    ["deejay"]="http://radiodeejay-lh.akamaihd.net/i/RadioDeejay_Live_1@189857/master.m3u8"
+    ["montecarlo"]="http://edge.radiomontecarlo.net/RMC.mp3"
+    ["pooh"]="https://rtr99.fluidstream.eu/rtr99_pooh.mp3"
+    ["RTL"]="https://streamingv2.shoutcast.com/rtl-1025"
+    ["RTL-Best"]="https://streamingv2.shoutcast.com/rtl-1025-best"
+    ["virgin"]="http://icecast.unitedradio.it/Virgin.mp3"
+)
+
+
+# Sort the keys of the dictionary in alphabetical order.
+radios=( $( echo ${!radioURLs[@]} | tr ' ' '\n' | sort ) )
+# Add all the keys to a string, separating them with \n. (needed for dmenu)
+for r in ${radios[@]}; do
+    choices+="$r\n"
+done
+# Add also an option to stop playing the stream.
+choices+="STOP"
+
+# Parse command-line arguments.
+if [[ -n $1 ]]; then
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        *)
+            station="$1" ;;
+    esac
+fi
+
+# If no argument is given use dmenu to ask the user which station to play.
+if [[ -z $station ]]; then
+    station=$(ask_dmenu -p "station:" -l "$choices")
+fi
+[[ -z $station ]] && exit
+
+
+if [[ $station == STOP ]]; then
+    kill_process radio
+elif [[ -v radioURLs[$station] ]]; then
+    kill_process radio music lofi
+    _record_status "${station^}"
+    _play_radio ${radioURLs[$station]}
+else
+    _die "Station '$station' not recognized."
+fi

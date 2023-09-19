@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# File:   clean
+# Author: Marco Plaitano
+# Brief:  Remove all object files, executables and caches generated from C/C++,
+#         Python or Java sources.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]...
+Remove all executable files and caches generated from sources. By default this
+script won't operate on directories above '$HOME/'.
+
+-h, --help          Show this guide and exit.
+-f, --force         Force the execution of the script in the current directory.
+-d, --depth DEPTH   Clean up to DEPTH subdirectories. Default is 2.
+-p, --path PATH     Path to the directory to clear. Default is current wd.
+"
+}
+
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        -d | --depth)
+            [[ -z $2 ]] && _die "No depth given."
+            depth="$2"
+            shift ; shift ;;
+        -f | --force)
+            force=1
+            shift ;;
+        -p | --path)
+            [[ -z $2 ]] && _die "No path given."
+            path="$2"
+            shift ; shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+
+# Default path is current directory.
+path="${path:=$(pwd)}"
+
+# Prepend needed string if path is relative.
+if [[ "$path" != /* ]]; then
+    path="$(pwd)/$path"
+fi
+
+# Check that path exists.
+[[ ! -d "$path" ]] && _die "Not an existing path '$path'."
+
+
+# Don't clean system folders if not forced.
+if [[ -z $force ]]; then
+    case "$path" in
+        # Allow cleaning of folders starting with $HOME/
+        "$HOME"/*) ;;
+        *)
+            _die "Can't clean system folders. Use -f to force." ;;
+    esac
+fi
+
+
+# Set depth if not given.
+depth=${depth:=2}
+
+# Check that depth is an integer.
+[[ ! $depth =~ ^[0-9]+$ ]] && _die "Not a valid depth '$depth'."
+
+
+for dir in $(find "$path" -maxdepth $depth -type d ! -path '*.git*' 2>/dev/null)
+do
+    [[ -f "$dir"/makefile ]] && make -C "$dir" clean &>/dev/null
+    rm -r "$dir"/__pycache__/ 2>/dev/null
+    rm "$dir"/*.out           2>/dev/null
+    rm "$dir"/*.o             2>/dev/null
+    rm "$dir"/*.class         2>/dev/null
+    rm "$dir"/.DS_Store       2>/dev/null
+done
+exit 0

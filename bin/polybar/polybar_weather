@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# File:   weather
+# Author: Marco Plaitano
+# Date:   12 Aug 2022
+# Brief:  Get current weather for specified location. (Used to display weather
+#         module in polybar).
+
+
+# Format modifiers:
+#   c    Weather condition symbol
+#   C    Weather condition text
+#   x    Weather condition text symbol
+#   h    Humidity
+#   t    Temperature (Actual)
+#   f    Temperature (Feels Like)
+#   w    Wind
+#   l    Location
+#   m    Moon phase 🌑🌒🌓🌔🌕🌖🌗🌘
+#   M    Moon day
+#   p    Precipitation (mm/3 hours)
+#   P    Pressure (hPa)
+#   u    UV index (1-12)
+#   s    Sunset time
+# Specify format with %C+%m+%w (+ stands for space). No new line is added at the
+# end.
+
+
+if [[ -n $1 ]]; then
+    location="$1"
+elif [[ -f "$LOCATION_FILE" ]]; then
+    location=$(head "$LOCATION_FILE")
+else
+    location="Rome"
+    show_location=1
+fi
+
+
+IFS='_' read -r -a infos <<< "$(curl -s wttr.in/${location}?format=%C_%t_%w_%s_%l)"
+
+conditions="${infos[0]}"
+temperature="${infos[1]}"
+wind="${infos[2]}"
+wind=${wind:1}
+wind=${wind%"km/h"*}
+sunset="${infos[3]}"
+location="${infos[4]}"
+
+
+case "${conditions,,}" in
+    *"sunny"* | *"clear"*)
+        [[ "$(date +%T)" < "$sunset" ]] && icon="盛" || icon="望" ;;
+    *"overcast"*)
+        [[ "$(date +%T)" < "$sunset" ]] && icon="" || icon="" ;;
+    *"snow"* | *"sleet"*)
+        icon="晴" ;;
+    *"fog"*)
+        icon="敖" ;;
+    *"thunder"* | *"storm"*)
+        icon="朗" ;;
+    *"rain"*)
+        icon="歹" ;;
+    *"drizzle"*)
+        icon="殺" ;;
+    *"cloud"*)
+        icon="摒" ;;
+    *"mist"*)
+        icon="" ;;
+    "" | *"sorry"* | *"location"*)
+        echo "" ; exit ;;
+    *)
+        echo "  UNKNOWN: -$conditions-" ; exit ;;
+esac
+
+
+string="$icon  $temperature"
+
+# Add wind icon to indicate strong winds.
+if [[ $wind -ge 25 ]]; then
+    string+="    ${wind}km/h"
+fi
+
+# Add current location.
+if [[ -n $show_location ]]; then
+    string+="  ${location^}"
+fi
+
+echo "$string"

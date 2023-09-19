@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# File:   polybar_window
+# Author: Marco Plaitano
+# Date:   19 Nov 2022
+# Brief:  Filter focused window's name to show on polybar.
+
+
+active_window=$(xdotool getactivewindow 2>/dev/null)
+[[ $? -ne 0 ]] && { echo "" ; exit ;}
+
+class=$(xprop -id $active_window WM_CLASS | awk 'NF {print $NF}' | sed 's/"/ /g')
+
+case "${class,,}" in
+    *terminal*)
+        echo "Terminal" ;;
+    *firefox*)
+        echo "Browser" ;;
+    *code*)
+        echo "Code" ;;
+    *teams*)
+        echo "Teams" ;;
+    *)
+        echo "$class" ;;
+esac

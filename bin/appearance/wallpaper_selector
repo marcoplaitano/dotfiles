@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# File:   wallpaper_selector
+# Author: Marco Plaitano
+# Date:   24 Mar 2023
+# Brief:  Use feh to display list of wallpapers and choose one of them.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") [OPTION]
+Use feh to scroll through images and pick a new wallpaper. The images are taken
+from the \$WALLPAPERS_DIR directory.
+
+-h, --help        Show this guide and exit.
+-g, --grid        Show all images at once in a grid. Click to choose. (default)
+-s, --single      Show one image at a time. Press ENTER to choose.
+"
+}
+
+
+readonly GRID_OPTIONS=" -t --cache-thumbnails --thumb-height 200 \
+                        --thumb-width 200 -H 960 "
+readonly SINGLE_OPTIONS=" -g 640x480 -. -d --hide-pointer -N -S filename "
+
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        -g | --grid)
+            options=$GRID_OPTIONS
+            shift ;;
+        -s | --single)
+            options=$SINGLE_OPTIONS
+            shift ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+# Default value.
+options=${options:=$GRID_OPTIONS}
+
+img=$(feh -x -q $options --index-info ' ' -A "echo %f; killall feh" $WALLPAPERS_DIR/*)
+echo "$img"

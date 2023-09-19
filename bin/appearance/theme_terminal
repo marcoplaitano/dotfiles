@@ -1,0 +1,211 @@
+#!/bin/bash
+
+# File:   theme_terminal
+# Author: Marco Plaitano
+# Date:   05 Mar 2023
+# Brief:  Apply colorscheme to xfce4 terminal.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+
+_help() {
+    printf "Usage: $(basename "$0") THEME
+Apply colorscheme to either xfce4-terminal or alacritty. Changes will also
+affect utilities such as bat, vim and fzf.
+
+-h, --help      Show this guide and exit.
+"
+}
+
+
+
+_change_alacritty_colorscheme() {
+    local _CONFIG_FILE _TMP_FILE theme
+    theme="$1"
+    _CONFIG_FILE="/var/tmp/alacritty_theme.yml"
+    _TMP_FILE="/tmp/temp_scheme.yml"
+
+    # If Alacritty is not installed then there is nothing to do.
+    if ! which alacritty &>/dev/null ; then exit 1 ; fi
+
+    # If the file does not exist then create it.
+    if [[ ! -f "$_CONFIG_FILE" ]]; then
+        if [[ -f "$DOTS_DIR/alacritty/colorschemes.yml" ]]; then
+            cp "$DOTS_DIR/alacritty/colorschemes.yml" "$_CONFIG_FILE"
+        else
+            _die "Alacritty colors file does not exist."
+        fi
+    fi
+
+    # Check that theme exists.
+    if ! grep -q -r "&$theme\b" "$DOTS_DIR/alacritty/colorschemes.yml" ; then
+        _die "Colorscheme '$theme' does not exist."
+    fi
+
+
+    # Write pywal colors into the file.
+    if [[ $theme == wal ]]; then
+        source $HOME/.cache/wal/colors.sh
+
+        # Check whether the section header and footer exist.
+        if ! grep -q '^# wal begin' "$_CONFIG_FILE" || ! grep -q '^# wal end' "$_CONFIG_FILE"; then
+            _die "Error: in file '$(basename "$_CONFIG_FILE")' begin or end of wal section not found."
+        fi
+
+        # Delete everything between header and footer.
+        sed '/^# wal begin/,/^# wal end/ { /^# wal begin/! { /^# wal end/!d; } }' "$_CONFIG_FILE" > "$_TMP_FILE"
+        cat "$_TMP_FILE" > "$_CONFIG_FILE"
+
+
+        # Write new section between header and footer.
+        sed "/^# wal begin/ r /dev/stdin" "$_CONFIG_FILE" > "$_TMP_FILE" <<EOF
+    wal: &wal
+        primary:
+            background: '$background'
+            foreground: '$foreground'
+        cursor:
+            text:       CellBackground
+            cursor:     CellForeground
+        selection:
+            text:       CellBackground
+            cursor:     CellForeground
+        normal:
+            black:      '$color1'
+            red:        '$color2'
+            green:      '$color3'
+            yellow:     '$color4'
+            blue:       '$color5'
+            magenta:    '$color6'
+            cyan:       '$color7'
+            white:      '$color8'
+        bright:
+            black:      '$color8'
+            red:        '$color9'
+            green:      '$color10'
+            yellow:     '$color11'
+            blue:       '$color12'
+            magenta:    '$color13'
+            cyan:       '$color14'
+            white:      '$color15'
+EOF
+
+        mv "$_TMP_FILE" "$_CONFIG_FILE"
+    fi
+
+    sed -i "s/.*colors: \*.*/colors: \*$theme/" "$_CONFIG_FILE"
+}
+
+
+_change_xfce4_terminal_colorscheme() {
+    local _CONFIG_FILE _THEMES_DIR _THEME_FILE palette foreground background
+    _CONFIG_FILE="$HOME/.config/xfce4/terminal/terminalrc"
+
+    if [[ $theme == wal ]]; then
+        source $HOME/.cache/wal/colors.sh
+        palette="ColorPalette=$color0;$color1;$color2;$color3;$color4;$color5;$color6;$color7;$color8;$color9;$color10;$color11;$color12;$color13;$color14;$color15"
+        foreground="ColorForeground=$foreground"
+        background="ColorBackground=$background"
+    else
+        # Get colors from theme file.
+        _THEMES_DIR="/usr/share/xfce4/terminal/colorschemes"
+        _THEME_FILE="$_THEMES_DIR/$theme.theme"
+        [[ ! -f "$_CONFIG_FILE" ]] && _die "Terminal config file not found."
+        [[ ! -f "$_THEME_FILE" ]] && _die "Theme '$theme' does not exist."
+        palette=$(grep Palette "$_THEME_FILE")
+        foreground=$(grep Foreground "$_THEME_FILE")
+        background=$(grep Background "$_THEME_FILE")
+    fi
+
+    # Apply new theme in config file.
+    sed -i -e "s/ColorPalette=#.*/$palette/g" "$_CONFIG_FILE"
+    sed -i -e "s/ColorBackground=#.*/$background/g" "$_CONFIG_FILE"
+    sed -i -e "s/ColorForeground=#.*/$foreground/g" "$_CONFIG_FILE"
+
+}
+
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help
+            exit ;;
+        *)
+            theme="${1%.theme}"
+            shift ;;
+    esac
+done
+[[ -z $theme ]] && exit
+
+
+_change_alacritty_colorscheme "$theme"
+# _change_xfce4_terminal_colorscheme "$theme"
+
+
+# Update utilities such as vim, fzf...
+case "$theme" in
+    google-light)
+        theme_bat "ansi"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/google_light.sh"
+        theme_vim "vscode"
+        theme_helix "ayu_light"
+    ;;
+    *latte* | *light*)
+        theme_bat "ansi"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/catppuccin_latte.sh"
+        theme_vim "catppuccin-latte"
+        theme_helix "catppuccin-latte"
+    ;;
+    catppuccin-*)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/catppuccin_dark.sh"
+        theme_vim "$theme"
+        theme_helix "$theme"
+    ;;
+    everblush)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/everblush.sh"
+        theme_vim "everblush"
+        theme_helix "everblush"
+    ;;
+    gruvbox)
+        theme_bat "gruvbox-dark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/gruvbox.sh"
+        theme_vim "gruvbox"
+        theme_helix "gruvbox"
+    ;;
+    nord)
+        theme_bat "Nord"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/nord.sh"
+        theme_vim "nord"
+        theme_helix "nord"
+    ;;
+    one-dark)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/one_dark.sh"
+        theme_vim "onedark"
+        theme_helix "onedark"
+    ;;
+    wal)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/wallpaper.sh"
+        theme_vim "vscode"
+        theme_helix "ayu_dark"
+    ;;
+    *)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/base16_dark.sh"
+        theme_vim "vscode"
+        theme_helix "ayu_dark"
+    ;;
+esac
