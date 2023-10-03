@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") THEME
 Apply new batcat theme.
@@ -26,8 +25,7 @@ Apply new batcat theme.
 }
 
 
-
-# Parse command-line arguments.
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)

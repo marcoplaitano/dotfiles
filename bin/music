@@ -7,8 +7,6 @@
 # TODO:
 #   - accept arguments: album or play all.
 
-set -u
-
 
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."

@@ -4,15 +4,15 @@ vim.cmd([[
         autocmd!
 
         " Set ruler at column 100 for python files.
-        autocmd FileType python setlocal colorcolumn=100
+        "autocmd FileType python setlocal colorcolumn=100
         autocmd FileType python setlocal textwidth=100
 
         " Set ruler at column 120 for java files.
-        autocmd FileType java setlocal colorcolumn=120
+        "autocmd FileType java setlocal colorcolumn=120
         autocmd FileType java setlocal textwidth=120
 
         " Set ruler at column 120 for HTML files.
-        autocmd Filetype html set textwidth=120
+        "autocmd Filetype html set textwidth=120
         autocmd Filetype html set colorcolumn=120
 
         autocmd FileType gitcommit setlocal spell
@@ -23,15 +23,13 @@ vim.cmd([[
         autocmd FileType alpha setlocal nonumber norelativenumber
 
         " Enable spellcheck.
+        autocmd FileType html setlocal spell
         autocmd FileType markdown setlocal spell
         autocmd FileType gitcommit setlocal spell
         autocmd FileType text setlocal spell
 
         " Use hard tabs for makefiles.
         autocmd FileType make setlocal noexpandtab
-
-        " Auto cd into buffer directory when editing vim config files.
-        autocmd BufEnter *.vim setlocal autochdir
 
         " Set filetype for git files.
         autocmd BufEnter .gitignore setfiletype gitignore
@@ -52,9 +50,6 @@ vim.cmd([[
     " Group all the commands to run when entering vim or a new buffer.
     augroup entering
         autocmd!
-
-        " Always open new buffer in another tab.
-        " autocmd BufAdd,BufNewFile * nested tab sball
 
         " Autoread changes when file is modified externally.
         autocmd BufEnter,FocusGained $HOME/* checktime

@@ -13,6 +13,28 @@
 #         this option instead of one of the proposed directories).
 
 
+# Make sure that the script won't be executed more than once at a time.
+_check_pid() {
+    local PIDFILE
+    PIDFILE="/tmp/$(basename $0).pid"
+    if [[ -f "$PIDFILE" ]]; then
+        pid=$(cat "$PIDFILE")
+        # Process found, script already running.
+        if ps -p "$pid" &>/dev/null ; then
+            echo "Script already running." ; exit 1
+        # Process not found, overwrite.
+        else
+            echo $$ > "$PIDFILE"
+        fi
+    # Script wasn't running, write its pid onto file.
+    else
+        echo $$ > "$PIDFILE"
+    fi
+}
+
+_check_pid
+
+
 # How far down from the CODE_DIR to look for directories to add.
 readonly DEPTH=4
 
@@ -26,6 +48,7 @@ list=()
 #   - dir's name contains "workspace".
 dirs=$(find "$CODE_DIR" -mindepth 1 -maxdepth $DEPTH -type d ! -path '*.git*')
 for dir in $dirs; do
+    [[ "$dir" == *'/bin/'* ]] && continue
     if [[ -d "$CODE_DIR"/"$(basename "$dir")" ]] ||
        [[ -d "$dir"/.git ]] ||
        ls "$dir"/*.*sh &>/dev/null ||

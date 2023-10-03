@@ -186,17 +186,18 @@ if _own /usr/share/git/credential/netrc; then
     chmod +x /usr/share/git/credential/netrc/*
 fi
 
+# Create some directories.
+_CODE_DIR="$HOME/dev"
+mkdir -p "$_CODE_DIR"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.config/user"
+
 # Set current city in private file (to be sourced when determing weather).
 unset city
 while [[ -z $city ]]; do
     read -rp "City you live in (for weather): " city
 done
-echo "$city" > /var/tmp/location
-
-# Create some directories.
-_CODE_DIR="$HOME/dev"
-mkdir -p "$_CODE_DIR"
-mkdir -p "$HOME/.local/bin"
+echo "$city" > "$HOME/.config/user/location"
 
 
 

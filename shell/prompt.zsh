@@ -83,7 +83,7 @@ source $HOME/.config/shell/git-prompt.sh
 ROOT_SYMBOL='#'
 # Change prompt symbol (when not root) based on current vim mode.
 VI_NORMAL_SYMBOL=':'
-VI_INSERT_SYMBOL='|'
+VI_INSERT_SYMBOL='%%'
 
 function zle-line-init zle-keymap-select {
     PROMPT=''

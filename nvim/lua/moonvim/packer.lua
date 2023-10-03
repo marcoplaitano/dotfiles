@@ -59,11 +59,6 @@ return packer.startup(function(use)
         requires = { { "nvim-lua/plenary.nvim" } }
     }
 
-    -- Tree file navigation.
-    use "nvim-lua/plenary.nvim"
-    use "MunifTanjim/nui.nvim"
-    use { "nvim-neo-tree/neo-tree.nvim", as = "neotree" }
-
     -- Welcome page dashboard.
     use { "goolord/alpha-nvim", lazy = true }
 

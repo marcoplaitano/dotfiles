@@ -17,8 +17,7 @@ _die() {
 }
 
 
-
-# Parse command-line arguments.
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
@@ -31,7 +30,6 @@ while [[ -n $1 ]]; do
 done
 [[ -z $theme_file ]] && exit
 
-i3_THEME_FILE="/var/tmp/i3_theme.conf"
 
 # Check that file exists.
 if [[ ! -f "$theme_file" ]]; then

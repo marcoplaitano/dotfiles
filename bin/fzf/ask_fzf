@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") [OPTION]... -l LIST
 Pass a query along to fzf and return choice(s).

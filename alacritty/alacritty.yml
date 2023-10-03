@@ -47,7 +47,7 @@ font:
 # IMPORTANT: remember to update the colorschemes.yml file in the repository
 #            whenever a new theme is added.
 import:
-  - /var/tmp/alacritty_theme.yml
+  - /home/marco/.config/user/alacritty_theme.yml
 
 draw_bold_text_with_bright_colors: true
 

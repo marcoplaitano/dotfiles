@@ -26,7 +26,7 @@ Apply new theme to the helix editor.
 }
 
 
-# Parse command-line arguments.
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)

@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") THEME
 Apply new vim theme.
@@ -24,7 +23,6 @@ Apply new vim theme.
 -h, --help      Show this guide and exit.
 "
 }
-
 
 _background_mode() {
     # Determine whether terminal's background color is light or dark so that
@@ -58,7 +56,7 @@ EOF
 }
 
 
-# Parse command-line arguments.
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)

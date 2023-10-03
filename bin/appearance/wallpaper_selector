@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") [OPTION]
 Use feh to scroll through images and pick a new wallpaper. The images are taken
@@ -34,8 +33,7 @@ readonly GRID_OPTIONS=" -t --cache-thumbnails --thumb-height 200 \
 readonly SINGLE_OPTIONS=" -g 640x480 -. -d --hide-pointer -N -S filename "
 
 
-
-# Parse command-line arguments.
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)

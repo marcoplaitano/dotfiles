@@ -7,21 +7,6 @@
 #         If python is not found, launch the default calculator app.
 
 
-_is_running() {
-    calc_pid=$(pgrep -a xfce4-terminal | grep calculator | awk '{print $1}')
-    [[ -z $calc_pid ]] && calc_pid=$(pgrep $CALCULATOR)
-    [[ -n $calc_pid ]]
-}
-
-_kill_calculator() {
-    killall $CALCULATOR
-    calc_pid=$(pgrep -a xfce4-terminal | grep calculator | awk '{print $1}')
-    if [[ -n $calc_pid ]]; then
-        kill $calc_pid
-    fi
-}
-
-
 readonly CALCULATOR="${CALCULATOR:=mate-calc}"
 
 if command -v python3 &>/dev/null; then

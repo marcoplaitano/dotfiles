@@ -15,49 +15,68 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") [OPTION]
 Toggle dark theme across system's applications. Default action is toggle.
 
 -h, --help      Show this guide and exit.
---status        Print current status: 1 on, 0 off.
+--status        Print current status: on, off.
 --on
 --off
 --toggle
 "
 }
 
-
-# Check whether dark mode is enabled by reading from the status file.
-_read_status() {
-    if [[ -n $(cat "$DARK_THEME_STATUS_FILE" 2>/dev/null) ]]; then
-        echo 1
+# Make sure that the script won't be executed more than once at a time.
+_check_pid() {
+    local PIDFILE
+    PIDFILE="/tmp/$(basename $0).pid"
+    if [[ -f "$PIDFILE" ]]; then
+        pid=$(cat "$PIDFILE")
+        # Process found, script already running.
+        if ps -p "$pid" &>/dev/null ; then
+            _die "Script already running."
+        # Process not found, overwrite.
+        else
+            echo $$ > "$PIDFILE"
+        fi
+    # Script wasn't running, write its pid onto file.
     else
-        echo 0
+        echo $$ > "$PIDFILE"
     fi
 }
 
-# Write current status (light, dark) on file.
-_write_status() {
+
+# Check whether dark mode is enabled by reading from the status file.
+_get_status() {
+    local status
+    status=$(cat "$DARK_THEME_STATUS_FILE" 2>/dev/null)
+    if [[ -n $status ]]; then
+        echo $status
+    else
+        echo off
+    fi
+}
+
+# Write current status (on, off) on file.
+_set_status() {
     case $1 in
         on)
-            echo "1" > "$DARK_THEME_STATUS_FILE" ;;
+            echo "on" > "$DARK_THEME_STATUS_FILE" ;;
         off)
-            > "$DARK_THEME_STATUS_FILE" ;;
+            echo "off" > "$DARK_THEME_STATUS_FILE" ;;
         toggle)
-            if [[ $(_read_status) == 1 ]]; then
-                > "$DARK_THEME_STATUS_FILE"
+            if [[ $(_get_status) == on ]]; then
+                echo "off" > "$DARK_THEME_STATUS_FILE"
             else
-                echo "1" > "$DARK_THEME_STATUS_FILE"
+                echo "on" > "$DARK_THEME_STATUS_FILE"
             fi ;;
     esac
 }
 
 
 _apply_theme_wallpaper() {
-    curr_wallpaper_file="${WALLPAPER_FILE:=/var/tmp/wallpaper}"
-    curr_wallpaper_file="$(readlink $curr_wallpaper_file)"
+    curr_wallpaper_file="$(readlink $WALLPAPER_FILE)"
 
     if [[ "$curr_wallpaper_file" == *'-light'* ]]; then
         version="light"
@@ -191,7 +210,6 @@ _apply_theme_terminal() {
     esac
 
     if [[ -n $new_terminal_theme ]]; then
-        theme_alacritty "$new_terminal_theme"
         theme_terminal "$new_terminal_theme"
     fi
 }
@@ -217,11 +235,10 @@ _apply_theme_vscode() {
 }
 
 
+_check_pid
 
 # Need this environment variable when this script is called by a cron job.
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
-DARK_THEME_STATUS_FILE="/var/tmp/.darktheme"
-
 
 # Parse command line arguments.
 if [[ -n $1 ]]; then
@@ -233,7 +250,7 @@ if [[ -n $1 ]]; then
             flag="${1#*--}"
             shift ;;
         --status)
-            _read_status
+            _get_status
             exit ;;
         *)
             _die "Argument '$1' not recognized." ;;
@@ -241,24 +258,24 @@ if [[ -n $1 ]]; then
 fi
 
 # Do not apply if the current state is already the desired one.
-status=$(_read_status)
-[[ $status == 1 && $flag == on ]]  && exit
-[[ $status == 0 && $flag == off ]] && exit
+status=$(_get_status)
+[[ $status == on  && $flag == on ]]  && exit
+[[ $status == off && $flag == off ]] && exit
 
 # Default action is toggle.
 if [[ -z $flag ]]; then
-    [[ $status == 1 ]] && flag="off" || flag="on"
+    [[ $status == on ]] && flag="off" || flag="on"
 fi
 
 # Register new status.
-_write_status $flag
+_set_status $flag
 
 # Apply new theme.
-_apply_theme_gtk        $flag
-_apply_theme_xfwm4      $flag
-_apply_theme_icons      $flag
-_apply_theme_mousepad   $flag
-_apply_theme_vscode     $flag
+_apply_theme_gtk      $flag
+_apply_theme_xfwm4    $flag
+_apply_theme_icons    $flag
+_apply_theme_mousepad $flag
+_apply_theme_vscode   $flag
 # Changing wallpaper already takes care of changing terminal theme too.
 if ! _apply_theme_wallpaper $flag ; then
     _apply_theme_terminal $flag

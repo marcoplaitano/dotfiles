@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") THEME
 Apply colorscheme to either xfce4-terminal or alacritty. Changes will also
@@ -27,11 +26,10 @@ affect utilities such as bat, vim and fzf.
 }
 
 
-
 _change_alacritty_colorscheme() {
     local _CONFIG_FILE _TMP_FILE theme
     theme="$1"
-    _CONFIG_FILE="/var/tmp/alacritty_theme.yml"
+    _CONFIG_FILE="$ALACRITTY_THEME_FILE"
     _TMP_FILE="/tmp/temp_scheme.yml"
 
     # If Alacritty is not installed then there is nothing to do.
@@ -51,7 +49,6 @@ _change_alacritty_colorscheme() {
         _die "Colorscheme '$theme' does not exist."
     fi
 
-
     # Write pywal colors into the file.
     if [[ $theme == wal ]]; then
         source $HOME/.cache/wal/colors.sh
@@ -64,7 +61,6 @@ _change_alacritty_colorscheme() {
         # Delete everything between header and footer.
         sed '/^# wal begin/,/^# wal end/ { /^# wal begin/! { /^# wal end/!d; } }' "$_CONFIG_FILE" > "$_TMP_FILE"
         cat "$_TMP_FILE" > "$_CONFIG_FILE"
-
 
         # Write new section between header and footer.
         sed "/^# wal begin/ r /dev/stdin" "$_CONFIG_FILE" > "$_TMP_FILE" <<EOF
@@ -134,7 +130,7 @@ _change_xfce4_terminal_colorscheme() {
 
 
 
-# Parse command-line arguments.
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
@@ -147,10 +143,8 @@ while [[ -n $1 ]]; do
 done
 [[ -z $theme ]] && exit
 
-
 _change_alacritty_colorscheme "$theme"
 # _change_xfce4_terminal_colorscheme "$theme"
-
 
 # Update utilities such as vim, fzf...
 case "$theme" in

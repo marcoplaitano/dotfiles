@@ -17,7 +17,6 @@ for _, source in ipairs {
     "moonvim.plugins.commenter",
     "moonvim.plugins.lspconfig",
     "moonvim.plugins.lualine",
-    "moonvim.plugins.neotree",
     "moonvim.plugins.telescope",
     "moonvim.plugins.treesitter",
 } do

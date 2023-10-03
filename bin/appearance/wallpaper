@@ -15,7 +15,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") [IMAGE] [OPTION]
 Change current wallpaper with a new image and update system's color palette
@@ -30,9 +29,28 @@ IMAGE                   Global path to the image to use as wallpaper.
 "
 }
 
+# Make sure that the script won't be executed more than once at a time.
+_check_pid() {
+    local PIDFILE
+    PIDFILE="/tmp/$(basename $0).pid"
+    if [[ -f "$PIDFILE" ]]; then
+        pid=$(cat "$PIDFILE")
+        # Process found, script already running.
+        if ps -p "$pid" &>/dev/null ; then
+            _die "Script already running."
+        # Process not found, overwrite.
+        else
+            echo $$ > "$PIDFILE"
+        fi
+    # Script wasn't running, write its pid onto file.
+    else
+        echo $$ > "$PIDFILE"
+    fi
+}
+
 
 # Return a random image from the specified/default directory.
-random_image() {
+_random_image() {
     # Probably called by a cron job to update wallpaper (and wal colors) with
     # a random image.
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
@@ -45,7 +63,7 @@ random_image() {
 }
 
 
-ask_image() {
+_ask_image() {
     if [[ $TERM != dumb ]]; then
         images=$(echo $images | tr '|' ' ')
         image=$(ask_fzf -s -p "image: " -l "$images")
@@ -56,9 +74,11 @@ ask_image() {
 }
 
 
+
+_check_pid
+
 # Need this environment variable when this script is called by a cron job.
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
-
 
 # Parse command line arguments.
 while [[ -n $1 ]]; do
@@ -68,7 +88,7 @@ while [[ -n $1 ]]; do
             exit ;;
         -r | --random)
             dir="$2"
-            image=$(random_image)
+            image=$(_random_image)
             break ;;
         *)
             image="$1"
@@ -85,7 +105,6 @@ done
 # If no image has been given, ask for one in input.
 if [[ -z $image ]]; then
     # Create cache file if it does not exists yet.
-    export CACHE_FILE_WALLPAPERS="${CACHE_FILE_WALLPAPERS:=/var/tmp/cache_wallpapers}"
     if [[ ! -f "$CACHE_FILE_WALLPAPERS" ]]; then
         cache_wallpapers "$CACHE_FILE_WALLPAPERS"
     fi
@@ -99,7 +118,7 @@ if [[ -z $image ]]; then
     [[ -z $images ]] && _die "Error: list of images is empty."
 
     # Ask the user to choose an image either via FZF or DMENU.
-    ask_image
+    _ask_image
     # Some choices are special options and not really images.
     case "$image" in
         # Select image with graphical image viewer.

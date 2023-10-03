@@ -30,6 +30,7 @@ if [[ -n $1 ]]; then
     location="$1"
 elif [[ -f "$LOCATION_FILE" ]]; then
     location=$(head "$LOCATION_FILE")
+    touch "$LOCATION_FILE"
 else
     location="Rome"
     show_location=1

@@ -89,7 +89,7 @@ _external_toggle() {
 }
 
 
-# Parse command-line arguments.
+# Parse command line arguments.
 if [[ -n $1 ]]; then
     cmd="$1"
 # If no argument is given, ask for one with dmenu.

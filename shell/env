@@ -17,6 +17,8 @@ mesg n 2>/dev/null || true
 
 export RESET="\e[00m"
 
+export BOLD="\e[01m"
+export DIM="\e[02m"
 export ITALIC="\e[03m"
 export UNDERLINED="\e[04m"
 export BLINK="\e[05m"
@@ -51,25 +53,25 @@ export BLOG_DIR="$CODE_DIR/blog"
 export WALLPAPERS_DIR="$HOME/Pictures/wallpapers"
 
 # Status files.
-export RADIO_STATUS_FILE="/var/tmp/.radio"
-export MICROPHONE_STATUS_FILE="/var/tmp/.microphone"
-export LOGIN_MESSAGE_STATUS_FILE="/var/tmp/.lastlogin"
-export NIGHT_MODE_STATUS_FILE="/var/tmp/.nightmode"
-export DARK_THEME_STATUS_FILE="/var/tmp/.darktheme"
-export LOCATION_FILE="/var/tmp/location"
-export WALLPAPER_FILE="/var/tmp/wallpaper"
+export RADIO_STATUS_FILE="$HOME/.config/user/radio"
+export MICROPHONE_STATUS_FILE="$HOME/.config/user/microphone"
+export LOGIN_MESSAGE_STATUS_FILE="$HOME/.config/user/lastlogin"
+export NIGHT_MODE_STATUS_FILE="$HOME/.config/user/nightmode"
+export DARK_THEME_STATUS_FILE="$HOME/.config/user/darktheme"
+export LOCATION_FILE="$HOME/.config/user/location"
+export WALLPAPER_FILE="$HOME/.config/user/wallpaper"
 
 # Cache files.
-export CACHE_FILE_CODE_DIRS="/var/tmp/cache_code_dirs"
+export CACHE_FILE_CODE_DIRS="$HOME/.config/user/cache_code_dirs"
 export CACHE_FILE_MUSIC="$HOME/Music/discografia.csv"
-export CACHE_FILE_WALLPAPERS="/var/tmp/cache_wallpapers"
+export CACHE_FILE_WALLPAPERS="$HOME/.config/user/cache_wallpapers"
 
 # Theme files.
-export ALACRITTY_THEME_FILE="/var/tmp/alacritty_theme.yml"
-export DMENU_THEME_FILE="/var/tmp/dmenu_theme.sh"
-export FZF_THEME_FILE="/var/tmp/fzf_theme.sh"
-export i3_THEME_FILE="/var/tmp/i3_theme.conf"
-export POLYBAR_THEME_FILE="/var/tmp/polybar_theme.ini"
+export ALACRITTY_THEME_FILE="$HOME/.config/user/alacritty_theme.yml"
+export DMENU_THEME_FILE="$HOME/.config/user/dmenu_theme.sh"
+export FZF_THEME_FILE="$HOME/.config/user/fzf_theme.sh"
+export i3_THEME_FILE="$HOME/.config/user/i3_theme.conf"
+export POLYBAR_THEME_FILE="$HOME/.config/user/polybar_theme.ini"
 
 # Default applications.
 export WEBBROWSER="firefox"

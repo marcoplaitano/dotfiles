@@ -44,8 +44,7 @@ _toggle() {
 }
 
 
-
-# Parse command-line arguments.
+# Parse command line arguments.
 if [[ -n $1 ]]; then
     case "$1" in
         -h | --help)

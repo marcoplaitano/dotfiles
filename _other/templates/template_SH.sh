@@ -12,6 +12,7 @@ echo $"\
 # Date:   $(date +'%d %b %Y')
 # Brief:
 
+set -euo pipefail
 
 _die() {
     [[ -n \$1 ]] && error_msg=\"\$1\" || error_msg=\"Error in \$(basename \"\$0\").\"
@@ -30,6 +31,28 @@ Description
 -h, --help          Show this guide and exit.
 \"
 }
+
+# Make sure that the script won't be executed more than once at a time.
+_check_pid() {
+    local PIDFILE
+    PIDFILE=\"/tmp/\$(basename \$0).pid\"
+
+    if [[ -f \"\$PIDFILE\" ]]; then
+        pid=\$(cat \"\$PIDFILE\")
+        # Process found, script already running.
+        if ps -p \"\$pid\" &>/dev/null ; then
+            _die \"Script already running.\"
+        # Process not found, overwrite.
+        else
+            echo \$\$ > \"\$PIDFILE\"
+        fi
+    # Script wasn't running, write its pid.
+    else
+        echo \$\$ > \"\$PIDFILE\"
+    fi
+}
+
+_check_pid
 
 
 # Parse command-line arguments.

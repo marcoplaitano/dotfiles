@@ -329,5 +329,7 @@ for_window [title="webcam"] floating enable
 for_window [title="webcam"] sticky enable
 for_window [title="webcam"] border pixel 3
 
-# Float feh wallpaper chooser.
+# Enable floating by default for some applications.
 for_window [class="(?i)feh"] floating enable
+for_window [class="(?i)mpv"] floating enable
+for_window [class="(?i)transmission-gtk"] floating enable

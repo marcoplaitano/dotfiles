@@ -72,7 +72,7 @@ case $theme in
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/default.sh"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/default.ini"
         # Decide Light/Dark theme based on night mode being enabled or not.
-        if [[ $(dark_theme --status) == 0 ]]; then
+        if [[ $(dark_theme --status) == off ]]; then
             fzf_theme_file="$DOTS_DIR/_other/colors/fzf/google_light.sh"
             terminal_theme="google-light"
         else
@@ -141,7 +141,7 @@ case $theme in
             terminal_theme="wal"
         else
             # Decide Light/Dark theme based on night mode being enabled or not.
-            if [[ $(dark_theme --status) == 0 ]]; then
+            if [[ $(dark_theme --status) == off ]]; then
                 fzf_theme_file="$DOTS_DIR/_other/colors/fzf/google_light.sh"
                 terminal_theme="google-light"
             else

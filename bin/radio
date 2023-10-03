@@ -66,7 +66,7 @@ done
 # Add also an option to stop playing the stream.
 choices+="STOP"
 
-# Parse command-line arguments.
+# Parse command line arguments.
 if [[ -n $1 ]]; then
     case "$1" in
         -h | --help)

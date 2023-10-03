@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") [OPTION]
 Show or hide icons on the desktop.
@@ -47,7 +46,7 @@ _icons_toggle() {
 }
 
 
-# Parse command-line arguments.
+# Parse command line arguments.
 if [[ -n $1 ]]; then
     case "$1" in
         -h | --help)

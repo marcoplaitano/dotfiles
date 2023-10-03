@@ -23,13 +23,17 @@ If multiple torrents are found, choose the one with fzf.
 
 -h, --help          Show this guide and exit.
 TITLE               Title of the movie/show to watch.
+--url               Do not stream, copy magnet link to clipboard.
 "
 }
 
 
 _get_torrent_list() {
     url="$1"
-    curl -s -o "$_URL_FILE" "$url"
+    if ! timeout 5s curl -s -o "$_URL_FILE" "$url"; then
+        _die "Failed torrent search."
+    fi
+
     options=$(cat $_URL_FILE | grep -E '<td><a href="htt' | awk -F '">' '{print $NF}' | awk -F '<' '{print $1}')
     [[ -z $options ]] && _die "No streams found."
 
@@ -44,25 +48,33 @@ _get_torrent_list() {
 }
 
 
-case "$1" in
-    -h | --help)
-        _help ; exit ;;
-esac
-
 
 readonly _URL_FILE="/var/tmp/url.html"
 
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        --url)
+            get_url=1 ; shift ;;
+        *)
+            title+="$1 " ; shift ;;
+    esac
+done
+
+
 # Get the title of the movie/tv-show to stream.
-if [[ $# -eq 0 ]]; then
-    # If no argument is given use dmenu to ask.
+if [[ -z $title ]]; then
     query=$(ask_dmenu -p "Movie: " -l " ")
 else
-    query="$*"
+    # Remove last character (whitespace).
+    query="${title::-1}"
 fi
 query=$(printf '%s' "$query" | sed 's/ /\%20/g')
 [[ -z $query ]] && exit 1
 
 # Get all available torrents' titles.
+echo "Looking for torrents..."
 _get_torrent_list https://thepiratebay.party/search/$query/1/99/200
 
 # Use dmenu to choose one of the available titles.
@@ -77,8 +89,17 @@ title=${title#*. }
 # Get the Nth magnet link corresponding to the chosen title.
 magnet=$(cat "$_URL_FILE" | grep -E 'magnet:\?' | sed 's/href\=/ /g' | awk '{print $2}' | sed 's/"/ /g' | head -n $num | tail -n 1 | sed 's/ //g')
 
-# Stream torrent.
+# Show magnet link.
 quiet_option="--quiet"
 [[ $TERM != "dumb" ]] && quiet_option=""
 echo "$magnet"
+
+# Paste magnet link to clipboard (if needed).
+if [[ -n $get_url ]]; then
+    printf "$magnet" | xclip -sel clip
+    printf "\nPasted magnet url to clipboard.\n"
+    exit
+fi
+
+# Stream torrent.
 peerflix $magnet --mpv --not-on-top "$quiet_option"

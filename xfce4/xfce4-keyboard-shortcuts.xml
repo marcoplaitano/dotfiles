@@ -29,6 +29,7 @@
       <property name="&lt;Super&gt;r" type="empty">
         <property name="startup-notify" type="empty"/>
       </property>
+      <property name="&lt;Alt&gt;&lt;Super&gt;s" type="empty"/>
       <property name="&lt;Super&gt;l" type="empty"/>
       <property name="XF86HomePage" type="empty"/>
       <property name="&lt;Super&gt;w" type="empty"/>
@@ -63,22 +64,22 @@
         <property name="startup-notify" type="bool" value="true"/>
       </property>
       <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal --command &quot;env USE_TMUX=0 bash&quot;"/>
-      <property name="&lt;Super&gt;m" type="string" value="/home/marco/dev/dotfiles/bin/microphone --toggle"/>
       <property name="XF86AudioLowerVolume" type="string" value="pactl set-sink-volume @DEFAULT_SINK@ -5%"/>
       <property name="XF86AudioRaiseVolume" type="string" value="pactl set-sink-volume @DEFAULT_SINK@ +5%"/>
       <property name="XF86AudioMute" type="string" value="pactl set-sink-mute @DEFAULT_SINK@ toggle"/>
-      <property name="F9" type="string" value="/home/marco/dev/dotfiles/bin/microphone -t"/>
+      <property name="&lt;Super&gt;Return" type="string" value="alacritty"/>
+      <property name="&lt;Super&gt;space" type="string" value="/home/marco/dev/dotfiles/bin/menu/menu"/>
       <property name="F10" type="string" value="/home/marco/dev/dotfiles/bin/microphone -l"/>
       <property name="F11" type="string" value="/home/marco/dev/dotfiles/bin/microphone -r"/>
+      <property name="F9" type="string" value="/home/marco/dev/dotfiles/bin/microphone -t"/>
+      <property name="XF86AudioNext" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --next"/>
+      <property name="&lt;Super&gt;m" type="string" value="/home/marco/dev/dotfiles/bin/microphone --toggle"/>
       <property name="XF86AudioPlay" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --play-pause"/>
       <property name="XF86AudioPause" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --play-pause"/>
-      <property name="XF86AudioNext" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --next"/>
       <property name="AudioPrev" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --previous"/>
-      <property name="&lt;Super&gt;space" type="string" value="/home/marco/dev/dotfiles/bin/menu/menu"/>
-      <property name="&lt;Super&gt;Return" type="string" value="alacritty"/>
-      <property name="&lt;Super&gt;c" type="string" value="/home/marco/dev/dotfiles/bin/calculator"/>
       <property name="Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --quick"/>
       <property name="&lt;Shift&gt;Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --select"/>
+      <property name="&lt;Super&gt;c" type="string" value="/home/marco/dev/dotfiles/bin/calculator"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">
@@ -137,8 +138,8 @@
       <property name="&lt;Primary&gt;F12" type="empty"/>
       <property name="&lt;Super&gt;KP_Left" type="empty"/>
       <property name="&lt;Super&gt;KP_Right" type="empty"/>
-      <property name="&lt;Super&gt;KP_Up" type="empty"/>
       <property name="&lt;Super&gt;KP_Down" type="empty"/>
+      <property name="&lt;Super&gt;KP_Up" type="empty"/>
       <property name="&lt;Super&gt;KP_Page_Up" type="empty"/>
       <property name="&lt;Super&gt;KP_Home" type="empty"/>
       <property name="&lt;Super&gt;KP_End" type="empty"/>
@@ -161,7 +162,6 @@
       <property name="&lt;Super&gt;Down" type="string" value="tile_down_key"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;KP_9" type="string" value="move_window_workspace_9_key"/>
       <property name="&lt;Primary&gt;&lt;Shift&gt;&lt;Alt&gt;Left" type="string" value="move_window_left_key"/>
-      <property name="&lt;Primary&gt;&lt;Alt&gt;End" type="string" value="move_window_next_workspace_key"/>
       <property name="&lt;Primary&gt;F8" type="string" value="workspace_8_key"/>
       <property name="&lt;Alt&gt;F5" type="string" value="maximize_horiz_key"/>
       <property name="&lt;Primary&gt;F10" type="string" value="workspace_10_key"/>
@@ -190,8 +190,6 @@
       <property name="&lt;Super&gt;F11" type="string" value="fullscreen_key"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;KP_4" type="string" value="move_window_workspace_4_key"/>
       <property name="&lt;Alt&gt;&lt;Shift&gt;Tab" type="string" value="cycle_reverse_windows_key"/>
-      <property name="Escape" type="string" value="cancel_key"/>
-      <property name="&lt;Primary&gt;&lt;Alt&gt;Home" type="string" value="move_window_prev_workspace_key"/>
       <property name="&lt;Shift&gt;&lt;Alt&gt;Page_Up" type="string" value="raise_window_key"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;KP_1" type="string" value="move_window_workspace_1_key"/>
       <property name="&lt;Alt&gt;F12" type="string" value="above_key"/>
@@ -212,12 +210,12 @@
       <property name="&lt;Super&gt;h" type="string" value="hide_window_key"/>
       <property name="&lt;Alt&gt;space" type="string" value="resize_window_key"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;space" type="string" value="move_window_key"/>
-      <property name="&lt;Primary&gt;&lt;Shift&gt;Page_Down" type="string" value="move_window_down_workspace_key"/>
-      <property name="&lt;Primary&gt;&lt;Shift&gt;Page_Up" type="string" value="move_window_up_workspace_key"/>
       <property name="&lt;Primary&gt;Page_Up" type="string" value="up_workspace_key"/>
       <property name="&lt;Primary&gt;Page_Down" type="string" value="down_workspace_key"/>
-      <property name="&lt;Super&gt;Page_Up" type="string" value="left_workspace_key"/>
-      <property name="&lt;Super&gt;Page_Down" type="string" value="right_workspace_key"/>
+      <property name="&lt;Shift&gt;&lt;Super&gt;Page_Down" type="string" value="move_window_next_workspace_key"/>
+      <property name="&lt;Shift&gt;&lt;Super&gt;Page_Up" type="string" value="move_window_prev_workspace_key"/>
+      <property name="&lt;Super&gt;Page_Down" type="string" value="next_workspace_key"/>
+      <property name="&lt;Super&gt;Page_Up" type="string" value="prev_workspace_key"/>
     </property>
   </property>
   <property name="providers" type="array">
