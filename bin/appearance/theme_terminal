@@ -172,6 +172,11 @@ case "$theme" in
         theme_vim "everblush"
         theme_helix "everblush"
     ;;
+    github-dark)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/base16_dark.sh"
+        theme_vim "github_dark_dimmed"
+    ;;
     gruvbox)
         theme_bat "gruvbox-dark"
         theme_fzf "$DOTS_DIR/_other/colors/fzf/gruvbox.sh"

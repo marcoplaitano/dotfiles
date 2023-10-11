@@ -85,7 +85,8 @@ ROOT_SYMBOL='#'
 VI_NORMAL_SYMBOL=':'
 VI_INSERT_SYMBOL='%%'
 
-function zle-line-init zle-keymap-select {
+
+_default_prompt() {
     PROMPT=''
     # Execution time.
     PROMPT+='%B%F{yellow}${cmd_time}%f'
@@ -119,6 +120,46 @@ function zle-line-init zle-keymap-select {
     fi
 
     zle reset-prompt
+}
+
+_no_colors_prompt() {
+    PROMPT=''
+    # Execution time.
+    PROMPT+='${cmd_time}'
+    # Num of Background Jobs.
+    PROMPT+='%(1j.%j .)'
+    # Username. (Color it RED if root).
+    PROMPT+='%n'
+    # Hostname (in SSH).
+    [[ -n $SSH_CONNECTION ]] && PROMPT+='@%m'
+    PROMPT+=' '
+    # Path truncated at a depth of 5.
+    PROMPT+='%(5~|../%3~|%~)'
+    # Lock if no write permissions in current folder.
+    PROMPT+='$(locked_dir)'
+    # Git info.
+    PROMPT+='$(__git_ps1 " (%s)")'
+    # Either leave a space or a newline if the available space is not long enough.
+    PROMPT+=$'%-50(l: :\n)'
+    # Prompt symbol.
+    # Color it red if last command failed.
+    # Do not consider "error" the following exit status codes:
+    #    - 130  (CTRL+C)
+    #    - 148  (CTRL+Z)
+    PROMPT+='%f%(?..%(130?..%(148?..%F{red})))'
+    # Change actual symbol based on the current vi mode and whether the user is
+    # root.
+    if [[ $KEYMAP == vicmd ]]; then
+        PROMPT+='%(!.$ROOT_SYMBOL.$VI_NORMAL_SYMBOL)%f%b '
+    else
+        PROMPT+='%(!.$ROOT_SYMBOL.$VI_INSERT_SYMBOL)%f%b '
+    fi
+
+    zle reset-prompt
+}
+
+function zle-line-init zle-keymap-select {
+    _default_prompt
 }
 
 zle -N zle-line-init

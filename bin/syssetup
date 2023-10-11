@@ -296,10 +296,10 @@ _show_section "PACKAGES"
 
 _install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
          tree mlocate python-pip python-pipx vim xclip evince gimp neofetch \
-         redshift shellcheck transmission-gtk vlc mplayer mpv songrec baobab \
+         redshift shellcheck transmission-gtk mplayer mpv songrec baobab \
          tmux fzf bc fd plank mousepad playerctl brightnessctl lm_sensors \
-         polybar ffmpeg feh pinentry scrot bat ripgrep jq \
-         ttf-roboto-mono-nerd numlockx xwallpaper
+         polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
+         ttf-roboto-mono-nerd numlockx xwallpaper dunst
 
 if _install cronie ; then
     sudo systemctl enable --now cronie.service
@@ -347,7 +347,7 @@ fi
 _show_section "REPOSITORY: DOTFILES"
 dir=$_CODE_DIR/dotfiles
 
-if [[ -n $do_dotfiles && ! -d "$dir" ]]; then
+if [[ -n $do_dotfiles ]] && [[ ! -d "$dir" ]]; then
     git clone https://github.com/marcoplaitano/dotfiles "$dir"
 else
     [[ ! -d "$dir" ]] && mv "$(pwd)" "$dir"
@@ -440,7 +440,9 @@ if [[ -n $do_spotify ]]; then
     _show_section "SPOTIFY"
 
     if _install spotify-launcher ; then
-        sudo mv $(which spotify-launcher) /usr/bin/spotify
+        sudo mv "$(which spotify-launcher)" /usr/bin/spotify
+        sudo cp /usr/share/applications/spotify-launcher.desktop \
+                /usr/share/applications/spotify.desktop
         # Launch installer.
         spotify &>/dev/null & disown
     fi

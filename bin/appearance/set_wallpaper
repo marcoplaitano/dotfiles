@@ -36,4 +36,4 @@ xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorHDMI-1/workspace0/last
 xwallpaper --zoom "$image"
 
 # Save wallpaper file.
-ln -fs "$image" "$WALLPAPER_FILES"
+ln -fs "$image" "$WALLPAPER_FILE"

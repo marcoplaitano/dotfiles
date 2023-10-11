@@ -11,8 +11,8 @@
 set $mod Mod4
 
 set $SCRIPTS ~/dev/dotfiles/bin
-set $WALLPAPER_FILE /var/tmp/wallpaper
-set $i3_THEME_FILE /var/tmp/i3_theme.conf
+set $WALLPAPER_FILE ~/.config/user/wallpaper
+set $i3_THEME_FILE ~/.config/user/i3_theme.conf
 
 set $BROWSER firefox
 set $TERMINAL WINIT_X11_SCALE_FACTOR=1.0 alacritty
@@ -45,6 +45,9 @@ exec --no-startup-id picom -b --config ~/.config/picom/picom.conf
 
 # Set wallpaper.
 exec --no-startup-id sleep 1 && xwallpaper --zoom $WALLPAPER_FILE
+
+# Enable transparency for Alacritty terminal.
+exec --no-startup-id $SCRIPTS/appearance/alacritty_opacity on
 
 # Start polybar.
 exec --no-startup-id $SCRIPTS/polybar/polybar.sh

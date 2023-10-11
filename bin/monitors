@@ -57,7 +57,9 @@ _mirror() {
 }
 
 _internal_off() {
-    xrandr --output $_INTERNAL --off
+    xrandr \
+        --output $_EXTERNAL --primary --mode 1920x1080 --rate 60 --pos 0x0 \
+        --output $_INTERNAL --off
 }
 
 _internal_on() {

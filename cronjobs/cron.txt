@@ -37,8 +37,7 @@ BASH_ENV=~/.profile
 
 # Toggle dark theme and blue light filter. The script is called frequently but
 # it will only actually operate when the time is right.
-00 * * * * ~/dev/dotfiles/bin/night_mode
-30 * * * * ~/dev/dotfiles/bin/night_mode
+*/15 * * * * ~/dev/dotfiles/bin/night_mode
 
 # Update caches.
 00 * * * * ~/dev/dotfiles/bin/cache/cache_code_dirs

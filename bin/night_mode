@@ -63,7 +63,7 @@ _turn_on() {
 }
 
 _toggle() {
-    if [[ $(_get_status) == 0 ]]; then
+    if [[ $(_get_status) == off ]]; then
         _turn_on
     else
         _turn_off
@@ -112,7 +112,7 @@ done
 # Default action is to toggle based on time of day.
 if [[ -z $flag ]]; then
     curr_time="$(date +%H:%M)"
-    if [[ $curr_time > $BEGIN_TIME ]] || [[ $curr_time < $END_TIME ]]; then
+    if [[ ! $curr_time < $BEGIN_TIME ]] || [[ ! $curr_time > $END_TIME ]]; then
         flag=on
     else
         flag=off

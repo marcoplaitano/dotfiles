@@ -22,6 +22,8 @@
     discard = restore
     # Preview changes before pull
     preview = log -p HEAD..origin/main
+    # Show last commit message
+    message = log --format=medium -1
 
 [branch]
     # Show most recently changed branches first.

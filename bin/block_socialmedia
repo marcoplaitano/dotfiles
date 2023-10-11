@@ -9,7 +9,7 @@
 set -eu
 
 # This script needs to be run with sudo because it writes on /etc/hosts.
-if [[ $EUID -ne 0 ]]; then
+if [[ $EUID -ne 0 ]] && [[ ! -O "/etc/hosts" ]]; then
     echo "Usage: sudo $(basename $0)" >&2
     exit 1
 fi
@@ -44,6 +44,7 @@ _set_status() {
 _block() {
     for site in "${_SOCIAL_MEDIA[@]}"; do
         echo "127.0.0.1  $site" >> /etc/hosts
+        echo "127.0.0.1  www.$site" >> /etc/hosts
     done
     _set_status blocked
 }
@@ -51,6 +52,7 @@ _block() {
 _unblock() {
     for site in "${_SOCIAL_MEDIA[@]}"; do
         sed -i "/^127.0.0.1  $site/d" /etc/hosts
+        sed -i "/^127.0.0.1  www.$site/d" /etc/hosts
     done
     _set_status unblocked
 }
@@ -63,16 +65,20 @@ _is_unblocked() {
     fi
 }
 
+_wait() {
+    local sec=20
+    echo "wait $sec seconds"
+    sleep $sec
+}
+
 
 _check_pid
 
 _SOCIAL_MEDIA=(
     "instagram.com"
-    "www.instagram.com"
     "reddit.com"
-    "www.reddit.com"
     "twitter.com"
-    "www.twitter.com"
+    "youtube.com"
 )
 
 _STATUS_FILE="$HOME/.cache/socialmedia_block_status"
@@ -81,5 +87,6 @@ _STATUS_FILE="$HOME/.cache/socialmedia_block_status"
 if _is_unblocked; then
     _block
 else
+    _wait
     _unblock
 fi

@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# File:   alacritty_opacity
+# Author: Marco Plaitano
+# Date:   07 Oct 2023
+# Brief:
+
+set -eo pipefail
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename $0) [OPTION]...
+Toggle opacity settings for Alacritty terminal.
+
+-h, --help
+--on
+--off
+"
+}
+
+
+_set_opacity() {
+    local value
+    value="$1"
+    sed -i -e "s/    opacity.*/    opacity: $value/" "$_CONFIG_FILE"
+}
+
+
+readonly _CONFIG_FILE="$XDG_CONFIG_HOME/alacritty/alacritty.yml"
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        on | --on)
+            _set_opacity 0.90 ; exit ;;
+        off | --off)
+            _set_opacity 1.00 ; exit ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+done
+
+_die "Usage: $(basename $0) on|off"

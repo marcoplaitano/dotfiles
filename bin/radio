@@ -36,7 +36,7 @@ _play_radio() {
     # Check that it is actually playing.
     sleep 3
     if ! pgrep ffplay; then
-        _die "Could not play station."
+        _die "Could not play station '$station'."
     fi
 }
 
@@ -47,12 +47,11 @@ _record_status() {
 
 declare -A radioURLs=(
     ["capital"]="https://streamcdnr8-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiocapital/radiocapital/master_ma.m3u8"
-    ["classica"]="http://icestreaming.rai.it/5.mp3"
     ["deejay"]="http://radiodeejay-lh.akamaihd.net/i/RadioDeejay_Live_1@189857/master.m3u8"
     ["montecarlo"]="http://edge.radiomontecarlo.net/RMC.mp3"
     ["pooh"]="https://rtr99.fluidstream.eu/rtr99_pooh.mp3"
-    ["RTL"]="https://streamingv2.shoutcast.com/rtl-1025"
-    ["RTL-Best"]="https://streamingv2.shoutcast.com/rtl-1025-best"
+    ["rtl"]="https://streamingv2.shoutcast.com/rtl-1025"
+    ["rtl-best"]="https://streamingv2.shoutcast.com/rtl-1025-best"
     ["virgin"]="http://icecast.unitedradio.it/Virgin.mp3"
 )
 

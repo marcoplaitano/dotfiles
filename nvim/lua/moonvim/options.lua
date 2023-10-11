@@ -17,7 +17,7 @@ vim.opt.spell = false
 --------------------------------------------------------------------------------
 
 -- Only enable mouse usage in specific modes.
-vim.opt.mouse = "h"
+vim.opt.mouse = "nh"
 
 -- Hide mouse pointer when any key is pressed.
 vim.opt.mousehide = true

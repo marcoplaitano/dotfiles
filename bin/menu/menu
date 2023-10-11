@@ -105,6 +105,13 @@ _choose_account() {
 }
 
 
+# Run plank dock.
+_plank_dock() {
+    killall plank
+    plank &>/dev/null & disown
+}
+
+
 # Show/hide desktop icons.
 _toggle_desktop_icons() {
     local options option
@@ -192,7 +199,6 @@ declare -A actions=(
     [amazon]="$WEBBROWSER amazon.it"
     [appearance]="xfce4-appearance-settings"
     [baobab]="baobab"
-    [biblioteca]="$WEBBROWSER https://easycourse.unisa.it/PortalePlanning/UNISA-BIBL"
     [calculator]="calculator"
     [calendar]="$WEBBROWSER calendar.google.com"
     [chatgpt]="$WEBBROWSER https://chat.openai.com/"
@@ -219,10 +225,7 @@ declare -A actions=(
     [magistrale]="$WEBBROWSER https://corsi.unisa.it/ingegneria-informatica-magistrale"
     [mail]="_choose_account mail.google.com/mail \#inbox"
     [maps]="$WEBBROWSER https://www.google.com/maps"
-    [marcoplaitano]="$WEBBROWSER https://www.marcoplaitano.xyz"
-    [medium]="$WEBBROWSER https://medium.com"
     [modernfamily]="$WEBBROWSER --private-window https://gomovies.sx/tv/watch-modern-family-gomovies-39507"
-    [moodle]="$WEBBROWSER https://elearning.unisa.it/my/"
     [monitor]="monitors"
     [mousepad]="mousepad"
     [music]="music"
@@ -234,7 +237,7 @@ declare -A actions=(
     [peerflix]="streaming"
     [photos]="$WEBBROWSER https://photos.google.com/"
     [pinterest]="$WEBBROWSER https://www.pinterest.co.uk"
-    [plank]="plank"
+    [plank]="_plank_dock"
     [polybar]="polybar.sh"
     [poweroff]="exit.sh --poweroff"
     [primevideo]="$WEBBROWSER https://www.primevideo.com"
