@@ -4,6 +4,7 @@
 # Author: Marco Plaitano
 # Brief:  Download video and/or audio track from youtube video given its URL.
 
+set -e
 
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
@@ -14,7 +15,6 @@ _die() {
     fi
     exit 1
 }
-
 
 _help() {
     printf "Usage: $(basename "$0") URL [FILE] [OPTION]
@@ -27,7 +27,6 @@ FILE            Name of the file in which to save the video. If not given, last
                 part of the URL is used.
 "
 }
-
 
 
 # Parse command line arguments.
@@ -44,7 +43,6 @@ while [[ -n $1 ]]; do
             shift ;;
     esac
 done
-
 
 if [[ -z $url ]]; then
     _die "Please provide a Youtube video's URL."
@@ -64,7 +62,6 @@ youtube-dl --rm-cache-dir
 if [[ -n $audio_only ]]; then
     youtube-dl -f bestaudio --extract-audio --audio-quality 0 "$url" \
         -o "$file".%\(ext\)s
-
 else
     # Let the user choose the video quality.
     youtube-dl -F "$url"

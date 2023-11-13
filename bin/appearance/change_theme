@@ -32,8 +32,8 @@ THEME           Name of the new theme to apply.
 # Show a list of all the available themes.
 _show_list() {
     local themes
-    themes=" catppuccin catppuccin-latte default everblush"
-    themes+=" gruvbox nord one-dark wal"
+    themes=" base16-gruvbox-dark-hard catppuccin catppuccin-latte default"
+    themes+=" everblush gruvbox nord one-dark wal"
     echo -e "The available themes are: ${themes// /'\n  - '}"
 }
 
@@ -79,6 +79,14 @@ case $theme in
             fzf_theme_file="$DOTS_DIR/_other/colors/fzf/base16_dark.sh"
             terminal_theme="default"
         fi
+    ;;
+    base16-gruvbox-dark-hard)
+        cp $DOTS_DIR/_other/colors/palettes/base16_gruvbox_dark_hard.sh $HOME/.cache/wal/colors.sh
+        dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/base16_gruvbox_dark_hard.sh"
+        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/base16_gruvbox_dark_hard.sh"
+        i3_theme_file="$DOTS_DIR/_other/colors/i3/base16-gruvbox-dark-hard.conf"
+        polybar_theme_file="$DOTS_DIR/_other/colors/polybar/base16-gruvbox-dark-hard.ini"
+        terminal_theme="base16-gruvbox-dark-hard"
     ;;
     catppuccin)
         cp $DOTS_DIR/_other/colors/palettes/catppuccin_dark.sh $HOME/.cache/wal/colors.sh

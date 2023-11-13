@@ -159,7 +159,7 @@ case "$image" in
     *everblush*)
         theme="everblush" ;;
     *gruv-*)
-        theme="gruvbox" ;;
+        theme="base16-gruvbox-dark-hard" ;;
     *nord-*)
         theme="nord" ;;
     *onedark-*)

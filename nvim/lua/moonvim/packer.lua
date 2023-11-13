@@ -55,7 +55,7 @@ return packer.startup(function(use)
 
     -- Telescope.
     use {
-        "nvim-telescope/telescope.nvim", tag = "0.1.1",
+        "nvim-telescope/telescope.nvim", tag = "0.1.4",
         requires = { { "nvim-lua/plenary.nvim" } }
     }
 
@@ -96,6 +96,7 @@ return packer.startup(function(use)
     -- Colorschemes.
     use "projekt0n/github-nvim-theme"
     use "ellisonleao/gruvbox.nvim"
+    use "RRethy/nvim-base16"
     use "Mofiqul/vscode.nvim"
     use { "catppuccin/nvim", as = "catppuccin" }
     use "shaunsingh/nord.nvim"

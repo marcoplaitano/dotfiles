@@ -94,13 +94,14 @@ _choose_kill() {
 # Open the given Google's site with the account the user chooses.
 _choose_account() {
     local accounts account
-    accounts="99\nuni\n23\nea"
+    accounts="99\nuni\n23\nea\npr"
     account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
     case $account in
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
         uni)  $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
         23)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
         ea)   $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
+        pr)   $WEBBROWSER https://mail.proton.me/u/1/inbox  & disown ;;
     esac
 }
 
@@ -173,13 +174,15 @@ _screenrecord() {
 
 _change_theme() {
     local themes theme
-    themes="catppuccin\ncatppuccin-latte\ndefault\n"
+    themes="base16-gruvbox-dark-hard\ncatppuccin\ncatppuccin-latte\ndefault\n"
     themes+="everblush\ngruvbox\nnord\none-dark"
     theme=$(ask_dmenu -p "theme:" -l $themes --multiple-lines)
     [[ -z $theme ]] && exit
     case "$theme" in
         default)
             wallpaper --random $WALLPAPERS_DIR ;;
+        base16-gruvbox-dark-hard)
+            wallpaper --random $WALLPAPERS_DIR/gruvbox ;;
         *)
             wallpaper --random $WALLPAPERS_DIR/$theme ;;
     esac
@@ -200,7 +203,7 @@ declare -A actions=(
     [appearance]="xfce4-appearance-settings"
     [baobab]="baobab"
     [calculator]="calculator"
-    [calendar]="$WEBBROWSER calendar.google.com"
+    [calendar]="$WEBBROWSER calendar.google.com/calendar/u/1/"
     [chatgpt]="$WEBBROWSER https://chat.openai.com/"
     [chromium]="chromium"
     [code]="_choose_editor_directory"
@@ -218,7 +221,7 @@ declare -A actions=(
     [imageColorPalette]="$WEBBROWSER https://imagecolorpicker.com/"
     [kill]="_choose_kill"
     [linkedin]="$WEBBROWSER https://www.linkedin.com/"
-    [localhost]="$WEBBROWSER --private-window http://localhost/"
+    [localhost]="$WEBBROWSER http://localhost/"
     [lock]="exit.sh --lock"
     [lofi]="lofi"
     [logout]="exit.sh --logout"
@@ -245,6 +248,7 @@ declare -A actions=(
     [radio]="radio"
     [reboot]="exit.sh --reboot"
     [redshift]="blue_light_filter --on"
+    [rss]="fluent-reader"
     [screenrecord]="_screenrecord"
     [screenshot]="xfce4-screenshooter"
     [session]="xfce4-session-settings"
