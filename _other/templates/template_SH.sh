@@ -39,30 +39,27 @@ _check_pid() {
 
     if [[ -f \"\$PIDFILE\" ]]; then
         pid=\$(cat \"\$PIDFILE\")
-        # Process found, script already running.
-        if ps -p \"\$pid\" &>/dev/null ; then
-            _die \"Script already running.\"
-        # Process not found, overwrite.
-        else
-            echo \$\$ > \"\$PIDFILE\"
-        fi
-    # Script wasn't running, write its pid.
-    else
-        echo \$\$ > \"\$PIDFILE\"
+        # Process found, script already running, do not execute this.
+        ps -p \"\$pid\" &>/dev/null && _die \"Script already running.\"
     fi
+    # Script wasn't running, write its pid.
+    echo \$\$ > \"\$PIDFILE\"
 }
 
 _check_pid
 
 
 # Parse command-line arguments.
-while [[ -n \$1 ]]; do
-    case \"\$1\" in
+args=(\"\$@\") ; num_args=\${#args[@]} ; index=0
+while [[ \$index -lt \$num_args ]]; do
+    arg=\"\${args[index]}\"
+    case \"\$arg\" in
         -h | --help)
             _help ; exit ;;
         *)
             _die \"Argument '\$1' not recognized.\" ;;
     esac
+    ((index+=1))
 done
 
 " > "$file"

@@ -17,17 +17,12 @@ _die() {
 
 
 readonly _QUOTES_FILE="$DOTS_DIR/_other/quotes.txt"
-
-if [[ ! -f "$_QUOTES_FILE" ]]; then
-    _die "Quotes file '$_QUOTES_FILE' does not exist."
-fi
+[[ ! -f "$_QUOTES_FILE" ]] && _die "Quotes file '$_QUOTES_FILE' does not exist."
 
 # Number of lines (= number of quotes) in the file.
 num_lines=$(wc -l "$_QUOTES_FILE")
 num_lines=${num_lines%% *}
-if [[ $num_lines == "0" ]]; then
-    _die "Quotes file '$_QUOTES_FILE' is empty."
-fi
+[[ $num_lines == "0" ]] && _die "Quotes file '$_QUOTES_FILE' is empty."
 
 # Choose a random line.
 num=$(( RANDOM % num_lines + 1 ))

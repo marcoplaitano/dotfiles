@@ -27,17 +27,11 @@ _check_pid() {
     PIDFILE="/tmp/$(basename $0).pid"
     if [[ -f "$PIDFILE" ]]; then
         pid=$(cat "$PIDFILE")
-        # Process found, script already running.
-        if ps -p "$pid" &>/dev/null ; then
-            _die "Script already running."
-        # Process not found, overwrite.
-        else
-            echo $$ > "$PIDFILE"
-        fi
-    # Script wasn't running, write its pid onto file.
-    else
-        echo $$ > "$PIDFILE"
+        # Process found, script already running, do not execute this.
+        ps -p "$pid" &>/dev/null && _die "Script already running."
     fi
+    # Script wasn't running, write its pid.
+    echo $$ > "$PIDFILE"
 }
 
 
@@ -101,7 +95,7 @@ _choose_account() {
         uni)  $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
         23)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
         ea)   $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
-        pr)   $WEBBROWSER https://mail.proton.me/u/1/inbox  & disown ;;
+        pr)   $WEBBROWSER https://mail.proton.me/u/2/inbox  & disown ;;
     esac
 }
 
@@ -130,10 +124,10 @@ _search_streaming() {
     site="https://gomovies.sx"
     title=$(ask_dmenu -p "title: " -l "home")
     if [[ $title == home ]]; then
-        $WEBBROWSER --private-window $site/home &>/dev/null & disown
+        $WEBBROWSER $site/home &>/dev/null & disown
     elif [[ -n $title ]]; then
         title=${title// /-}
-        $WEBBROWSER --private-window $site/search/$title &>/dev/null & disown
+        $WEBBROWSER $site/search/$title &>/dev/null & disown
     fi
 }
 
@@ -220,7 +214,6 @@ declare -A actions=(
     [icloud]="$WEBBROWSER https://www.icloud.com/"
     [imageColorPalette]="$WEBBROWSER https://imagecolorpicker.com/"
     [kill]="_choose_kill"
-    [linkedin]="$WEBBROWSER https://www.linkedin.com/"
     [localhost]="$WEBBROWSER http://localhost/"
     [lock]="exit.sh --lock"
     [lofi]="lofi"
@@ -228,7 +221,7 @@ declare -A actions=(
     [magistrale]="$WEBBROWSER https://corsi.unisa.it/ingegneria-informatica-magistrale"
     [mail]="_choose_account mail.google.com/mail \#inbox"
     [maps]="$WEBBROWSER https://www.google.com/maps"
-    [modernfamily]="$WEBBROWSER --private-window https://gomovies.sx/tv/watch-modern-family-gomovies-39507"
+    [modernfamily]="$WEBBROWSER https://gomovies.sx/tv/watch-modern-family-gomovies-39507"
     [monitor]="monitors"
     [mousepad]="mousepad"
     [music]="music"
@@ -267,7 +260,6 @@ declare -A actions=(
     [unimail]="$WEBBROWSER https://mail.google.com/mail/u/1/"
     [virtualbox]="VirtualBox %U"
     [vm]="_control_vm"
-    [youtube]="$WEBBROWSER www.youtube.com"
     [wallpaper]="wallpaper"
     [webcam]="webcam"
     [whatsapp]="$WEBBROWSER web.whatsapp.com"

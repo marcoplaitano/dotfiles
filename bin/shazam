@@ -22,17 +22,11 @@ _check_pid() {
     PIDFILE="/tmp/$(basename $0).pid"
     if [[ -f "$PIDFILE" ]]; then
         pid=$(cat "$PIDFILE")
-        # Process found, script already running.
-        if ps -p "$pid" &>/dev/null ; then
-            _die "Script already running."
-        # Process not found, overwrite.
-        else
-            echo $$ > "$PIDFILE"
-        fi
-    # Script wasn't running, write its pid onto file.
-    else
-        echo $$ > "$PIDFILE"
+        # Process found, script already running, do not execute this.
+        ps -p "$pid" &>/dev/null && _die "Script already running."
     fi
+    # Script wasn't running, write its pid.
+    echo $$ > "$PIDFILE"
 }
 _check_pid
 
