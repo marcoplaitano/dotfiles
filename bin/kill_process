@@ -26,7 +26,7 @@ while [[ -n $1 ]]; do
             killall -q ffplay yt-dlp
         ;;
         music)
-            killall -q mplayer vlc ffplay yt-dlp
+            killall -q mplayer mpv ffplay yt-dlp
         ;;
         panel)
             killall -q xfce4-panel polybar

@@ -222,10 +222,7 @@ _apply_theme_vscode() {
             fi ;;
     esac
 
-    local config_file="$HOME/.config/Code/User/settings.json"
-    if [[ -n $new_vscode_theme && -f "$config_file" ]]; then
-        sed -i -e '0,/    "workbench.colorTheme":.*/s//    "workbench.colorTheme": "'"$new_vscode_theme"'",/' "$config_file"
-    fi
+    theme_vscode "$new_vscode_theme"
 }
 
 

@@ -19,6 +19,9 @@ vim.cmd([[
         autocmd FileType gitcommit setlocal textwidth=72
         autocmd FileType gitcommit setlocal colorcolumn=72
 
+        " Set text width for MD file dedicated to blog posts.
+        autocmd BufNewFile,BufRead /home/marco/dev/blog/notes/* set textwidth=110
+
         " Disable line numbers in alpha dashboard.
         autocmd FileType alpha setlocal nonumber norelativenumber
 

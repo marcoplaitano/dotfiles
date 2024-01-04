@@ -24,10 +24,10 @@ Apply new vim theme.
 "
 }
 
-_background_mode() {
-    # Determine whether terminal's background color is light or dark so that
-    # vim's background mode can be chosen accordingly.
 
+# Determine whether terminal's background color is light or dark so that
+# vim's background mode can be chosen accordingly.
+_background_mode() {
     # Xfce4 Terminal
     #background=$(grep Background "$HOME/.config/xfce4/terminal/terminalrc")
     #background=${background#*"ColorBackground="}
@@ -39,6 +39,7 @@ _background_mode() {
     terminal_theme="${terminal_theme:1}"
     background="$(grep $terminal_theme $colors_file -A4 | grep background | awk '{print $NF}')"
     background=${background//\'/}
+    background=${background//\"/}
 
     is_background_light=$(cat <<EOF
 from math import sqrt
@@ -48,7 +49,7 @@ hsp = sqrt(0.299 * r*r + 0.587 * g*g + 0.114 * b*b)
 print("light") if hsp > 127.5 else print("dark")
 EOF
     )
-    if [[ $(python -c "$is_background_light") == light ]]; then
+    if [[ $(python3 -c "$is_background_light") == light ]]; then
         echo "light"
     else
         echo "dark"

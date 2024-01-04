@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# File:   player_control
+# Author: Marco Plaitano
+# Date:   20 Nov 2022
+# Brief:  Control currently playing media player.
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename "$0") OPTION
+Control currently playing media player.
+
+-h, --help          Show this guide and exit.
+-n, --name          Print player's name.
+--prev
+--next
+--play-pause
+--stop
+"
+}
+
+
+_player_name() {
+    # Among all the currently active players (ignore firefox), get the one that
+    # is currently playing.
+    for p in $(playerctl -l -i firefox 2>/dev/null); do
+        if [[ $(playerctl --player="$p" status 2>/dev/null) == Playing ]]; then
+            echo "$p"
+            return
+        fi
+    done
+
+    # If I got here it means there are either no players or none of them is
+    # playing. I have to select it manually. The order is important.
+    # This is the first because it does not appear in the list given by
+    # playerctl but, if it is running I am definitely listening to lofi.
+    if pgrep -x yt-dlp >/dev/null; then
+        echo "lofi"
+
+    elif pgrep -x ffplay >/dev/null; then
+        echo "radio"
+
+    elif pgrep -x mpv >/dev/null; then
+        echo "mpv"
+
+    elif pgrep -x spotify >/dev/null; then
+        echo "spotify"
+
+    elif [[ $(playerctl -l 2>/dev/null) == *"firefox"* ]]; then
+        echo "firefox"
+
+    # Exit echoing nothing if there is no player.
+    else
+        echo ""
+    fi
+}
+
+_player_prev() {
+    case "${player,,}" in
+        radio | lofi) ;;
+        *)
+            playerctl previous -p $player ;;
+    esac
+}
+
+_player_play_pause() {
+    case "${player,,}" in
+        radio | lofi)
+            kill_process $player ;;
+        *)
+            playerctl play-pause -p $player ;;
+    esac
+}
+
+_player_next() {
+    case "${player,,}" in
+        radio | lofi) ;;
+        *)
+            playerctl next -p $player ;;
+    esac
+}
+
+_player_stop() {
+    case "${player,,}" in
+        radio | spotify)
+            kill_process "${player,,}" ;;
+        *)
+            kill_process music ;;
+    esac
+}
+
+
+# Get current player's name. Needed for every action.
+player="$(_player_name)"
+[[ -z $player ]] && exit
+
+# Parse command line arguments.
+if [[ -n $1 ]]; then
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        -n | --name)
+            _player_name ; exit ;;
+        --previous | --prev)
+            _player_prev ;;
+        --play-pause | --play | --pause)
+            _player_play_pause ;;
+        --next)
+            _player_next ;;
+        --stop)
+            _player_stop ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+else
+    _die "No option given."
+fi

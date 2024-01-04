@@ -4,6 +4,7 @@
 # Author: Marco Plaitano
 # Brief:  Toggle blue light filter and dark mode.
 
+set -u
 
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
@@ -83,10 +84,11 @@ _set_status() {
 
 _check_pid
 
-readonly BEGIN_TIME="19:00"
-readonly END_TIME="07:00"
+readonly _BEGIN_TIME="18:15"
+readonly _END_TIME="07:00"
 
 # Parse command line arguments.
+set +u
 while [[ -n $1 ]]; do
     case "$1" in
         -h|--help)
@@ -102,11 +104,13 @@ while [[ -n $1 ]]; do
             _die "Argument '$1' not recognized." ;;
     esac
 done
+set -u
 
 # Default action is to toggle based on time of day.
 if [[ -z $flag ]]; then
     curr_time="$(date +%H:%M)"
-    if [[ ! $curr_time < $BEGIN_TIME ]] || [[ ! $curr_time > $END_TIME ]]; then
+    if [[ ! $curr_time < $_BEGIN_TIME ]] || [[ ! $curr_time > $_END_TIME ]]
+    then
         flag=on
     else
         flag=off

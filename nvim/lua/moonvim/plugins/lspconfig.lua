@@ -126,9 +126,9 @@ require 'lspconfig'.pylsp.setup {
                     -- https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
                     -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
                     ignore = {
-                        'E225', 'E266',
+                        'E225', 'E226', 'E266',
                         'E302', 'E303', 'E305', 'E306',
-                        'E701', 'E702', 'E722',
+                        'E701', 'E702', 'E722', 'E741',
                         'W191', 'W291', 'W292', 'W293',
                         'W391'
                     },

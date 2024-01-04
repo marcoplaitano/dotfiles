@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# File:   theme_vscode
+# Author: Marco Plaitano
+# Date:   17 Dec 2023
+# Brief:  Update vscode's theme.
+
+
+_help() {
+    printf "Usage: $(basename "$0") [THEME]
+Apply new vscode theme. If none is given, use default ones,
+dark/light based on system theme.
+
+-h, --help      Show this guide and exit.
+THEME           VSCode theme to set.
+"
+}
+
+
+# Parse command line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        *)
+            theme="$1"
+            shift ;;
+    esac
+done
+
+readonly CONFIG_FILE="$HOME/.config/Code/User/settings.json"
+[[ ! -w "$CONFIG_FILE" ]] && exit
+
+if [[ -z $theme ]]; then
+    case "$(dark_theme --status)" in
+        off)
+            theme="Default Light Modern" ;;
+        *)
+            theme="Default Dark Modern" ;;
+    esac
+fi
+
+if [[ -f "$CONFIG_FILE" ]]; then
+    sed -i -e '0,/    "workbench.colorTheme":.*/s//    "workbench.colorTheme": "'"$theme"'",/' "$CONFIG_FILE"
+fi

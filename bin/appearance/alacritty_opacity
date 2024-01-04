@@ -7,6 +7,9 @@
 
 set -eo pipefail
 
+readonly _CONFIG_FILE="$XDG_CONFIG_HOME/alacritty/alacritty.yml"
+
+
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -27,15 +30,12 @@ Toggle opacity settings for Alacritty terminal.
 "
 }
 
-
 _set_opacity() {
     local value
     value="$1"
     sed -i -e "s/    opacity.*/    opacity: $value/" "$_CONFIG_FILE"
 }
 
-
-readonly _CONFIG_FILE="$XDG_CONFIG_HOME/alacritty/alacritty.yml"
 
 # Parse command-line arguments.
 while [[ -n $1 ]]; do

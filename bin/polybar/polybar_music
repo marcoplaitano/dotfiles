@@ -8,7 +8,6 @@
 #         prev - play/pause - next  icons and to execute these commands.
 
 
-
 # Read file containing info about current status of radio player and show the
 # content.
 show_status_radio() {
@@ -23,7 +22,7 @@ show_status_lofi() {
     echo "  lofi beats"
 }
 
-show_status_vlc() {
+show_status_mpv() {
     format="{{ album }} - {{ title }}"
     info=$(playerctl --player=$player metadata --format "$format")
     echo "ﱘ   $info" | sed 's/\(.\{70\}\).*/\1.../'
@@ -37,7 +36,7 @@ show_status_spotify() {
 
 show_status() {
     case "${player,,}" in
-        radio | vlc | lofi | spotify)
+        radio | mpv | lofi | spotify)
             show_status_"${player,,}" ;;
         firefox | *)
             format="{{ title }}"
@@ -45,7 +44,6 @@ show_status() {
             echo "ﱘ   $info" | sed 's/\(.\{70\}\).*/\1.../' ;;
     esac
 }
-
 
 show_prev() {
     case "${player,,}" in
@@ -75,64 +73,15 @@ show_next() {
     esac
 }
 
-action_prev() {
-    case "${player,,}" in
-        radio | lofi) ;;
-        *)
-            playerctl previous -p $player ;;
-    esac
-}
-
-action_play_pause() {
-    case "${player,,}" in
-        radio | lofi)
-            kill_process $player ;;
-        *)
-            playerctl play-pause -p $player ;;
-    esac
-}
-
-action_next() {
-    case "${player,,}" in
-        radio | lofi) ;;
-        *)
-            playerctl next -p $player ;;
-    esac
-}
-
-action_stop() {
-    case "${player,,}" in
-        radio)
-            kill_process radio ;;
-        spotify)
-            kill_process spotify ;;
-        *)
-            kill_process music ;;
-    esac
-}
-
-
 
 # Get the current media player.
-player=$(curr_player 2>/dev/null)
+player=$(player_control --name 2>/dev/null)
 if [[ -z $player ]]; then
-    echo "" ; exit 1
+    echo "" ; exit
 fi
-
 
 # Parse command line option.
 case "$1" in
-    # Action to execute (either by clicking on polybar module or by using media
-    # playback keys).
-    --previous | --prev)
-        action_prev ;;
-    --play-pause | --play | --pause)
-        action_play_pause ;;
-    --next)
-        action_next ;;
-    --stop)
-        action_stop ;;
-    # Strings to display on polybar.
     --show-previous)
         show_prev ;;
     --show-play-pause)

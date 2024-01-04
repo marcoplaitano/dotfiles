@@ -77,7 +77,7 @@ _choose_editor_directory() {
 _choose_kill() {
     local processes
     processes="lofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
-    processes+="screenrecorder\nspotify\ntelegram\nteams\nvlc\nwebcam"
+    processes+="screenrecorder\nspotify\ntelegram\nteams\nwebcam"
     # Accepts any input, even ones not included in the list.
     local process=$(ask_dmenu -p "process:" -l $processes)
     [[ -z $process ]] && exit
@@ -196,6 +196,7 @@ declare -A actions=(
     [amazon]="$WEBBROWSER amazon.it"
     [appearance]="xfce4-appearance-settings"
     [baobab]="baobab"
+    [bard]="$WEBBROWSER https://bard.google.com/chat"
     [calculator]="calculator"
     [calendar]="$WEBBROWSER calendar.google.com/calendar/u/1/"
     [chatgpt]="$WEBBROWSER https://chat.openai.com/"
@@ -260,6 +261,7 @@ declare -A actions=(
     [unimail]="$WEBBROWSER https://mail.google.com/mail/u/1/"
     [virtualbox]="VirtualBox %U"
     [vm]="_control_vm"
+    [youtube]="$WEBBROWSER https://www.youtube.com/feed/subscriptions"
     [wallpaper]="wallpaper"
     [webcam]="webcam"
     [whatsapp]="$WEBBROWSER web.whatsapp.com"

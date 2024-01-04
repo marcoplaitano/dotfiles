@@ -72,11 +72,11 @@
       <property name="F10" type="string" value="/home/marco/dev/dotfiles/bin/microphone -l"/>
       <property name="F11" type="string" value="/home/marco/dev/dotfiles/bin/microphone -r"/>
       <property name="F9" type="string" value="/home/marco/dev/dotfiles/bin/microphone -t"/>
-      <property name="XF86AudioNext" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --next"/>
+      <property name="XF86AudioNext" type="string" value="/home/marco/dev/dotfiles/bin/player_control --next"/>
       <property name="&lt;Super&gt;m" type="string" value="/home/marco/dev/dotfiles/bin/microphone --toggle"/>
-      <property name="XF86AudioPlay" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --play-pause"/>
-      <property name="XF86AudioPause" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --play-pause"/>
-      <property name="AudioPrev" type="string" value="/home/marco/dev/dotfiles/bin/polybar/polybar_music --previous"/>
+      <property name="XF86AudioPlay" type="string" value="/home/marco/dev/dotfiles/bin/player_control --play-pause"/>
+      <property name="XF86AudioPause" type="string" value="/home/marco/dev/dotfiles/bin/player_control --play-pause"/>
+      <property name="AudioPrev" type="string" value="/home/marco/dev/dotfiles/bin/player_control --previous"/>
       <property name="Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --quick"/>
       <property name="&lt;Shift&gt;Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --select"/>
       <property name="&lt;Super&gt;c" type="string" value="/home/marco/dev/dotfiles/bin/calculator"/>

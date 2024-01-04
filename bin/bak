@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# File:   bak
+# Author: Marco Plaitano
+# Date:   16 Dec 2023
+# Brief:  Create backup of given file.
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: $(basename $0) FILE
+Create backup copy of given file.
+
+-h, --help          Show this guide and exit.
+FILE                File to backup.
+"
+}
+
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        *)
+            if [[ -e "$1" ]]; then
+                file="$1"
+                shift
+            else
+                _die "'$1' is not a file that can be backed up."
+            fi ;;
+    esac
+done
+
+[[ -z $file ]] && _die "No file given."
+
+# Add increasing number if backup already exist.
+bak_name="$file.bak"
+i=0
+while [[ -e "$bak_name" ]]; do
+    i=$((i+1))
+    bak_name="$file.bak$i"
+done
+
+cp -r "$file" "$bak_name" || _die "Could not create backup."
+echo "Copied '$file' to '$bak_name'"

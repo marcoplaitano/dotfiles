@@ -63,8 +63,8 @@ zstyle ':completion:*:manuals.(^1*)' insert-sections true
 ################################################################################
 
 _complete_kill_process() {
-    compadd compositor firefox lofi music panel plank polybar pomodoro radio \
-            redshift screenrecord spotify teams telegram vlc webcam
+    compadd compositor firefox lofi mpv music panel plank polybar pomodoro \
+            radio redshift screenrecord spotify teams telegram webcam
 }
 compdef _complete_kill_process kill_process
 

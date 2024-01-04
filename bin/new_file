@@ -27,8 +27,8 @@ FILE            The file(s) to create. More than one can be given.
 
 # Ask the user a yes/no question.
 _ask_yes_no() {
-    local question="$1"
-    unset ans
+    local ans question
+    question="$1"
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
@@ -84,7 +84,6 @@ _create_md_file() {
 }
 
 
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
@@ -96,7 +95,6 @@ while [[ -n $1 ]]; do
             shift ;;
     esac
 done
-
 
 if [[ ${#files[@]} == 0 ]]; then
     _die "Please provide the name of the file you want to create."
@@ -125,7 +123,6 @@ for file in "${files[@]}"; do
 
     # Temporarily change default language for time and date to English.
     LC_TIME=en_US.utf8
-
 
     case $extension in
         c | cpp | h | py | sh | java | js | html | md )

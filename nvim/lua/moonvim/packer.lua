@@ -85,9 +85,7 @@ return packer.startup(function(use)
     use {
         "nvim-treesitter/nvim-treesitter",
         as = "treesitter",
-        run = function()
-            require("treesitter.install").update({ with_sync = true })
-        end,
+        run = ":TSUpdate"
     }
 
     -- Status line.
@@ -102,6 +100,7 @@ return packer.startup(function(use)
     use "shaunsingh/nord.nvim"
     use "navarasu/onedark.nvim"
     use { "Everblush/nvim", as = "everblush" }
+    use { "folke/tokyonight.nvim" }
 
     if packer_bootstrap then
         require("packer").sync()

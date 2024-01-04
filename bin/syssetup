@@ -104,14 +104,12 @@ _own() {
 
 # Install the given package(s).
 _install() {
-    for pkg in "$@"; do
-        case "$pkg" in
-            youtube-dl | pywal | "python-lsp-server[all]")
-                pipx install "$pkg" ;;
-            *)
-                sudo pacman -S --needed --noconfirm "$pkg" ;;
-        esac
-    done
+    case "$1" in
+        youtube-dl | pywal | "python-lsp-server[all]")
+            pipx install "$1" ;;
+        *)
+            sudo pacman -S --needed --noconfirm "$@" ;;
+    esac
 }
 
 
@@ -299,11 +297,19 @@ _install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
          transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
          fd plank mousepad playerctl brightnessctl lm_sensors \
          polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
-         ttf-roboto-mono-nerd numlockx xwallpaper dunst
+         ttf-roboto-mono-nerd numlockx xwallpaper dunst unclutter
 _install python-pip python-pipx python-markdown
 
 if _install cronie ; then
     sudo systemctl enable --now cronie.service
+fi
+
+# To control mpv via playerctl
+if git clone https://github.com/hoyon/mpv-mpris ; then
+    cd mpv-mpris
+    make && make install
+    cd ..
+    [[ -d mpv-mpris ]] && rm -rf mpv-mpris
 fi
 
 if _install youtube-dl ; then

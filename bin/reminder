@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") TIME [OPTION]...
 Remind the user of something at a given time.
@@ -43,12 +42,10 @@ show_confirmation() {
 }
 
 
-
 # Need this variable to play sounds if reminder is called by a cron job.
 export XDG_RUNTIME_DIR="/run/user/1000"
 
 readonly sound="/usr/share/sounds/freedesktop/stereo/complete.oga"
-
 
 
 # Parse command line arguments.
@@ -78,12 +75,10 @@ while [[ -n $1 ]]; do
 
 done
 
-
 # Prefer time over minutes.
 if [[ -n $reminder_time ]] && [[ -n $reminder_minutes ]]; then
     unset reminder_minutes
 fi
-
 
 # Check validity of time variable (must be a timestamp in the form HH:MM).
 if [[ -n $reminder_time ]]; then
@@ -101,7 +96,6 @@ elif [[ -n $reminder_minutes ]]; then
     end_time=$(( $(date +%s) + $reminder_minutes * 60 ))
 fi
 
-
 # Check presence and validity of end_time (must be greater than current time).
 if [[ -n $end_time ]]; then
     if [[ $end_time -le $(date +%s) ]]; then
@@ -111,7 +105,6 @@ if [[ -n $end_time ]]; then
 elif [[ -z $now ]]; then
     _die "No time given. See --help for more information."
 fi
-
 
 sleep_time=$(( end_time - $(date +%s) ))
 

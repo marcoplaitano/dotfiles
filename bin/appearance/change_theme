@@ -87,6 +87,7 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/base16-gruvbox-dark-hard.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/base16-gruvbox-dark-hard.ini"
         terminal_theme="base16-gruvbox-dark-hard"
+        vscode_theme="Gruvbox Dark Hard"
     ;;
     catppuccin)
         cp $DOTS_DIR/_other/colors/palettes/catppuccin_dark.sh $HOME/.cache/wal/colors.sh
@@ -95,6 +96,7 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/catppuccin.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/catppuccin_dark.ini"
         terminal_theme="catppuccin-mocha"
+        vscode_theme="Catppuccin Mocha"
     ;;
     catppuccin-latte)
         cp $DOTS_DIR/_other/colors/palettes/catppuccin_latte.sh $HOME/.cache/wal/colors.sh
@@ -103,6 +105,7 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/catppuccin_latte.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/catppuccin_latte.ini"
         terminal_theme="catppuccin-latte"
+        vscode_theme="Catppuccin Latte"
     ;;
     everblush)
         cp $DOTS_DIR/_other/colors/palettes/everblush.sh $HOME/.cache/wal/colors.sh
@@ -118,6 +121,7 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/gruvbox.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/gruvbox.ini"
         terminal_theme="gruvbox"
+        vscode_theme="Gruvbox Dark Hard"
     ;;
     nord)
         cp $DOTS_DIR/_other/colors/palettes/nord.sh $HOME/.cache/wal/colors.sh
@@ -126,6 +130,7 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/nord.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/nord.ini"
         terminal_theme="nord"
+        vscode_theme="Nord"
     ;;
     one-dark)
         cp $DOTS_DIR/_other/colors/palettes/one_dark.sh $HOME/.cache/wal/colors.sh
@@ -134,6 +139,7 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/one_dark.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/one_dark.ini"
         terminal_theme="one-dark"
+        vscode_theme="Atom One Dark"
     ;;
     wal)
         [[ -z $image ]] && _die "No image given to the script."
@@ -170,3 +176,4 @@ theme_i3 "$i3_theme_file"
 theme_polybar "$polybar_theme_file"
 theme_terminal "$terminal_theme"
 theme_fzf "$fzf_theme_file"
+theme_vscode "$vscode_theme"

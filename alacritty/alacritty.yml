@@ -64,7 +64,7 @@ selection:
 cursor:
     style:
         shape: Block
-        blinking: Always
+        blinking: Never
 
     blink_interval: 700
     # When window is unfocused, show hollow version of block.

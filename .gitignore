@@ -9,5 +9,3 @@ shell/.zshrc
 .viminfo
 nvim/plugin/
 nvim/ftplugin/
-
-vlc/vlc-qt-interface.conf

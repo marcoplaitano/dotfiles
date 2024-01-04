@@ -177,5 +177,5 @@ extract() {
 firefox() { command firefox "$@" &>/dev/null & disown ; }
 mousepad() { command mousepad "$@" &>/dev/null & disown ; }
 thunar() { command thunar "$@" &>/dev/null & disown ; }
-vlc() { command vlc "$@" &>/dev/null & disown ; }
+mpv() { command mpv "$@" &>/dev/null & disown ; }
 xfce4-terminal() { command xfce4-terminal "$@" &>/dev/null & disown ; }

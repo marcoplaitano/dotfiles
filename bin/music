@@ -92,8 +92,10 @@ kill_process radio music lofi
 
 case ${album,,} in
     *" - "*)
-        cvlc --no-random --loop "$MUSIC_ROOT_DIR/$path" &>/dev/null & disown ;;
+        mpv --vo=null --video=no --no-resume-playback --loop-playlist \
+        "$MUSIC_ROOT_DIR/$path" &>/dev/null & disown ;;
     # Only play random order when no precise album has been selected.
     *)
-        cvlc --random --loop "$MUSIC_ROOT_DIR/$path" &>/dev/null & disown ;;
+        mpv --vo=null --video=no --no-resume-playback --loop-playlist \
+        --shuffle "$MUSIC_ROOT_DIR/$path" &>/dev/null & disown ;;
 esac

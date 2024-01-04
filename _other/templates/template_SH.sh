@@ -50,16 +50,15 @@ _check_pid
 
 
 # Parse command-line arguments.
-args=(\"\$@\") ; num_args=\${#args[@]} ; index=0
-while [[ \$index -lt \$num_args ]]; do
-    arg=\"\${args[index]}\"
-    case \"\$arg\" in
+set +u
+while [[ -n \$1 ]]; do
+    case \"\$1\" in
         -h | --help)
             _help ; exit ;;
         *)
             _die \"Argument '\$1' not recognized.\" ;;
     esac
-    ((index+=1))
 done
+set -u
 
 " > "$file"

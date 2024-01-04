@@ -38,7 +38,7 @@ exec --no-startup-id xinput set-prop "ELAN0712:00 04F3:30FD Touchpad" "libinput 
 exec --no-startup-id xrandr --output eDP-1 --off
 
 # Hide mouse pointer when it is not used.
-exec --no-startup-id unclutter -grab &
+exec --no-startup-id unclutter &
 
 # Picom compositor.
 exec --no-startup-id picom -b --config ~/.config/picom/picom.conf

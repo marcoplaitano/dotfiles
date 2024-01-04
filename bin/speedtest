@@ -50,25 +50,25 @@ while [[ -n $1 ]]; do
     esac
 done
 
-readonly OUTPUT_FILE="/tmp/internetspeed"
-readonly SCRIPT_FILE="/var/tmp/speedtest.py"
-readonly SOURCE_FILE="https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py"
+readonly _OUTPUT_FILE="/tmp/internetspeed"
+readonly _SCRIPT_FILE="/var/tmp/speedtest.py"
+readonly _SOURCE_FILE="https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py"
 
 
-if [[ ! -f "$SCRIPT_FILE" ]]; then
+if [[ ! -f "$_SCRIPT_FILE" ]]; then
     echo "Downloading script..."
-    if ! curl -s "$SOURCE_FILE" -o "$SCRIPT_FILE" ; then
+    if ! curl -s "$_SOURCE_FILE" -o "$_SCRIPT_FILE" ; then
         _die "Could not download python script."
     fi
 fi
 
-python3 "$SCRIPT_FILE" --simple --no-upload --secure > $OUTPUT_FILE
+python3 "$_SCRIPT_FILE" --simple --no-upload --secure > $_OUTPUT_FILE
 
 # Define ouptut string.
 if [[ $? -ne 0 ]]; then
     str="No internet"
 else
-    str="$(grep "Download:" $OUTPUT_FILE)"
+    str="$(grep "Download:" $_OUTPUT_FILE)"
 fi
 
 # Show results.

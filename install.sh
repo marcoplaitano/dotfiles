@@ -36,7 +36,6 @@ declare -A repo_files=(
     ["shell/zshrc"]="$XDG_CONFIG_HOME/shell/.zshrc"
     ["tmux"]="$XDG_CONFIG_HOME/tmux"
     ["vim"]="$HOME/.vim"
-    ["vlc"]="$XDG_CONFIG_HOME/vlc"
     ["xfce4/xfce4-keyboard-shortcuts.xml"]="$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml"
     ["xfce4/terminal_colorschemes"]="/usr/share/xfce4/terminal/colorschemes"
     ["xfce4/terminalrc"]="$XDG_CONFIG_HOME/xfce4/terminal/terminalrc"

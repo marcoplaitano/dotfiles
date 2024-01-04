@@ -164,7 +164,7 @@ case "$theme" in
         theme_bat "OneHalfDark"
         theme_fzf "$DOTS_DIR/_other/colors/fzf/catppuccin_dark.sh"
         theme_vim "$theme"
-        theme_helix "$theme"
+        theme_helix "${theme/-/_}"
     ;;
     everblush)
         theme_bat "OneHalfDark"
