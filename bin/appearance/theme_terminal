@@ -19,87 +19,51 @@ _die() {
 _help() {
     printf "Usage: $(basename "$0") THEME
 Apply colorscheme to either xfce4-terminal or alacritty. Changes will also
-affect utilities such as bat, vim and fzf.
+affect utilities such as bat, helix, vim, nvim and fzf.
 
 -h, --help      Show this guide and exit.
 "
 }
 
-
 _change_alacritty_colorscheme() {
-    local _CONFIG_FILE _TMP_FILE theme
+    local theme theme_file
     theme="$1"
-    _CONFIG_FILE="$ALACRITTY_THEME_FILE"
-    _TMP_FILE="/tmp/temp_scheme.yml"
-
-    # If Alacritty is not installed then there is nothing to do.
-    if ! which alacritty &>/dev/null ; then exit 1 ; fi
-
-    # If the file does not exist then create it.
-    if [[ ! -f "$_CONFIG_FILE" ]]; then
-        if [[ -f "$DOTS_DIR/alacritty/colorschemes.yml" ]]; then
-            cp "$DOTS_DIR/alacritty/colorschemes.yml" "$_CONFIG_FILE"
-        else
-            _die "Alacritty colors file does not exist."
-        fi
-    fi
+    theme_file="$DOTS_DIR/_other/colors/alacritty/theme_$theme.toml"
 
     # Check that theme exists.
-    if ! grep -q -r "&$theme\b" "$DOTS_DIR/alacritty/colorschemes.yml" ; then
-        _die "Colorscheme '$theme' does not exist."
+    if [[ ! -f "$theme_file" ]]; then
+        _die "Alacritty theme '$theme' does not exist."
     fi
 
-    # Write pywal colors into the file.
     if [[ $theme == wal ]]; then
         source $HOME/.cache/wal/colors.sh
-
-        # Check whether the section header and footer exist.
-        if ! grep -q '^# wal begin' "$_CONFIG_FILE" || ! grep -q '^# wal end' "$_CONFIG_FILE"; then
-            _die "Error: in file '$(basename "$_CONFIG_FILE")' begin or end of wal section not found."
-        fi
-
-        # Delete everything between header and footer.
-        sed '/^# wal begin/,/^# wal end/ { /^# wal begin/! { /^# wal end/!d; } }' "$_CONFIG_FILE" > "$_TMP_FILE"
-        cat "$_TMP_FILE" > "$_CONFIG_FILE"
-
-        # Write new section between header and footer.
-        sed "/^# wal begin/ r /dev/stdin" "$_CONFIG_FILE" > "$_TMP_FILE" <<EOF
-    wal: &wal
-        primary:
-            background: '$background'
-            foreground: '$foreground'
-        cursor:
-            text:       CellBackground
-            cursor:     CellForeground
-        selection:
-            text:       CellBackground
-            cursor:     CellForeground
-        normal:
-            black:      '$color1'
-            red:        '$color2'
-            green:      '$color3'
-            yellow:     '$color4'
-            blue:       '$color5'
-            magenta:    '$color6'
-            cyan:       '$color7'
-            white:      '$color8'
-        bright:
-            black:      '$color8'
-            red:        '$color9'
-            green:      '$color10'
-            yellow:     '$color11'
-            blue:       '$color12'
-            magenta:    '$color13'
-            cyan:       '$color14'
-            white:      '$color15'
-EOF
-
-        mv "$_TMP_FILE" "$_CONFIG_FILE"
+        echo $"[colors]
+draw_bold_text_with_bright_colors = true
+primary = { background = \"$background\", foreground = \"$foreground\" }
+cursor = { text = \"CellBackground\", cursor = \"CellForeground\" }
+selection = { text = \"CellBackground\", cursor = \"CellForeground\" }
+[colors.normal]
+black = \"$color0\"
+red = \"$color1\"
+green = \"$color2\"
+yellow = \"$color3\"
+blue = \"$color4\"
+magenta = \"$color5\"
+cyan = \"$color6\"
+white = \"$color7\"
+[colors.bright]
+black = \"$color8\"
+red = \"$color9\"
+green = \"$color10\"
+yellow = \"$color11\"
+blue = \"$color12\"
+magenta = \"$color13\"
+cyan = \"$color14\"
+white = \"$color15\"
+" > "$theme_file"
     fi
-
-    sed -i "s/.*colors: \*.*/colors: \*$theme/" "$_CONFIG_FILE"
+    cp "$theme_file" "$THEME_FILE_ALACRITTY"
 }
-
 
 _change_xfce4_terminal_colorscheme() {
     local _CONFIG_FILE _THEMES_DIR _THEME_FILE palette foreground background
@@ -125,25 +89,20 @@ _change_xfce4_terminal_colorscheme() {
     sed -i -e "s/ColorPalette=#.*/$palette/g" "$_CONFIG_FILE"
     sed -i -e "s/ColorBackground=#.*/$background/g" "$_CONFIG_FILE"
     sed -i -e "s/ColorForeground=#.*/$foreground/g" "$_CONFIG_FILE"
-
 }
 
 
-
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        *)
-            theme="${1%.theme}"
-            shift ;;
-    esac
-done
-[[ -z $theme ]] && exit
+case "$1" in
+    '')
+        exit ;;
+    -h | --help)
+        _help ; exit ;;
+    *)
+        theme="${1%.theme}" ;;
+esac
 
-_change_alacritty_colorscheme "$theme"
+_change_alacritty_colorscheme "${theme//-/_}"
 # _change_xfce4_terminal_colorscheme "$theme"
 
 # Update utilities such as vim, fzf...
@@ -181,6 +140,12 @@ case "$theme" in
         theme_bat "gruvbox-dark"
         theme_fzf "$DOTS_DIR/_other/colors/fzf/gruvbox.sh"
         theme_vim "gruvbox"
+        theme_helix "gruvbox"
+    ;;
+    base16-gruvbox-dark-hard)
+        theme_bat "gruvbox-dark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/gruvbox.sh"
+        theme_vim "base16-gruvbox-dark-hard"
         theme_helix "gruvbox"
     ;;
     nord)

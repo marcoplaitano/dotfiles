@@ -41,7 +41,7 @@ _play_radio() {
 }
 
 _record_status() {
-    echo "$1" > "$RADIO_STATUS_FILE"
+    echo "$1" > "$STATUS_FILE_RADIO"
 }
 
 

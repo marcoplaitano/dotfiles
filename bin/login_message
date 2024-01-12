@@ -7,12 +7,7 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -35,19 +30,18 @@ _show_message() {
 }
 
 
+readonly _STATUS_FILE="$HOME/.config/user/lastlogin"
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        --once)
-            once=1 ; shift ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-done
-
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    --once)
+        once=1 ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac
 
 if [[ -n $once ]]; then
     # Time of last (re)boot.
@@ -59,7 +53,7 @@ if [[ -n $once ]]; then
     # has not to be displayed.
     [[ -z $login_time ]] && exit
 
-    last_message_time=$(cat "$LOGIN_MESSAGE_STATUS_FILE" 2>/dev/null)
+    last_message_time=$(cat "$_STATUS_FILE" 2>/dev/null)
     last_message_time=$(date -d"$last_message_time" +%s 2>/dev/null)
     # Do nothing if the message has been already shown AFTER the last boot time.
     if [[ "$last_message_time" -gt "$login_time" ]]; then
@@ -68,8 +62,7 @@ if [[ -n $once ]]; then
 
     # Save new timestamp of last execution of this script.
     curr_time="$(date +%F' '%T)"
-    echo "$curr_time" > "$LOGIN_MESSAGE_STATUS_FILE"
+    echo "$curr_time" > "$_STATUS_FILE"
 fi
-
 
 _show_message

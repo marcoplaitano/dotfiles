@@ -6,6 +6,9 @@
 # Brief:  Stream movie torrent.
 
 
+readonly _URL_FILE="/var/tmp/url.html"
+
+
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -17,7 +20,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename $0) TITLE
+    printf "Usage: $(basename $0) [TITLE] [OPTION]
 Search for a streaming torrent for the specified movie/tv show.
 If multiple torrents are found, choose the one with fzf.
 
@@ -27,7 +30,6 @@ TITLE               Title of the movie/show to watch
 -u, --url URL       Stream from given torrent URL
 "
 }
-
 
 _get_torrent_list() {
     url="$1"
@@ -47,7 +49,6 @@ _get_torrent_list() {
     done <<< "$options"
     titles=${titles::-1}
 }
-
 
 _get_torrent_url() {
     # Get the title of the movie/tv-show to stream.
@@ -78,24 +79,25 @@ _get_torrent_url() {
 }
 
 
-
-readonly _URL_FILE="/var/tmp/url.html"
-
+# Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
             _help ; exit ;;
         -c | --copy)
-            copy_url=1 ; shift ;;
+            copy_url=1 ;;
         -u | --url)
             [[ -z $2 ]] && _die "No URL given."
-            url="$2" ; shift ;;
+            url="$2"
+            shift ;;
         *)
-            title+="$1 " ; shift ;;
+            title+="$1 " ;;
     esac
+    shift
 done
 
-
+# If no URL has been given find one based on the title search. (If no title has
+# been given either, ask one via dmenu).
 [[ -z $url ]] && _get_torrent_url
 [[ -z $url ]] && _die "No torrent given."
 echo "$url"

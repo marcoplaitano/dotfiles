@@ -16,7 +16,6 @@ _die() {
     exit 1
 }
 
-
 _help() {
     printf "Usage: $(basename "$0") [OPTION]...
 Use scrot to take a screenshot of the screen.
@@ -29,7 +28,6 @@ Use scrot to take a screenshot of the screen.
 "
 }
 
-
 _get_filename() {
     echo "$_SAVE_DIR/screenshot_$(date +%m-%d_%H.%M.%S).png"
 }
@@ -39,8 +37,7 @@ _get_filename() {
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         --quick)
             break ;;
         --delay)
@@ -48,19 +45,18 @@ while [[ -n $1 ]]; do
             delay="$2"
             # -c option displays count of remaining seconds to capture.
             options+=" -d $delay -c "
-            shift ; shift ;;
-        --focused)
-            options+=" -u "
             shift ;;
+        --focused)
+            options+=" -u " ;;
         --select)
             # -f freezes the screen while waiting for area selection. Remove
             # this option if the screen has to update its content while
             # selecting.
-            options+=" -s -f "
-            shift ;;
+            options+=" -s -f " ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
 
 readonly _SAVE_DIR="$HOME/Pictures/screenshots"

@@ -34,12 +34,7 @@ _show_section() {
 
 # Print error string and exit script.
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -63,11 +58,8 @@ _ask_yes_no() {
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
-            # answer is YES -> echo something
-            y | yes | si | sí) echo 0 ; return ;;
-            # answer is NO  -> do not echo
-            n | no ) return ;;
-            # answer is anything else, keep asking.
+            y | yes | si | sí) return ;;
+            n | no ) return 1 ;;
             *) unset ans ;;
         esac
     done
@@ -122,16 +114,16 @@ _install() {
 
 # Ask whether to actually perform the installation/downloading of some packages.
 while [[ -z $confirm_proceed ]]; do
-    do_zsh=$(_ask_yes_no "Install ZSH? ")
-    do_gpg=$(_ask_yes_no "Import GPG keys/passwords from zip? ")
-    do_dotfiles=$(_ask_yes_no "Clone personal dotfiles repo? ")
-    do_wallpapers=$(_ask_yes_no "Clone personal wallpapers repo? ")
-    do_dmenu=$(_ask_yes_no "Install dmenu? ")
-    do_docker=$(_ask_yes_no "Install docker? ")
-    do_spotify=$(_ask_yes_no "Install Spotify? ")
-    do_telegram=$(_ask_yes_no "Install Telegram? ")
+    _ask_yes_no "Install ZSH? " && do_zsh=1
+    _ask_yes_no "Import GPG keys/passwords from zip? " && do_gpg=1
+    _ask_yes_no "Clone personal dotfiles repo? " && do_dotfiles=1
+    _ask_yes_no "Clone personal wallpapers repo? " && do_wallpapers=1
+    _ask_yes_no "Install dmenu? " && do_dmenu=1
+    _ask_yes_no "Install docker? " && do_docker=1
+    _ask_yes_no "Install Spotify? " && do_spotify=1
+    _ask_yes_no "Install Telegram? " && do_telegram=1
     # Confirm previous choices.
-    confirm_proceed=$(_ask_yes_no "Confirm all choices? ")
+    _ask_yes_no "Confirm all choices? " && confirm_proceed=1
 done
 
 
@@ -297,7 +289,7 @@ _install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
          transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
          fd plank mousepad playerctl brightnessctl lm_sensors \
          polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
-         ttf-roboto-mono-nerd numlockx xwallpaper dunst unclutter
+         ttf-roboto-mono-nerd numlockx xwallpaper dunst unclutter xss-lock
 _install python-pip python-pipx python-markdown
 
 if _install cronie ; then
@@ -416,7 +408,9 @@ if [[ -n $do_dmenu ]]; then
 
     # Launch the installation script.
     if pushd "$dir" >/dev/null ; then
-        bash ./install.sh
+        _install gcc make libx11 libxinerama libxft
+        sudo make uninstall
+        sudo make install
         popd >/dev/null
     fi
     if [[ -d "$dir" ]]; then rm -rf "$dir" ; fi

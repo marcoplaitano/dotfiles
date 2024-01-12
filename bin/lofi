@@ -18,7 +18,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") [URL] [OPTION]
+    printf "Usage: $(basename "$0") [URL]
 Play lofi audio stream from official LoFi Girl YouTube livestream.
 
 -h, --help      Show this guide and exit.
@@ -40,26 +40,23 @@ _check_pid() {
     echo $$ > "$PIDFILE"
 }
 
-
 _check_pid
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        *youtube.com/watch?v=*)
-            video_url="$1"
-            shift ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-done
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    *youtube.com/watch?v=*)
+        video_url="$1" ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac
 
 # Original Lo-Fi girl stream.
 video_url="${video_url:=https://www.youtube.com/watch?v=jfKfPfyJRdk}"
 # Lo-Fi girl sleep stream.
-# video_url="${video_url:=https://www.youtube.com/watch?v=rUxyKA_-grg}"
+# https://www.youtube.com/watch?v=rUxyKA_-grg
 
 yt-dlp "$video_url" -o - 2>/dev/null \
-    | ffplay - -autoexit -nodisp -loglevel quiet &>/dev/null
+    | ffplay - -autoexit -nodisp -loglevel quiet &>/dev/null & disown

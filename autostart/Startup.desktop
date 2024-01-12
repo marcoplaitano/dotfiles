@@ -2,9 +2,9 @@
 Encoding=UTF-8
 Version=0.9.4
 Type=Application
-Name=CacheCodeDirs
+Name=Startup
 Comment=
-Exec=/home/marco/dev/dotfiles/bin/cache/cache_code_dirs
+Exec=/home/marco/dev/dotfiles/bin/startup.sh
 OnlyShowIn=XFCE;
 RunHook=0
 StartupNotify=false

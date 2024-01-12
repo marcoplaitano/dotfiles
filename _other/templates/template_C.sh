@@ -19,7 +19,7 @@ echo $"\
 # Look for an header file in one of the project's folders.
 for dir in $(find .. -maxdepth 2 -type d); do
     if [[ -f "$dir"/"$name".h ]]; then
-        echo "#include \"""$name"".h\"" >> "$file"
+        echo "#include \"$name.h\"" >> "$file"
         exit
     fi
 done

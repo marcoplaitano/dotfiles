@@ -11,7 +11,7 @@
 # Read file containing info about current status of radio player and show the
 # content.
 show_status_radio() {
-    station=$(cat "$RADIO_STATUS_FILE")
+    station=$(cat "$STATUS_FILE_RADIO")
     if [[ "$station" == Stop ]]; then
         exit
     fi

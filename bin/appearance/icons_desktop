@@ -27,7 +27,6 @@ Show or hide icons on the desktop.
 "
 }
 
-
 _icons_hide() {
     xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0
 }
@@ -37,6 +36,7 @@ _icons_show() {
 }
 
 _icons_toggle() {
+    local curr_state
     curr_state=$(xfconf-query -lvc xfce4-desktop -p /desktop-icons/style | \
         awk '{print $2}')
     case $curr_state in
@@ -47,16 +47,13 @@ _icons_toggle() {
 
 
 # Parse command line arguments.
-if [[ -n $1 ]]; then
-    case "$1" in
-        -h | --help)
-            _help ;;
-        --hide | --show | --toggle)
-            _icons_${1#--} ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-# Default action if none is specified.
-else
-    _icons_toggle
-fi
+case "$1" in
+    '')
+        _icons_toggle ;;
+    -h | --help)
+        _help ;;
+    --hide | --show | --toggle)
+        _icons_${1#--} ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac

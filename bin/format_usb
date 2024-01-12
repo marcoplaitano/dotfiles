@@ -8,15 +8,9 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
-
 
 # Ask the user a yes/no question.
 _ask_yes_no() {
@@ -25,33 +19,26 @@ _ask_yes_no() {
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
-            # answer is YES -> echo something
-            y | yes | si | sí) echo 0 ; return ;;
-            # answer is NO  -> do not echo
-            n | no ) return ;;
-            # answer is anything else, keep asking.
+            y | yes | si | sí) return ;;
+            n | no ) return 1 ;;
             *) unset ans ;;
         esac
     done
 }
 
 
-DISK_PATH="/dev/sda"
+readonly DISK_PATH="/dev/sda"
 
 # Confirm disk path.
-unset proceed
-proceed=$(_ask_yes_no "Format '$DISK_PATH'? [y/n] ")
-if [[ -z $proceed ]]; then
-    echo "Abort."
-    exit 0
+if ! _ask_yes_no "Format '$DISK_PATH'? [y/n] " ; then
+    echo "Abort." ; exit
 fi
 
 echo "#########    UNMOUNTING DEVICE    ##########"
 sudo umount "$DISK_PATH"*
 
 echo "#########      ERASING DATA       ##########"
-sudo wipefs --all "$DISK_PATH"
-[[ $? -ne 0 ]] && _die "Could not erase data at ""$DISK_PATH"
+sudo wipefs --all "$DISK_PATH" || _die "Could not erase data at $DISK_PATH"
 
 echo "######### CREATING FAT32 PARTITION #########"
 sudo parted "$DISK_PATH" --script -- mklabel msdos

@@ -53,12 +53,8 @@ export BLOG_DIR="$CODE_DIR/blog"
 export WALLPAPERS_DIR="$HOME/Pictures/wallpapers"
 
 # Status files.
-export RADIO_STATUS_FILE="$HOME/.config/user/radio"
-export MICROPHONE_STATUS_FILE="$HOME/.config/user/microphone"
-export LOGIN_MESSAGE_STATUS_FILE="$HOME/.config/user/lastlogin"
-export NIGHT_MODE_STATUS_FILE="$HOME/.config/user/nightmode"
-export DARK_THEME_STATUS_FILE="$HOME/.config/user/darktheme"
-export LOCATION_FILE="$HOME/.config/user/location"
+export STATUS_FILE_RADIO="$HOME/.config/user/radio"
+export STATUS_FILE_MICROPHONE="$HOME/.config/user/microphone"
 export WALLPAPER_FILE="$HOME/.config/user/wallpaper"
 
 # Cache files.
@@ -67,11 +63,11 @@ export CACHE_FILE_MUSIC="$HOME/Music/discografia.csv"
 export CACHE_FILE_WALLPAPERS="$HOME/.config/user/cache_wallpapers"
 
 # Theme files.
-export ALACRITTY_THEME_FILE="$HOME/.config/user/alacritty_theme.yml"
-export DMENU_THEME_FILE="$HOME/.config/user/dmenu_theme.sh"
-export FZF_THEME_FILE="$HOME/.config/user/fzf_theme.sh"
-export i3_THEME_FILE="$HOME/.config/user/i3_theme.conf"
-export POLYBAR_THEME_FILE="$HOME/.config/user/polybar_theme.ini"
+export THEME_FILE_ALACRITTY="$HOME/.config/user/alacritty_theme.toml"
+export THEME_FILE_DMENU="$HOME/.config/user/dmenu_theme.sh"
+export THEME_FILE_FZF="$HOME/.config/user/fzf_theme.sh"
+export THEME_FILE_i3="$HOME/.config/user/i3_theme.conf"
+export THEME_FILE_POLYBAR="$HOME/.config/user/polybar_theme.ini"
 
 # Default applications.
 export WEBBROWSER="firefox"
@@ -101,8 +97,6 @@ export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
 export IPYTHONDIR="$XDG_CONFIG_HOME"/ipython
 export ICEAUTHORITY="$XDG_CACHE_HOME"/ICEauthority
 export MPLAYER_HOME="$XDG_CONFIG_HOME"/mplayer
-
-# Python's shell configuration.
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
 
 # Directory in which to store pass passwords.

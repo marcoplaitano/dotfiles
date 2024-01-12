@@ -26,16 +26,13 @@ Apply new polybar theme.
 
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        *)
-            theme_file="$1"
-            shift ;;
-    esac
-done
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    *)
+        theme_file="$1" ;;
+esac
 
 # Kill any polybar instance but remember that it was running so that it can be
 # restarted later.
@@ -49,25 +46,25 @@ if [[ -n $theme_file ]]; then
     if [[ ! -f "$theme_file" ]]; then
         _die "polybar theme file '$theme_file' does not exist."
     fi
-    cp "$theme_file" "$POLYBAR_THEME_FILE"
+    cp "$theme_file" "$THEME_FILE_POLYBAR"
 # Create palette from wallpaper picture.
 else
     source $HOME/.cache/wal/colors.sh
-    sed -i -e "s/background = #.*/background = #cc${background:1}/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/background-alt = #.*/background-alt = $color8/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/foreground = #.*/foreground = $foreground/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/foreground-alt = #.*/foreground-alt = $color15/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/primary = #.*/primary = $color1/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/secondary = #.*/secondary = $color2/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/alert = #.*/alert = $color3/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/black = #.*/black = $color0/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/red = #.*/red = $color1/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/green = #.*/green = $color2/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/yellow = #.*/yellow = $color3/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/blue = #.*/blue = $color4/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/magenta = #.*/magenta = $color5/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/cyan = #.*/cyan = $color6/g" "$POLYBAR_THEME_FILE"
-    sed -i -e "s/white = #.*/white = $color7/g" "$POLYBAR_THEME_FILE"
+    sed -i -e "s/background = #.*/background = #cc${background:1}/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/background-alt = #.*/background-alt = $color8/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/foreground = #.*/foreground = $foreground/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/foreground-alt = #.*/foreground-alt = $color15/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/primary = #.*/primary = $color1/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/secondary = #.*/secondary = $color2/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/alert = #.*/alert = $color3/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/black = #.*/black = $color0/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/red = #.*/red = $color1/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/green = #.*/green = $color2/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/yellow = #.*/yellow = $color3/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/blue = #.*/blue = $color4/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/magenta = #.*/magenta = $color5/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/cyan = #.*/cyan = $color6/g" "$THEME_FILE_POLYBAR"
+    sed -i -e "s/white = #.*/white = $color7/g" "$THEME_FILE_POLYBAR"
 fi
 
 # Restart if it was running.

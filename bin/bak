@@ -3,15 +3,10 @@
 # File:   bak
 # Author: Marco Plaitano
 # Date:   16 Dec 2023
-# Brief:  Create backup of given file.
+# Brief:  Create backup of given file/directory.
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -26,21 +21,18 @@ FILE                File to backup.
 
 
 # Parse command-line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        *)
-            if [[ -e "$1" ]]; then
-                file="$1"
-                shift
-            else
-                _die "'$1' is not a file that can be backed up."
-            fi ;;
-    esac
-done
-
-[[ -z $file ]] && _die "No file given."
+case "$1" in
+    -h | --help)
+        _help ; exit ;;
+    '')
+        _die "No file given." ;;
+    *)
+        if [[ -e "$1" ]]; then
+            file="$1"
+        else
+            _die "'$1' is not a file that can be backed up."
+        fi ;;
+esac
 
 # Add increasing number if backup already exist.
 bak_name="$file.bak"

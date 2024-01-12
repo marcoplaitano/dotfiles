@@ -38,32 +38,28 @@ _show_list() {
 }
 
 
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -l | --list)
-            _show_list
-            exit ;;
+            _show_list ; exit ;;
         -i)
+            [[ -z $2 ]] && _die "No image given."
             image="$2"
-            shift ; shift ;;
+            shift ;;
         *)
             if [[ -z $theme ]]; then
                 theme="$1"
             else
                 _die "Argument '$1' not recognized."
-            fi
-            shift ;;
+            fi  ;;
     esac
+    shift
 done
 
-
 [[ -z $theme ]] && _die "No theme has been given."
-
 
 case $theme in
     default)

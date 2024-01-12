@@ -6,13 +6,13 @@
 # Brief:  Send current microphone state to polybar.
 
 
-if [[ ! -f "$MICROPHONE_STATUS_FILE" ]]; then
+if [[ ! -f "$STATUS_FILE_MICROPHONE" ]]; then
     echo " ?"
     exit
 fi
 
 
-state=$(cat "$MICROPHONE_STATUS_FILE")
+state=$(cat "$STATUS_FILE_MICROPHONE")
 
 if [[ "$state" == off* ]]; then
     state=${state#*' '}

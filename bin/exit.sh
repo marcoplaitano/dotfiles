@@ -41,7 +41,7 @@ _ask_action() {
     options="$(printf "%s\n" "${!menu[@]}")"
     choice="$(ask_dmenu -F -l "$options")"
     choice="${choice##*' '}" # remove icon and spaces
-    cmd=--"${choice,,}"      # make it lowercase and add leading --
+    cmd="${choice,,}"      # make it lowercase
 }
 
 # Choose script function to execute based on the command received.
@@ -66,15 +66,14 @@ _ask_confirmation() {
         ans=$(ask_dmenu -p "confirm?" -l "yes\nno")
     fi
     if [[ -z $ans ]]; then
-        echo 1
+        return 1
     else
         case "${ans,,}" in
-            y | yes) echo 0 ;;
-            *)       echo 1 ;;
+            y | yes) return ;;
+            *)       return 1 ;;
         esac
     fi
 }
-
 
 _logout() {
     if pgrep i3 &>/dev/null; then
@@ -96,7 +95,7 @@ _suspend() {
 _shutdown_routine() {
     # If the action si reboot ask for confirmation.
     if [[ "$1" == reboot ]]; then
-        [[ $(_ask_confirmation) -ne 0 ]] && exit
+        _ask_confirmation || exit
     fi
 
     for vm in $(find $HOME/.local/VMs -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
@@ -104,21 +103,21 @@ _shutdown_routine() {
     do
         vboxmanage controlvm "$vm" poweroff --type headless
     done
-    docker ps -a | xargs -r docker stop
-    tmux kill-server
-    kill_process firefox lofi music telegram-desktop pomodoro reminder mplayer \
-                 redshift songrec spotify polybar plank xfce4-terminal teams
+    docker stop $(docker ps -q)
+    night_mode --off
+    kill_process firefox lofi music panel plank pomodoro reminder \
+                 songrec spotify teams telegram
     # Argument is the command to execute, either 'poweroff' or 'reboot'.
     systemctl "$1"
 }
-
 
 
 # Ask for a command if none has been given.
 cmd="$1"
 if [[ -z $cmd ]]; then
     _ask_action
-    [[ $cmd == -- ]] && exit
+    [[ -z $cmd ]] && exit
+    cmd=--"$cmd" # Add leading -- to make it look like a command line argument
 fi
 
 _perform_action "$cmd"

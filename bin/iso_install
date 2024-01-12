@@ -4,17 +4,12 @@
 # Author: Marco Plaitano
 # Brief:  Write the given ISO onto the USB.
 
+set -e
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
-
 
 _help() {
     printf "Usage: $(basename "$0") ISO [USB] [OPTION]
@@ -26,64 +21,51 @@ USB             Path to the USB. (default is /dev/sda)
 "
 }
 
-
 # Ask the user a yes/no question.
-ask_yes_no() {
+_ask_yes_no() {
     local question="$1"
     unset ans
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
-            # answer is YES -> echo 0
-            y | yes | si | sí) echo 1 ; return ;;
-            # answer is NO  -> do not echo
-            n | no ) return ;;
-            # answer is anything else, keep asking.
+            y | yes | si | sí) return ;;
+            n | no ) return 1 ;;
             *) unset ans ;;
         esac
     done
 }
 
 
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         *.iso)
-            ISO_PATH="$1"
-            shift ;;
+            ISO_PATH="$1" ;;
         *)
-            USB_PATH="$1"
-            shift ;;
+            USB_PATH="$1" ;;
     esac
+    shift
 done
-
 
 # Check for the integrity of the given parameters.
 [[ -z $ISO_PATH ]] && _die "Error: missing ISO path."
-
 [[ ! -f $ISO_PATH ]] && _die "Error: inexistent path to ISO."
-
 if [[ -z $USB_PATH ]]; then
     echo "Missing USB path. Using /dev/sda as default."
     USB_PATH=/dev/sda
 fi
 
-
 # Confirm the values.
 echo "ISO: $ISO_PATH"
 echo "USB: $USB_PATH"
-if [[ -z $(ask_yes_no "Proceed? ") ]]; then
+if ! _ask_yes_no "Proceed? " ; then
     echo "Abort" ; exit
 fi
-
 
 # Format USB.
 sudo umount "$USB_PATH"*
 sudo wipefs --force --all "$USB_PATH"*
-
 # Mount ISO image.
 sudo dd bs=4M if="$ISO_PATH" of="$USB_PATH" status=progress oflag=sync

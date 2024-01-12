@@ -6,6 +6,12 @@
 #         notification.
 
 
+# Need this variable to play sounds if reminder is called by a cron job.
+export XDG_RUNTIME_DIR="/run/user/1000"
+
+readonly notification_sound="/usr/share/sounds/freedesktop/stereo/complete.oga"
+
+
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -29,8 +35,7 @@ The time of the reminder can be set in 3 different ways, see options below.
 "
 }
 
-
-show_confirmation() {
+_show_confirmation() {
     min=$((sleep_time / 60))
     sec=$((sleep_time % 60))
     if [[ $min -gt 0 ]]; then
@@ -38,41 +43,33 @@ show_confirmation() {
     else
         wait_time="${sec}s"
     fi
-    echo "Ok. I'll remind you of '""$reminder_description""' in $wait_time."
+    echo "Ok. I'll remind you of '$reminder_description' in $wait_time."
 }
-
-
-# Need this variable to play sounds if reminder is called by a cron job.
-export XDG_RUNTIME_DIR="/run/user/1000"
-
-readonly sound="/usr/share/sounds/freedesktop/stereo/complete.oga"
 
 
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -n | --now)
-            now=true
-            shift ;;
+            now=true ;;
         -t | --time)
             [[ -z $2 ]] && _die "No time given."
             reminder_time="$2"
-            shift ; shift ;;
+            shift ;;
         -i | --in)
             [[ -z $2 ]] && _die "No time given."
             reminder_minutes="$2"
-            shift ; shift ;;
+            shift ;;
         -d)
             [[ -z $2 ]] && _die "No description given."
             reminder_description="$2"
-            shift ; shift ;;
+            shift ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
-
+    shift
 done
 
 # Prefer time over minutes.
@@ -108,13 +105,13 @@ fi
 
 sleep_time=$(( end_time - $(date +%s) ))
 
-show_confirmation
+_show_confirmation
 
 # Wait time, send notification and play sound.
 {
     sleep $sleep_time ;
     {
         notify-send "REMINDER" "$reminder_description"
-        paplay $sound &
+        paplay $notification_sound &
     }
-} &
+} & disown

@@ -12,7 +12,6 @@ echo $"\
 # Date:   $(date +'%d %b %Y')
 # Brief:
 
-set -euo pipefail
 
 _die() {
     [[ -n \$1 ]] && error_msg=\"\$1\" || error_msg=\"Error in \$(basename \"\$0\").\"
@@ -46,11 +45,10 @@ _check_pid() {
     echo \$\$ > \"\$PIDFILE\"
 }
 
+
 _check_pid
 
-
 # Parse command-line arguments.
-set +u
 while [[ -n \$1 ]]; do
     case \"\$1\" in
         -h | --help)
@@ -58,7 +56,7 @@ while [[ -n \$1 ]]; do
         *)
             _die \"Argument '\$1' not recognized.\" ;;
     esac
+    shift
 done
-set -u
 
 " > "$file"

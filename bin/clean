@@ -7,15 +7,9 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
-
 
 _help() {
     printf "Usage: $(basename "$0") [OPTION]...
@@ -30,7 +24,6 @@ script won't operate on directories above '$HOME/'.
 }
 
 
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
@@ -39,19 +32,18 @@ while [[ -n $1 ]]; do
         -d | --depth)
             [[ -z $2 ]] && _die "No depth given."
             depth="$2"
-            shift ; shift ;;
-        -f | --force)
-            force=1
             shift ;;
+        -f | --force)
+            force=1 ;;
         -p | --path)
             [[ -z $2 ]] && _die "No path given."
             path="$2"
-            shift ; shift ;;
+            shift ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
-
 
 # Default path is current directory.
 path="${path:=$(pwd)}"
@@ -64,7 +56,6 @@ fi
 # Check that path exists.
 [[ ! -d "$path" ]] && _die "Not an existing path '$path'."
 
-
 # Don't clean system folders if not forced.
 if [[ -z $force ]]; then
     case "$path" in
@@ -75,14 +66,13 @@ if [[ -z $force ]]; then
     esac
 fi
 
-
 # Set depth if not given.
 depth=${depth:=2}
 
 # Check that depth is an integer.
 [[ ! $depth =~ ^[0-9]+$ ]] && _die "Not a valid depth '$depth'."
 
-
+# Clean subdirectories.
 for dir in $(find "$path" -maxdepth $depth -type d ! -path '*.git*' 2>/dev/null)
 do
     [[ -f "$dir"/makefile ]] && make -C "$dir" clean &>/dev/null

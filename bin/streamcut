@@ -36,24 +36,21 @@ FILE                    Input file.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -t | --time)
             cut_time=$2
-            shift ; shift ;;
+            shift ;;
         -e | --end)
-            [[ -z $where ]] && where="end"
-            shift ;;
+            [[ -z $where ]] && where="end" ;;
         -b | --beginning)
-            [[ -z $where ]] && where="beginning"
-            shift ;;
+            [[ -z $where ]] && where="beginning" ;;
         *)
             [[ -z $file ]] && {
                 file="${1%.*}"
                 ext="${1##*.}"
-            }
-            shift ;;
+            } ;;
     esac
+    shift
 done
 
 

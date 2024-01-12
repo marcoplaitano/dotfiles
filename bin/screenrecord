@@ -6,6 +6,26 @@
 # Brief:  Record screen and audio.
 
 
+# File in which to write logs.
+readonly _REC_LOG_FILE="/var/tmp/screenrec.log"
+# File that will be monitored by the recording command as input stream; a 'q'
+# has to be written on it to stop the recording.
+readonly _REC_SIG_FILE="/var/tmp/screenrec.sig"
+
+# Directory in which to save video file.
+readonly _OUT_DIR="$HOME/Videos"
+mkdir -p "$_OUT_DIR"
+# Put current timestamp in the name of the file in order to make it unique.
+readonly _OUT_FILENAME="screen_$(date +%Y-%m-%d_%H.%M.%S)"
+readonly _OUT_FILE="${_OUT_DIR}/${_OUT_FILENAME}.mp4"
+
+# Default parameters.
+readonly THREAD_QUEUE_SIZE="4096"
+readonly PRESET="veryfast"
+readonly RESOLUTION=$(xdpyinfo | grep dimensions | awk '{print $2;}')
+readonly FPS=30
+
+
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -38,27 +58,6 @@ _stop_rec() {
 }
 
 
-
-# File in which to write logs.
-readonly _REC_LOG_FILE="/var/tmp/screenrec.log"
-# File that will be monitored by the recording command as input stream; a 'q'
-# has to be written on it to stop the recording.
-readonly _REC_SIG_FILE="/var/tmp/screenrec.sig"
-
-# Directory in which to save video file.
-readonly _OUT_DIR="$HOME/Videos"
-mkdir -p "$_OUT_DIR"
-# Put current timestamp in the name of the file in order to make it unique.
-readonly _OUT_FILENAME="screen_$(date +%Y-%m-%d_%H.%M.%S)"
-readonly _OUT_FILE="${_OUT_DIR}/${_OUT_FILENAME}.mp4"
-
-# Default parameters.
-readonly THREAD_QUEUE_SIZE="4096"
-readonly PRESET="veryfast"
-readonly RESOLUTION=$(xdpyinfo | grep dimensions | awk '{print $2;}')
-readonly FPS=30
-
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case $1 in
@@ -67,22 +66,19 @@ while [[ -n $1 ]]; do
         --stop)
             _stop_rec ; exit ;;
         -m | --mute)
-            mute=1
-            shift ;;
+            mute=1 ;;
         --fps)
             [[ -z $2 ]] && _die "No FPS given."
             fps="$2"
-            shift ; shift ;;
+            shift ;;
         --audio-in)
-            audioin=1
-            shift ;;
-        --audio-out)
-            shift ;;
+            audioin=1 ;;
+        --audio-out) ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
-
 
 # If this script is called (without the --stop option) but another recording is
 # already happening then kill the old one BUT DO NOT START A NEW ONE.
@@ -91,7 +87,6 @@ if [[ -n $rec_pid ]]; then
     _stop_rec
     exit
 fi
-
 
 # Define (part of the) command to record audio.
 if [[ -n $mute ]]; then
@@ -110,7 +105,6 @@ fi
 
 # Set default value in case no argument is passed to the script.
 fps=${fps:=$FPS}
-
 
 # Clear signal file.
 :> "$_REC_SIG_FILE"

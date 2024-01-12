@@ -6,13 +6,9 @@
 
 set -e
 
+
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -33,15 +29,13 @@ FILE            Name of the file in which to save the video. If not given, last
 while [[ -n $1 ]]; do
     case $1 in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -a | --audio)
-            audio_only=1
-            shift ;;
+            audio_only=1 ;;
         *)
-            [[ -z $url ]] && url=$1 || file=$1
-            shift ;;
+            [[ -z $url ]] && url=$1 || file=$1 ;;
     esac
+    shift
 done
 
 if [[ -z $url ]]; then
@@ -50,11 +44,9 @@ elif [[ $url != "https://www.youtube.com/watch?v="* ]]; then
     _die "Please provide a valid Youtube video's URL."
 fi
 
-
 # Filename's default value is last part of video's URL.
 # If a value is provided, the extension is removed.
 [[ -z $file ]] && file=${url#*=} || file=${file%.*}
-
 
 # Clear cache.
 youtube-dl --rm-cache-dir

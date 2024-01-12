@@ -7,12 +7,12 @@
 #         colors.
 
 
-if [[ ! -f "$FZF_THEME_FILE" ]]; then
+if [[ ! -f "$THEME_FILE_FZF" ]]; then
     echo " "
     exit 1
 fi
 
-source "$FZF_THEME_FILE"
+source "$THEME_FILE_FZF"
 
 echo " --color=bg:$Cbg,bg+:$Csbg,fg:$Cfg,fg+:$Csfg,hl:$Chl,hl+:$Cshl \
     --color=border:$Cborder,info:$Cinfo,pointer:$Cpointer,marker:$Cmarker \

@@ -26,17 +26,14 @@ Apply new fzf theme.
 
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        *)
-            theme_file="$1"
-            shift ;;
-    esac
-done
-[[ -z $theme_file ]] && exit
+case "$1" in
+    '')
+        exit ;;
+    -h | --help)
+        _help ; exit ;;
+    *)
+        theme_file="$1" ;;
+esac
 
 # Check that file exists.
 if [[ ! -f "$theme_file" ]]; then
@@ -44,4 +41,4 @@ if [[ ! -f "$theme_file" ]]; then
 fi
 
 # Apply.
-cp "$theme_file" "$FZF_THEME_FILE"
+cp "$theme_file" "$THEME_FILE_FZF"

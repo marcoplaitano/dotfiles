@@ -7,12 +7,7 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -43,25 +38,25 @@ while [[ -n $1 ]]; do
         -d | --dir)
             [[ -z $2 ]] && _die "No directory given."
             out_dir="$2"
-            shift ; shift ;;
+            shift ;;
         -i)
             [[ -z $2 ]] && _die "No input format given."
             in_format="$2"
-            shift ; shift ;;
+            shift ;;
         -o)
             [[ -z $2 ]] && _die "No output format given."
             out_format="$2"
-            shift ; shift ;;
+            shift ;;
         *)
             _die "Argument $1 not recognized." ;;
     esac
+    shift
 done
 
 
 if [[ ! -d "$out_dir" ]]; then
     echo "Creating directory '$out_dir'"
-    mkdir -p "$out_dir"
-    [[ $? -ne 0 ]] && exit 1
+    mkdir -p "$out_dir" || exit 1
 fi
 
 

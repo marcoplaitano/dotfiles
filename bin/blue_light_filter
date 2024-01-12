@@ -16,7 +16,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") [OPTION]...
+    printf "Usage: $(basename "$0") [OPTION]
 Toggle blue light filer on all displays with redshift utility.
 
 -h, --help          Show this guide and exit.
@@ -77,24 +77,20 @@ if ! command -v redshift &>/dev/null; then
 fi
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        --status)
-            _get_status
-            exit ;;
-        --on | --off | --toggle)
-            flag="${1#*--}"
-            shift ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-done
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    --status)
+        _get_status ; exit ;;
+    --on | --off | --toggle)
+        flag="${1#*--}" ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac
 
 # Default action is turn on.
-[[ -z $flag ]] && flag=on
+flag="${flag:=on}"
 
 # Do not apply if the current state is already the desired one.
 status=$(_get_status)

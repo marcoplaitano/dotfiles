@@ -39,14 +39,13 @@ while [[ -n $1 ]]; do
         -h | --help)
             _help ; exit ;;
         -g | --grid)
-            options=$GRID_OPTIONS
-            shift ;;
+            options=$GRID_OPTIONS ;;
         -s | --single)
-            options=$SINGLE_OPTIONS
-            shift ;;
+            options=$SINGLE_OPTIONS ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
 
 # Default value.

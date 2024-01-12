@@ -38,11 +38,11 @@ _play_sound() {
 
 _save_state() {
     state="$1"
-    echo "$state" > "$MICROPHONE_STATUS_FILE"
+    echo "$state" > "$STATUS_FILE_MICROPHONE"
 }
 
 _read_state() {
-    cat "$MICROPHONE_STATUS_FILE"
+    cat "$STATUS_FILE_MICROPHONE"
 }
 
 _get_volume() {
@@ -118,22 +118,21 @@ readonly sound_error="/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
 
 
 # Parse command line arguments.
-if [[ -n $1 ]]; then
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        -l | --lower)
-            action="lower" ;;
-        -r | --raise)
-            action="raise" ;;
-        --off | --on | --sound-off | --sound-on | --status)
-            action="${1#--}" ;;
-        -t | --toggle)
-            action="toggle" ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-fi
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    -l | --lower)
+        action="lower" ;;
+    -r | --raise)
+        action="raise" ;;
+    --off | --on | --sound-off | --sound-on | --status)
+        action="${1#--}" ;;
+    -t | --toggle)
+        action="toggle" ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac
 
 
 # If no action has been specified show status.

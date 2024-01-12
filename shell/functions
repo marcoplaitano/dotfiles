@@ -75,7 +75,7 @@ countfiles() {
 ###   Find the given string in the files of the current directory.
 ################################################################################
 findstring() {
-    grep -i --exclude-dir=.git --color=auto -IrnT -B1 -A1 './' -e "$1"
+    grep -i --exclude-dir=.git --color=auto -IrnT './' -e "$1"
 }
 
 

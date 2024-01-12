@@ -3,7 +3,7 @@
 # File:   theme_vim
 # Author: Marco Plaitano
 # Date:   07 Mar 2023
-# Brief:  Set new vim theme.
+# Brief:  Set new nvim theme.
 
 
 _die() {
@@ -18,12 +18,11 @@ _die() {
 
 _help() {
     printf "Usage: $(basename "$0") THEME
-Apply new vim theme.
+Apply new nvim theme.
 
 -h, --help      Show this guide and exit.
 "
 }
-
 
 # Determine whether terminal's background color is light or dark so that
 # vim's background mode can be chosen accordingly.
@@ -33,11 +32,8 @@ _background_mode() {
     #background=${background#*"ColorBackground="}
 
     # Alacritty
-    theme_file="$ALACRITTY_THEME_FILE"
-    colors_file="$DOTS_DIR/alacritty/colorschemes.yml"
-    terminal_theme="$(tail -n1 $ALACRITTY_THEME_FILE | awk '{print $NF}')"
-    terminal_theme="${terminal_theme:1}"
-    background="$(grep $terminal_theme $colors_file -A4 | grep background | awk '{print $NF}')"
+    background="$(grep -m 1 background $THEME_FILE_ALACRITTY | awk '{print $6}')"
+    background="${background::-1}"
     background=${background//\'/}
     background=${background//\"/}
 
@@ -58,17 +54,14 @@ EOF
 
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        *)
-            theme="$1"
-            shift ;;
-    esac
-done
-[[ -z $theme ]] && exit
+case "$1" in
+    '')
+        exit ;;
+    -h | --help)
+        _help ; exit ;;
+    *)
+        theme="$1" ;;
+esac
 
 _VIM_THEME_FILE="$HOME/.config/nvim/lua/moonvim/colorscheme.lua"
 # Clear contents of the configuration file.

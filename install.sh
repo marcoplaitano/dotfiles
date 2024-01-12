@@ -47,8 +47,7 @@ sorted_repo_files=( $( echo ${!repo_files[@]} | tr ' ' $'\n' | sort ) )
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    echo "$error_msg" >&2
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -104,7 +103,7 @@ _install_autostart() {
     local autostart_dir
     autostart_dir="$HOME/.config/autostart/"
     [[ ! -d "$autostart_dir" ]] && mkdir -p "$autostart_dir"
-    cp "$(pwd)"/autostart/* "$autostart_dir"
+    cp autostart/* "$autostart_dir"
 }
 
 _install_cronjobs() {
@@ -160,7 +159,7 @@ if [[ ! -d "$XDG_CONFIG_HOME" ]]; then
 fi
 
 # Get into this repository.
-cd ${0%/*}
+cd ${0%/*} || _die
 
 # Default action is to install everything.
 [[ -z $1 ]] && { _install_all ; exit ;}

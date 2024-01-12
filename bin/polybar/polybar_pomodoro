@@ -115,7 +115,7 @@ while true; do
 
         # If it is not paused show the remaining time.
         if [[ -z $paused ]]; then
-            echo "$prefix""$(date -u --date @$((end_time - $(date +%s))) +%M:%S)"
+            echo "$prefix$(date -u --date @$((end_time - $(date +%s))) +%M:%S)"
         else
             echo "祥  pause"
             # Keep adding 1 second to the end_time so as to keep the same

@@ -7,15 +7,9 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
-
 
 _help() {
     printf "Usage: $(basename "$0") FILE [OPTION]
@@ -29,27 +23,24 @@ FILE            File to edit.
 }
 
 
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -e)
             [[ -z $2 ]] && _die "No editor given."
             editor=$2
-            shift ; shift ;;
+            shift ;;
         *)
             if [[ -z $file ]]; then
                 file="$1"
             else
                 _die "Argument '$1' not recognized."
-            fi
-            shift ;;
+            fi ;;
     esac
+    shift
 done
-
 
 
 ################################################################################
@@ -71,7 +62,6 @@ else
         editor=nano
     fi
 fi
-
 
 
 ################################################################################
@@ -107,11 +97,9 @@ if [[ -n $file ]]; then
     fi
 fi
 
-
 # Rename current tmux window to display that editor is being used (it would
 # otherwise keep showing the shell's name since EDITOR is called in a script).
 [[ -n $TMUX ]] && tmux rename-window "$editor"
-
 
 
 ################################################################################
@@ -125,14 +113,12 @@ else
 fi
 
 
-
 ################################################################################
 ###  POST-PROCESSING
 ################################################################################
 
 # Remove compile_flags.txt file created before.
 [[ -f "$root_dir"/compile_flags.txt ]] && rm "$root_dir"/compile_flags.txt
-
 
 # Since if the file does not exist it is created via the new_file script,
 # I want to delete empty files which might be the result of opening the wrong
@@ -141,7 +127,6 @@ if [[ -f "$file" ]] && [[ ! -s "$file" ]]; then
     echo "File '$file' is empty; deleting it."
     rm "$file"
 fi
-
 
 # Re-enable automatic rename of current tmux window.
 [[ -n $TMUX ]] && tmux setw automatic-rename

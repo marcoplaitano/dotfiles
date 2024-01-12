@@ -32,7 +32,6 @@ _check_pid() {
 _check_pid
 
 
-
 ################################################################################
 ###  DMENU APPEARANCE
 ################################################################################
@@ -45,8 +44,7 @@ height="26"
 # Sourcing this to get fuzzy highlight default colors in case the current theme
 # does not have them.
 source "$DOTS_DIR/_other/colors/dmenu/default.sh"
-source "$DMENU_THEME_FILE"
-
+source "$THEME_FILE_DMENU"
 
 
 ################################################################################
@@ -59,39 +57,35 @@ while [[ -n $1 ]]; do
         # Prompt to display.
         -p | --prompt)
             prompt="$2"
-            shift; shift ;;
+            shift ;;
         # List of choices.
         -l | --list)
             list="$2"
-            shift; shift ;;
+            shift ;;
         # Display each option on its line.
         --multiple-lines)
-            multiple_lines=1
-            shift ;;
+            multiple_lines=1 ;;
         # Display exactly N lines.
         -nl | --num-lines)
             lines=$2
-            shift ; shift ;;
+            shift ;;
         # Accept all user input.
         --accept-all)
-            accept_all=1
-            shift ;;
+            accept_all=1 ;;
         # Use fuzzy match.
         -F | --fuzzy)
-            fuzzy="-F"
-            shift ;;
+            fuzzy="-F" ;;
         -P | --password)
             password="-P"
             # Use monospaced font when inserting passwords so that the cursor
             # will not shift from the * (character used to hide actual letters)
             # because some characters are larger and other thinner.
-            font="monospace-12"
-            shift ;;
+            font="monospace-12" ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
-
 
 lines=${lines:=0}
 # If requested, calculate the number of lines in the list string.
@@ -101,7 +95,6 @@ fi
 
 # Default values.
 prompt=${prompt:="choose:"}
-
 
 options="$fuzzy $password -i -h $height -fn $font -nb $nb -nf $nf \
          -sb $sb -sf $sf -nhb $nhb -nhf $nhf -shb $shb -shf $shf "
@@ -115,7 +108,6 @@ else lines=10 ; prompt="" ; options+=" -c "
 fi
 
 options+=" -l $lines "
-
 
 
 ################################################################################

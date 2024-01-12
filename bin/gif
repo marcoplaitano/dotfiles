@@ -13,12 +13,7 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -48,28 +43,32 @@ while [[ -n $1 ]]; do
         -i)
             [[ -z $2 ]] && _die "No input file given."
             input_file="$2"
-            shift ; shift ;;
+            shift ;;
         -o)
             [[ -z $2 ]] && _die "No output file given."
             output_file="$2"
-            shift ; shift ;;
+            shift ;;
         -w | --width)
+            [[ -z $2 ]] && _die "No width given."
             width="$2"
-            shift ; shift ;;
+            shift ;;
         --fps)
+            [[ -z $2 ]] && _die "No fps given."
             fps="$2"
-            shift ; shift ;;
+            shift ;;
         --skip)
+            [[ -z $2 ]] && _die "No skip given."
             skip="$2"
-            shift ; shift ;;
+            shift ;;
         -t | --time)
+            [[ -z $2 ]] && _die "No time given."
             time="$2"
-            shift ; shift ;;
+            shift ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
-
 
 if [[ -z $input_file ]]; then
     _die "No input file given."
@@ -85,11 +84,8 @@ else
 fi
 
 fps=${fps:=15}
-
 width=${width:=720}
-
 skip=${skip:=0}
-
 
 if [[ -n $time ]]; then
     ffmpeg -ss "$skip" -t "$time" -i "$input_file" -vf "fps=$fps,scale=$width:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 "$output_file"

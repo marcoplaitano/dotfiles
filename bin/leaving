@@ -16,14 +16,13 @@ reset / change the OS.
 
 
 # Parse command line arguments.
-if [[ -n $1 ]]; then
-    case $1 in
-        -h | --help)
-            _help ; exit ;;
-        *)
-            echo "Argument '$1' not recognized." ; exit 1 ;;
-    esac
-fi
+case $1 in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    *)
+        echo "Argument '$1' not recognized." ; exit 1 ;;
+esac
 
 clear
 
@@ -48,10 +47,8 @@ for dir in "${directories[@]}"; do
     fi
 done
 
-
 # Check for any uncommited changes in any repository it can find.
 repositories --colored
-
 
 printf "\nRemember to export your ${YELLOW}GPG keys${RESET} and "
 printf "${YELLOW}passwords${RESET} with the 'pass_backup' script.\n"

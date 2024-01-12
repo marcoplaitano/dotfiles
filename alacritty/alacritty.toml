@@ -1,0 +1,57 @@
+# File:   ~/.config/alacritty/alacritty.toml
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+
+live_config_reload = true
+
+# File containing current colorscheme declaration. It is a separate file to
+# avoid updating it in the dotfiles repository every time the theme changes.
+import = [
+    "~/.config/user/alacritty_theme.toml"
+]
+
+[env]
+WINIT_X11_SCALE_FACTOR = "1.0"
+TERM = "xterm-256color"
+
+[window]
+class = { instance = "Terminal", general = "Terminal" }
+title = "Terminal"
+dynamic_title = false
+# decorations = "None"
+dimensions = { columns = 96, lines = 29 }
+padding = { x = 6, y = 2 }
+opacity = 1.00
+startup_mode = "Windowed"
+
+[scrolling]
+history = 5000
+multiplier = 5
+
+[font]
+size = 12
+normal = { family = "SF Mono", style = "Medium" }
+bold = { family = "SF Mono", style = "Bold" }
+italic = { family = "SF Mono", style = "Medium Italic" }
+bold_italic = { family = "SF Mono", style = "Bold Italic" }
+
+[bell]
+animation = "EaseOutExpo"
+color = "#FFFFFF"
+# Set duration to 0 to disable bell.
+duration = 0
+
+[selection]
+semantic_escape_chars = ",|`:\"' ()[]{}<>\t+-"
+save_to_clipboard = false
+
+[cursor]
+style = { shape = "Block", blinking = "Never" }
+blink_interval = 700
+# When window is unfocused, show hollow version of block.
+unfocused_hollow = true
+# When hollow, how thick it must be.
+thickness = 0.1
+
+[mouse]
+hide_when_typing = true

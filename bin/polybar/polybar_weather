@@ -6,6 +6,7 @@
 # Brief:  Get current weather for specified location. (Used to display weather
 #         module in polybar).
 
+readonly _LOCATION_FILE="$HOME/.config/user/location"
 
 # Format modifiers:
 #   c    Weather condition symbol
@@ -28,9 +29,8 @@
 
 if [[ -n $1 ]]; then
     location="$1"
-elif [[ -f "$LOCATION_FILE" ]]; then
-    location=$(head "$LOCATION_FILE")
-    touch "$LOCATION_FILE"
+elif [[ -f "$_LOCATION_FILE" ]]; then
+    location=$(cat "$_LOCATION_FILE")
 else
     location="Rome"
     show_location=1
@@ -46,7 +46,6 @@ wind=${wind:1}
 wind=${wind%"km/h"*}
 sunset="${infos[3]}"
 location="${infos[4]}"
-
 
 case "${conditions,,}" in
     *"sunny"* | *"clear"*)
@@ -77,7 +76,7 @@ esac
 string="$icon  $temperature"
 
 # Add wind icon to indicate strong winds.
-if [[ $wind -ge 25 ]]; then
+if [[ $wind -ge 18 ]]; then
     string+="    ${wind}km/h"
 fi
 

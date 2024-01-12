@@ -16,14 +16,6 @@ _die() {
     exit 1
 }
 
-_help() {
-    printf "Usage: $(basename "$0")
-Show internet download speed.
-
--h, --help      Show this guide and exit.
-"
-}
-
 # Make sure that the script won't be executed more than once at a time.
 _check_pid() {
     local PIDFILE
@@ -40,21 +32,11 @@ _check_pid() {
 _check_pid
 
 
-# Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-done
-
 readonly _OUTPUT_FILE="/tmp/internetspeed"
 readonly _SCRIPT_FILE="/var/tmp/speedtest.py"
 readonly _SOURCE_FILE="https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py"
 
-
+# Download script, if needed.
 if [[ ! -f "$_SCRIPT_FILE" ]]; then
     echo "Downloading script..."
     if ! curl -s "$_SOURCE_FILE" -o "$_SCRIPT_FILE" ; then
@@ -62,6 +44,7 @@ if [[ ! -f "$_SCRIPT_FILE" ]]; then
     fi
 fi
 
+# Execute script.
 python3 "$_SCRIPT_FILE" --simple --no-upload --secure > $_OUTPUT_FILE
 
 # Define ouptut string.
@@ -72,8 +55,5 @@ else
 fi
 
 # Show results.
-if [[ $TERM != dumb ]]; then
-    echo "$str"
-else
-    notify-send "Internet Speed" "$str"
-fi
+echo "$str"
+[[ $TERM == dumb ]] && notify-send "Internet Speed" "$str"

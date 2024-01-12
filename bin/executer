@@ -6,12 +6,7 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -58,41 +53,33 @@ _find_executable_file() {
 }
 
 
-
 # Flag to add if Java source file is a JavaFX application.
 readonly JAVA_FLAG_FX="--module-path /usr/local/javafx-18/lib \
 --add-modules javafx.controls --add-modules javafx.fxml \
 --add-modules javafx.swing"
 
 
-
 # Parse command line arguments.
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         --execute)
-            execute=1
-            shift ;;
+            execute=1 ;;
         -v | --verbose)
-            verbose=1
-            shift ;;
+            verbose=1 ;;
         -d | --debug)
             debug=1
-            compile_flags+=" -D_DEBUG -Wall -Wextra"
-            shift ;;
+            compile_flags+=" -D_DEBUG -Wall -Wextra" ;;
         --plot | --show-plot)
-            show_plot=1
-            shift ;;
+            show_plot=1 ;;
         -*)
-            compile_flags+="$1 "
-            shift ;;
+            compile_flags+="$1 " ;;
         *)
             # TODO: accept arguments both with and without double quotes.
-            [[ -z $file ]] && file="$1" || run_args+="$1 "
-            shift ;;
+            [[ -z $file ]] && file="$1" || run_args+="$1 " ;;
     esac
+    shift
 done
 
 [[ -z $file ]] && _die "Error: please provide a source file."
@@ -101,8 +88,6 @@ done
 filename=${file%.*}
 
 [[ -n $verbose ]] && _show_verbose
-
-
 
 
 ################################## C ###########################################
@@ -119,7 +104,6 @@ if [[ -f "$filename".c ]]; then
     $(_find_executable_file) $run_args
 
 
-
 ################################## C++ #########################################
 elif [[ -f "$filename".cpp ]]; then
     if [[ -f makefile ]]; then
@@ -134,12 +118,10 @@ elif [[ -f "$filename".cpp ]]; then
     $(_find_executable_file) $run_args
 
 
-
 ################################## OUT #########################################
 # Only when source C/C++ file not found in current directory.
 elif [[ -f "$filename".out ]]; then
     "$(pwd)/$filename".out $run_args
-
 
 
 ################################## JAVA ########################################
@@ -176,17 +158,14 @@ elif [[ -f "$filename".java ]]; then
     java $compile_flags "${filename//\//.}" ${run_args}
 
 
-
 ################################## JAR #########################################
 elif [[ -f "$filename".jar ]]; then
     java -jar "$file"
 
 
-
 ################################## PYTHON ######################################
 elif [[ -f "$filename".py ]]; then
     python3 "$file" $compile_flags $run_args
-
 
 
 ################################## SHELL #######################################
@@ -196,7 +175,6 @@ elif [[ -f "$filename".sh ]]; then
 # Check for the presence of a shell shebang if the file has no extension.
 elif [[ -f "$filename" && "$(head -n 1 $filename)" =~ \#\!/bin/(env )*[ba|z]*sh ]]; then
         $SHELL ./"$file" $compile_flags $run_args
-
 
 
 ################################## R ###########################################
@@ -227,11 +205,9 @@ elif [[ -f "$filename".r ]]; then
     fi
 
 
-
 ################################## MATLAB ######################################
 elif [[ -f "$filename".m ]]; then
     matlab -nosplash -nodesktop -r "run('$filename.m');"
-
 
 
 ################################################################################

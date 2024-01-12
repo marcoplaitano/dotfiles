@@ -18,19 +18,18 @@ THEME           VSCode theme to set.
 
 
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        *)
-            theme="$1"
-            shift ;;
-    esac
-done
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    *)
+        theme="$1" ;;
+esac
 
-readonly CONFIG_FILE="$HOME/.config/Code/User/settings.json"
-[[ ! -w "$CONFIG_FILE" ]] && exit
+readonly _CONFIG_FILE="$HOME/.config/Code/User/settings.json"
+[[ ! -w "$_CONFIG_FILE" ]] && exit
 
+# If no theme is specified, use default ones (check dark mode)
 if [[ -z $theme ]]; then
     case "$(dark_theme --status)" in
         off)
@@ -40,6 +39,6 @@ if [[ -z $theme ]]; then
     esac
 fi
 
-if [[ -f "$CONFIG_FILE" ]]; then
-    sed -i -e '0,/    "workbench.colorTheme":.*/s//    "workbench.colorTheme": "'"$theme"'",/' "$CONFIG_FILE"
+if [[ -f "$_CONFIG_FILE" ]]; then
+    sed -i -e '0,/    "workbench.colorTheme":.*/s//    "workbench.colorTheme": "'"$theme"'",/' "$_CONFIG_FILE"
 fi

@@ -4,7 +4,6 @@
 # Author: Marco Plaitano
 # Brief:  Toggle blue light filter and dark mode.
 
-set -u
 
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
@@ -44,17 +43,16 @@ _check_pid() {
     echo $$ > "$PIDFILE"
 }
 
-
 _turn_off() {
     _set_status off
-    blue_light_filter --off
     dark_theme --off
+    blue_light_filter --off
 }
 
 _turn_on() {
     _set_status on
-    blue_light_filter --on
     dark_theme --on
+    blue_light_filter --on
 }
 
 _toggle() {
@@ -65,10 +63,14 @@ _toggle() {
     fi
 }
 
-# Check whether night mode is enabled by reading from the status file.
 _get_status() {
+    if [[ $(dark_theme --status) == on && $(blue_light_filter --status) == on ]]
+    then
+        echo on
+        return
+    fi
     local status
-    status=$(cat "$NIGHT_MODE_STATUS_FILE" 2>/dev/null)
+    status=$(cat "$_STATUS_FILE" 2>/dev/null)
     if [[ -n $status ]]; then
         echo $status
     else
@@ -76,35 +78,29 @@ _get_status() {
     fi
 }
 
-# Write current status (on, off) on file.
 _set_status() {
-    echo "$1" > "$NIGHT_MODE_STATUS_FILE"
+    echo "$1" > "$_STATUS_FILE"
 }
 
 
 _check_pid
 
-readonly _BEGIN_TIME="18:15"
+readonly _STATUS_FILE="$HOME/.config/user/nightmode"
+readonly _BEGIN_TIME="17:00"
 readonly _END_TIME="07:00"
 
 # Parse command line arguments.
-set +u
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h|--help)
-            _help
-            exit ;;
-        --status)
-            _get_status
-            exit ;;
-        --off | --on | --toggle)
-            flag="${1#*--}"
-            shift ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-done
-set -u
+case "$1" in
+    '') ;;
+    -h|--help)
+        _help ; exit ;;
+    --status)
+        _get_status ; exit ;;
+    --off | --on | --toggle)
+        flag="${1#*--}" ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac
 
 # Default action is to toggle based on time of day.
 if [[ -z $flag ]]; then

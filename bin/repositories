@@ -6,8 +6,7 @@
 
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    echo "$error_msg" >&2
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -20,7 +19,6 @@ Report if any local git repository has changes to commit, stage, push...
 --colored           Print repository names with color.
 "
 }
-
 
 _repo_has_unpushed() {
     upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
@@ -52,28 +50,27 @@ _repo_has_untracked() {
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -f | --full)
-            full=1
-            shift ;;
+            full=1 ;;
         --colored)
-            _COLOR="$YELLOW"
-            shift ;;
+            _COLOR="$YELLOW" ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
 
 # Use no color by default.
 [[ -z $_COLOR ]] && _COLOR="$RESET"
 
 
-
 # From these directories, look for git repositories with a maxdepth of 1 level.
 dirs_to_check=(
     "$CODE_DIR"
     "$HOME/Desktop"
+    "$HOME/Desktop/tesi/codice/"
+    "$HOME/Desktop/tesi/"
     "$HOME/Pictures"
 )
 

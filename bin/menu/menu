@@ -88,14 +88,15 @@ _choose_kill() {
 # Open the given Google's site with the account the user chooses.
 _choose_account() {
     local accounts account
-    accounts="99\nuni\n23\nea\npr"
+    accounts="99\nuni\n23\nea\nprea\nprmp"
     account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
     case $account in
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
         uni)  $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
         23)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
         ea)   $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
-        pr)   $WEBBROWSER https://mail.proton.me/u/2/inbox  & disown ;;
+        prea) $WEBBROWSER https://mail.proton.me/u/0/inbox  & disown ;;
+        prmp) $WEBBROWSER https://mail.proton.me/u/1/inbox  & disown ;;
     esac
 }
 
@@ -103,7 +104,7 @@ _choose_account() {
 # Run plank dock.
 _plank_dock() {
     killall plank
-    plank &>/dev/null & disown
+    plank &>/dev/null
 }
 
 
@@ -255,6 +256,7 @@ declare -A actions=(
     [suspend]="exit.sh --suspend"
     [teams]="teams-for-linux"
     [telegram]="telegram-desktop"
+    [tesite]="$WEBBROWSER https://tesite.netlify.app"
     [theme]="_change_theme"
     [transmission]="transmission-gtk"
     [unidrive]="$WEBBROWSER https://drive.google.com/drive/u/1/my-drive"

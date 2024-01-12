@@ -40,11 +40,10 @@ _check_pid() {
     echo $$ > "$PIDFILE"
 }
 
-
 # Check whether dark mode is enabled by reading from the status file.
 _get_status() {
     local status
-    status=$(cat "$DARK_THEME_STATUS_FILE" 2>/dev/null)
+    status=$(cat "$_STATUS_FILE" 2>/dev/null)
     if [[ -n $status ]]; then
         echo $status
     else
@@ -56,18 +55,17 @@ _get_status() {
 _set_status() {
     case $1 in
         on)
-            echo "on" > "$DARK_THEME_STATUS_FILE" ;;
+            echo "on" > "$_STATUS_FILE" ;;
         off)
-            echo "off" > "$DARK_THEME_STATUS_FILE" ;;
+            echo "off" > "$_STATUS_FILE" ;;
         toggle)
             if [[ $(_get_status) == on ]]; then
-                echo "off" > "$DARK_THEME_STATUS_FILE"
+                echo "off" > "$_STATUS_FILE"
             else
-                echo "on" > "$DARK_THEME_STATUS_FILE"
+                echo "on" > "$_STATUS_FILE"
             fi ;;
     esac
 }
-
 
 _apply_theme_wallpaper() {
     curr_wallpaper_file="$(readlink $WALLPAPER_FILE)"
@@ -230,23 +228,20 @@ _check_pid
 
 # Need this environment variable when this script is called by a cron job.
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
+readonly _STATUS_FILE="$HOME/.config/user/darktheme"
 
 # Parse command line arguments.
-if [[ -n $1 ]]; then
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        --on | --off | --toggle)
-            flag="${1#*--}"
-            shift ;;
-        --status)
-            _get_status
-            exit ;;
-        *)
-            _die "Argument '$1' not recognized." ;;
-    esac
-fi
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    --on | --off | --toggle)
+        flag="${1#*--}" ;;
+    --status)
+        _get_status ; exit ;;
+    *)
+        _die "Argument '$1' not recognized." ;;
+esac
 
 # Do not apply if the current state is already the desired one.
 status=$(_get_status)

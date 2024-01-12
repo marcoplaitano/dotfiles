@@ -61,6 +61,11 @@ for dir in $dirs; do
         list+=("$dir")
     fi
 done
+dirs=$(find "$HOME/Desktop/tesi/codice" -mindepth 1 -maxdepth 1 -type d)
+for dir in "${dirs[@]}"; do
+    list+=("$dir")
+done
+list+=("$HOME/Desktop/tesi/tesite")
 
 # Avoid race conditions.
 killall menu &>/dev/null

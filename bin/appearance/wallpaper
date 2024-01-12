@@ -5,6 +5,10 @@
 # Brief:  Set new wallpaper image and update system's color palette accordingly.
 
 
+# Need this environment variable when this script is called by a cron job.
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
+
+
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -42,7 +46,6 @@ _check_pid() {
     echo $$ > "$PIDFILE"
 }
 
-
 # Return a random image from the specified/default directory.
 _random_image() {
     # Probably called by a cron job to update wallpaper (and wal colors) with
@@ -56,7 +59,6 @@ _random_image() {
     echo $img
 }
 
-
 _ask_image() {
     if [[ $TERM != dumb ]]; then
         images=$(echo $images | tr '|' ' ')
@@ -68,28 +70,19 @@ _ask_image() {
 }
 
 
-
 _check_pid
 
-# Need this environment variable when this script is called by a cron job.
-export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
-
 # Parse command line arguments.
-while [[ -n $1 ]]; do
-    case "$1" in
-        -h | --help)
-            _help
-            exit ;;
-        -r | --random)
-            dir="$2"
-            image=$(_random_image)
-            break ;;
-        *)
-            image="$1"
-            break ;;
-    esac
-done
-
+case "$1" in
+    '') ;;
+    -h | --help)
+        _help ; exit ;;
+    -r | --random)
+        dir="$2"
+        image=$(_random_image) ;;
+    *)
+        image="$1" ;;
+esac
 
 
 ################################################################################
@@ -131,14 +124,12 @@ if [[ -z $image ]]; then
     [[ -z $image ]] && exit
 fi
 
-
 # Check whether the image exists.
 [[ ! -f "$image" ]] && _die "Error: image '$image' does not exist."
 
 # Change the wallpaper.
 echo "Setting wallpaper '$image'..."
 set_wallpaper "$image"
-
 
 
 ################################################################################
@@ -164,7 +155,6 @@ esac
 
 echo "Updating system theme..."
 change_theme "$theme" -i "$image"
-
 
 
 ################################################################################

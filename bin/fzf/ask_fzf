@@ -33,25 +33,22 @@ Pass a query along to fzf and return choice(s).
 while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
-            _help
-            exit ;;
+            _help ; exit ;;
         -l)
             shift
             list="$*"
             break ;;
         -a | --accept-all)
-            accept_all=1
-            shift ;;
+            accept_all=1 ;;
         -p)
             prompt="$2"
-            shift ; shift ;;
+            shift ;;
         -s | --sort)
-            sort_list=1
-            shift ;;
+            sort_list=1 ;;
         *)
-            _die "Argument '$1' not recognized."
-            shift ;;
+            _die "Argument '$1' not recognized." ;;
     esac
+    shift
 done
 
 # Can't work without a list of choices.
@@ -64,7 +61,6 @@ prompt=${prompt:="> "}
 options="-p "
 [[ -n $accept_all ]] && options+=" --print-query "
 options+="$(get_fzf_colors)"
-
 
 
 if [[ -n $sort_list ]]; then
