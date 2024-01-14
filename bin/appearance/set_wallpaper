@@ -21,8 +21,7 @@ _help() {
 Set new wallpaper image.
 
 -h, --help              Show this guide and exit.
-IMAGE                   Global path to the image to use as wallpaper.
-"
+IMAGE                   Global path to the image to use as wallpaper.\n"
 }
 
 

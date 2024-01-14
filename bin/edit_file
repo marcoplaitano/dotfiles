@@ -18,8 +18,7 @@ Open file in a text editor.
 -h, --help      Show this guide and exit.
 -e EDITOR       Use the specified editor. If not given it will try \$EDITOR.
                 If that fails too it will try nvim, vim or nano, in the order.
-FILE            File to edit.
-"
+FILE            File to edit.\n"
 }
 
 

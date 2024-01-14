@@ -20,15 +20,14 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename $0) [TITLE] [OPTION]
+    printf "Usage: $(basename "$0") [TITLE] [OPTION]
 Search for a streaming torrent for the specified movie/tv show.
 If multiple torrents are found, choose the one with fzf.
 
 -h, --help          Show this guide and exit
 TITLE               Title of the movie/show to watch
 --clip, -c          Do not stream, copy magnet link to clipboard
--u, --url URL       Stream from given torrent URL
-"
+-u, --url URL       Stream from given torrent URL\n"
 }
 
 _get_torrent_list() {

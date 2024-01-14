@@ -10,8 +10,7 @@ _help() {
     printf "Notify the user for any file they might have forgotten to make a \
 bakcup of.
 This script is to be used when preparing to leave the current machine or
-reset / change the OS.
-"
+reset / change the OS.\n"
 }
 
 
@@ -50,7 +49,10 @@ done
 # Check for any uncommited changes in any repository it can find.
 repositories --colored
 
+backup_gpg --export
+backup_pass --export
+
 printf "\nRemember to export your ${YELLOW}GPG keys${RESET} and "
-printf "${YELLOW}passwords${RESET} with the 'pass_backup' script.\n"
+printf "${YELLOW}passwords${RESET}.\n"
 printf "Save any docker ${YELLOW}container${RESET}'s configfile or script.\n"
 printf "Check if there is any script in ${YELLOW}~/.local/bin${RESET}.\n"

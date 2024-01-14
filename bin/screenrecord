@@ -45,8 +45,7 @@ Record screen (and audio).
 --fps FPS           Use specified FPS value. Default is 25.
 -m, --mute          Do not record audio.
 --audio-in          Record input audio from default microphone.
---audio-out         Record output audio. (default)
-"
+--audio-out         Record output audio. (default)\n"
 }
 
 # Stop recording by writing a 'q' into the file the ffmpeg command is monitoring

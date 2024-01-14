@@ -18,8 +18,7 @@ Convert all audio files in the current directory from one format to another.
 -h, --help          Show this guide and exit.
 -i IN_FORMAT        Input format. Default is '$in_format'.
 -o OUT_FORMAT       Output format. Default is '$out_format'.
--d, --dir DIR       Save results in DIR. Default is current directory.
-"
+-d, --dir DIR       Save results in DIR. Default is current directory.\n"
 }
 
 

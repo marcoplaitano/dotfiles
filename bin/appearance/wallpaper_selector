@@ -23,8 +23,7 @@ from the \$WALLPAPERS_DIR directory.
 
 -h, --help        Show this guide and exit.
 -g, --grid        Show all images at once in a grid. Click to choose. (default)
--s, --single      Show one image at a time. Press ENTER to choose.
-"
+-s, --single      Show one image at a time. Press ENTER to choose.\n"
 }
 
 

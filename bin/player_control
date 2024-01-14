@@ -25,8 +25,7 @@ Control currently playing media player.
 --prev
 --next
 --play-pause
---stop
-"
+--stop\n"
 }
 
 

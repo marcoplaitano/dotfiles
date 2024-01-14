@@ -16,8 +16,7 @@ Create a file with the given extension and, if the extension is known, write
 some default stuff in it.
 
 -h, --help      Show this guide and exit.
-FILE            The file(s) to create. More than one can be given.
-"
+FILE            The file(s) to create. More than one can be given.\n"
 }
 
 # Ask the user a yes/no question.

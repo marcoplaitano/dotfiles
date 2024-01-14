@@ -31,8 +31,7 @@ The time of the reminder can be set in 3 different ways, see options below.
 -n, --now               Display reminder right away.
 -t, --time TIME         Set the time at which the reminder should go off.
 -i, --in MINUTES        Set in \"how many minutes\" the reminder should pop up.
--d DESCRIPTION          String that describes the reminder.
-"
+-d DESCRIPTION          String that describes the reminder.\n"
 }
 
 _show_confirmation() {

@@ -30,8 +30,7 @@ Create a gif from the given input file.
                     aspect ratio. Default is 720.
 --skip N            Skip the first N seconds from the input file.
 -t, --time TIME     Only take the first TIME seconds (starting from 0, or from N
-                    if --skip is given) to create the gif.
-"
+                    if --skip is given) to create the gif.\n"
 }
 
 

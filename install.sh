@@ -52,7 +52,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename $0) [FILE] [OPTION]
+    printf "Usage: $(basename "$0") [FILE] [OPTION]
 Install dotfiles and configuration files from this repository.
 The 'installation' process consists in symlinking the files and directories
 in this repository to their respective system location.
@@ -64,8 +64,7 @@ FILE                Config file/directory to install.
 --autostart         Install autostart applications.
 --cronjobs          Install cronjobs.
 --fonts             Install fonts.
---sounds            Install sounds.
-"
+--sounds            Install sounds.\n"
 }
 
 
@@ -95,7 +94,7 @@ _list() {
         echo "$repo_file"
     done
     echo
-    echo "See '$(basename $0) -h' for info about cronjobs, fonts, ..."
+    echo "See '$(basename "$0") -h' for info about cronjobs, fonts, ..."
 }
 
 _install_autostart() {
@@ -182,7 +181,7 @@ while [[ -n $1 ]]; do
         --sounds)
             _install_sounds ;;
         -*)
-            _die "Invalid option. See '$(basename $0) -h' for more." ;;
+            _die "Invalid option. See '$(basename "$0") -h' for more." ;;
         *)
             _install_config "$1" ;;
     esac

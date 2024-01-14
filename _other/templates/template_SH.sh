@@ -24,17 +24,16 @@ _die() {
 }
 
 _help() {
-    printf \"Usage: \$(basename \$0) [OPTION]...
+    printf \"Usage: %s [OPTION]...
 Description
 
--h, --help          Show this guide and exit.
-\"
+-h, --help          Show this guide and exit.\\n\" \"\$(basename \"\$0\")\"
 }
 
 # Make sure that the script won't be executed more than once at a time.
 _check_pid() {
     local PIDFILE
-    PIDFILE=\"/tmp/\$(basename \$0).pid\"
+    PIDFILE=\"/tmp/\$(basename \"\$0\").pid\"
 
     if [[ -f \"\$PIDFILE\" ]]; then
         pid=\$(cat \"\$PIDFILE\")

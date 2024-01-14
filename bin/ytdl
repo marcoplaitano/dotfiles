@@ -20,8 +20,7 @@ Download a video from Youtube. The user can choose the audio/video quality.
 -a, --audio     To only download the audio track.
 URL             The Youtube video's URL.
 FILE            Name of the file in which to save the video. If not given, last
-                part of the URL is used.
-"
+                part of the URL is used.\n"
 }
 
 

@@ -23,8 +23,7 @@ Toggle Do Not Disturb by pausing dunst.
 -h, --help      Show this guide and exit.
 --on            Silence notifications.
 --off           Enable notifications.
---toggle        Toggle state.
-"
+--toggle        Toggle state.\n"
 }
 
 _turn_on() {

@@ -16,8 +16,7 @@ _help() {
 Show login message when a new shell is opened.
 
 -h, --help      Show this guide and exit.
---once          Only display message at first login after system's (re)boot.
-"
+--once          Only display message at first login after system's (re)boot.\n"
 }
 
 _show_message() {

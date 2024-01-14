@@ -24,8 +24,7 @@ Pass a query along to fzf and return choice(s).
 -a, --accept-all        Accept any input, even if it matches no choice.
 -p PROMPT               Prompt to show in the fzf window.
 -s, --sort              Sort input list.
--l LIST                 List of choices. MUST BE LAST ARGUMENT GIVEN.
-"
+-l LIST                 List of choices. MUST BE LAST ARGUMENT GIVEN.\n"
 }
 
 

@@ -19,8 +19,7 @@ script won't operate on directories above '$HOME/'.
 -h, --help          Show this guide and exit.
 -f, --force         Force the execution of the script in the current directory.
 -d, --depth DEPTH   Clean up to DEPTH subdirectories. Default is 2.
--p, --path PATH     Path to the directory to clear. Default is current wd.
-"
+-p, --path PATH     Path to the directory to clear. Default is current wd.\n"
 }
 
 

@@ -26,8 +26,7 @@ Cut a certain amount of seconds from the given audio/video file.
 -t, --time  TIME        Number of seconds to cut.
 -e, --end               Cut from the end of the file. (default)
 -b, --beginning         Cut from the beginning of the file.
-FILE                    Input file.
-"
+FILE                    Input file.\n"
 }
 
 

@@ -65,24 +65,6 @@ _ask_yes_no() {
     done
 }
 
-# Unzip directory whose path is given in the first argument.
-# Output path is $HOME/.local/share
-_unzip_dir() {
-    local default_path zipfile
-    default_path="$1"
-    read -rp "Location of zip file ($default_path): " zipfile
-    zipfile=${zipfile:="$default_path"}
-    if [[ ! -f "$zipfile" ]]; then
-        _die "File '$zipfile' not found."
-    fi
-    if [[ "$zipfile" != *'.zip' ]]; then
-        _die "File '$zipfile' does not seem to be a ZIP file."
-    fi
-    mkdir -p "$HOME/.local/share"
-    unzip "$zipfile" -d $HOME/.local/share || _die
-    rm "$zipfile"
-}
-
 # Give me ownership of the given directory.
 _own() {
     dir="$1"
@@ -188,35 +170,6 @@ while [[ -z $city ]]; do
     read -rp "City you live in (for weather): " city
 done
 echo "$city" > "$HOME/.config/user/location"
-
-
-
-################################################################################
-###  GPG KEYS & PASSWORDS
-################################################################################
-
-if [[ -n $do_gpg ]]; then
-    _show_section "GPG KEYS & PASSWORDS"
-    echo
-    echo "This section of the script will install GPG keys and passwords."
-    echo "The following files are needed:"
-    echo "   ~/keys.zip             (GPG keys)"
-    echo "   ~/passwords.zip        (pass files)"
-    _wait_ok "When all the needed files are in place write 'ok': "
-
-    # Install needed packages.
-    _install zip unzip xclip git pass pinentry
-
-    # Import keys and passwords from ZIP files.
-    _unzip_dir "$HOME/keys.zip"
-    _unzip_dir "$HOME/passwords.zip"
-
-    # Set default directories in which to look for keys and credentials.
-    export GNUPGHOME="$HOME/.local/share/gnupg"
-    export PASSWORD_STORE_DIR="$HOME/.local/share/passwords"
-
-    rm -rf "$HOME/.gnupg"
-fi
 
 
 
@@ -460,6 +413,35 @@ if [[ -n $do_telegram ]]; then
     _show_section "TELEGRAM"
 
     _install telegram-desktop
+fi
+
+
+
+################################################################################
+###  GPG KEYS & PASSWORDS
+################################################################################
+
+if [[ -n $do_gpg ]]; then
+    _show_section "GPG KEYS & PASSWORDS"
+    echo
+    printf "This section of the script will install GPG keys and passwords.
+The following files are needed:
+   ~/keys.tar.gz
+   ~/passwords.tar.gz\n"
+    _wait_ok "When all the needed files are in place write 'ok': "
+
+    # Install needed packages.
+    _install tar xclip git pass pinentry
+
+    # Set default directories in which to look for keys and credentials.
+    export GNUPGHOME="$HOME/.local/share/gnupg"
+    export PASSWORD_STORE_DIR="$HOME/.local/share/passwords"
+
+    # Import keys and passwords from ZIP files.
+    backup_gpg --import
+    backup_pass --import
+
+    rm -rf "$HOME/.gnupg"
 fi
 
 

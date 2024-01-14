@@ -21,8 +21,7 @@ _help() {
 Apply colorscheme to either xfce4-terminal or alacritty. Changes will also
 affect utilities such as bat, helix, vim, nvim and fzf.
 
--h, --help      Show this guide and exit.
-"
+-h, --help      Show this guide and exit.\n"
 }
 
 _change_alacritty_colorscheme() {

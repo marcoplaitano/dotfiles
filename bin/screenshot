@@ -24,8 +24,7 @@ Use scrot to take a screenshot of the screen.
 --quick         Capture entire screen now.
 --delay N       Wait N seconds before capturing.
 --focused       Only capture focused window.
---select        Manually select area to grab.
-"
+--select        Manually select area to grab.\n"
 }
 
 _get_filename() {

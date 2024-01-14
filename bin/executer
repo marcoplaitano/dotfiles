@@ -28,8 +28,7 @@ FILE                        The source file to compile and run.
                             NOTE: some files require no compilation (e.g. shell
                             scripts) and therefore will always be executed.
 *                           (AFTER FILE) Command line argument to pass to the
-                            executable.
-"
+                            executable.\n"
 }
 
 _show_verbose() {

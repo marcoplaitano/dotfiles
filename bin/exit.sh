@@ -25,8 +25,7 @@ Logout from current xfce4 desktop session executing the command given.
 --logout
 --hibernate
 --poweroff      Perform shutdown routine and poweroff.
---reboot        Perform shutdown routine and reboot. Ask for confirmation first.
-"
+--reboot        Perform shutdown routine and reboot. Ask for confirmation first.\n"
 }
 
 # Ask to specify a command via dmenu.

@@ -23,8 +23,7 @@ Show or hide icons on the desktop.
 -h, --help      Show this guide and exit.
 --hide          Hide icons.
 --show          Show icons.
---toggle        Toggle icons. (default)
-"
+--toggle        Toggle icons. (default)\n"
 }
 
 _icons_hide() {

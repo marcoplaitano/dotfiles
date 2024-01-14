@@ -29,14 +29,13 @@ wallpapers folder via dmenu or fzf.
 -h, --help              Show this guide and exit.
 IMAGE                   Global path to the image to use as wallpaper.
 -r, --random [DIR]      Use random image from wallpapers' directory. Optionally,
-                        specify a directory to choose from.
-"
+                        specify a directory to choose from.\n"
 }
 
 # Make sure that the script won't be executed more than once at a time.
 _check_pid() {
     local PIDFILE
-    PIDFILE="/tmp/$(basename $0).pid"
+    PIDFILE="/tmp/$(basename "$0").pid"
     if [[ -f "$PIDFILE" ]]; then
         pid=$(cat "$PIDFILE")
         # Process found, script already running, do not execute this.

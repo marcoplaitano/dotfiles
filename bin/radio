@@ -23,8 +23,7 @@ _help() {
 Play radio station.
 
 -h, --help      Show this guide and exit.
-STATION         Station to play. If not given it will be asked via dmenu.
-"
+STATION         Station to play. If not given it will be asked via dmenu.\n"
 }
 
 _play_radio() {

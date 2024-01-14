@@ -28,8 +28,7 @@ action is specified, a dmenu instance is launched to ask what to do.
 --on                Turn microphone on.
 --off               Turn microphone off.
 --sound-on          Enable audio confirmation of state change.
---soudn-off         Disable audio confirmation of state change.
-"
+--soudn-off         Disable audio confirmation of state change.\n"
 }
 
 _play_sound() {

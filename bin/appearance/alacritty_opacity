@@ -16,13 +16,12 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename $0) OPTION
+    printf "Usage: $(basename "$0") OPTION
 Toggle opacity settings for Alacritty terminal.
 
 -h, --help
 --on
---off
-"
+--off\n"
 }
 
 _set_opacity() {
@@ -39,7 +38,7 @@ _set_opacity() {
 # Parse command-line arguments.
 case "$1" in
     '')
-        _die "Usage: $(basename $0) on|off" ;;
+        _die "Usage: $(basename "$0") on|off" ;;
     -h | --help)
         _help ;;
     on | --on)

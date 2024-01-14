@@ -25,8 +25,7 @@ polybar, dmenu, terminal, vim, fzf...
 -h, --help      Show this guide and exit.
 -l, --list      Show a list of all the available themes and exit.
 THEME           Name of the new theme to apply.
--i IMAGE        Source image to genereate wal palette from.
-"
+-i IMAGE        Source image to genereate wal palette from.\n"
 }
 
 # Show a list of all the available themes.

@@ -11,12 +11,11 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename $0) FILE
+    printf "Usage: $(basename "$0") FILE
 Create backup copy of given file.
 
 -h, --help          Show this guide and exit.
-FILE                File to backup.
-"
+FILE                File to backup.\n"
 }
 
 

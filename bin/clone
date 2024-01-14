@@ -19,8 +19,7 @@ cloned from my github's account.
 
 -h, --help      Show this guide and exit.
 REPO            Repository to clone.
-[DEST]          Destination folder.
-"
+[DEST]          Destination folder.\n"
 }
 
 

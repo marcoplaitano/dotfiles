@@ -22,7 +22,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename $0) [OPTION]...
+    printf "Usage: $(basename "$0") [OPTION]...
 Handle internal and external monitors.
 
 -h, --help              Show this guide and exit.
@@ -34,8 +34,7 @@ Handle internal and external monitors.
 --toggle                Toggle internal monitor.
 --external-on           Turn external monitor on.
 --external-off          Turn external monitor off.
---external-toggle       Toggle external monitor.
-"
+--external-toggle       Toggle external monitor.\n"
 }
 
 _extend_left() {

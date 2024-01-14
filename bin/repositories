@@ -16,8 +16,7 @@ Report if any local git repository has changes to commit, stage, push...
 
 -h, --help          Show this guide and exit.
 -f, --full          Print full path for each repository.
---colored           Print repository names with color.
-"
+--colored           Print repository names with color.\n"
 }
 
 _repo_has_unpushed() {

@@ -12,8 +12,7 @@ Apply new vscode theme. If none is given, use default ones,
 dark/light based on system theme.
 
 -h, --help      Show this guide and exit.
-THEME           VSCode theme to set.
-"
+THEME           VSCode theme to set.\n"
 }
 
 

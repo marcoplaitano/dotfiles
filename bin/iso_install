@@ -17,8 +17,7 @@ Format the USB and write the given ISO on it.
 
 -h, --help      Show this guide and exit.
 ISO             Path to the ISO image.
-USB             Path to the USB. (default is /dev/sda)
-"
+USB             Path to the USB. (default is /dev/sda)\n"
 }
 
 # Ask the user a yes/no question.

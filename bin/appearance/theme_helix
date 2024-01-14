@@ -21,8 +21,7 @@ _help() {
     printf "Usage: $(basename "$0") THEME
 Apply new theme to the helix editor.
 
--h, --help      Show this guide and exit.
-"
+-h, --help      Show this guide and exit.\n"
 }
 
 
