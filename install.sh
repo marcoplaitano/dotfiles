@@ -11,8 +11,12 @@ exec {BASH_XTRACEFD}>>$LOGFILE
 PS4='$?\011 $(date +%H:%M:%S.%3N)  $BASH_SOURCE@$LINENO   \011'
 set -x
 
-
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
+# Prepare config directory.
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:="$HOME/.config"}"
+if [[ ! -d "$XDG_CONFIG_HOME" ]]; then
+    echo "Creating config folder '$XDG_CONFIG_HOME'."
+    mkdir -p "$XDG_CONFIG_HOME"
+fi
 
 # Associate files/dirs in this 'dotfiles' repository with the correspondent
 # files and dirs found across the system.
@@ -52,21 +56,19 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") [FILE] [OPTION]
-Install dotfiles and configuration files from this repository.
-The 'installation' process consists in symlinking the files and directories
-in this repository to their respective system location.
+    printf "Usage: $(basename "$0") [FILE]... [OPTION]
+Install dotfiles from this repository onto the machine by using symlinks.
 
--h, --help          Show this guide and exit.
--l, --list          List all config files/dirs that can be installed.
-FILE                Config file/directory to install.
--a, --all           Install everything. (Default action).
---autostart         Install autostart applications.
---cronjobs          Install cronjobs.
---fonts             Install fonts.
---sounds            Install sounds.\n"
+-h, --help          Show this guide and exit
+-l, --list          List all config files/dirs that can be installed
+-a, --all           Install everything. (default)
+FILE                Config file/directory to install
+autostart           Install autostart applications
+configs             Install config files
+cronjobs            Install cronjobs
+fonts               Install fonts
+sounds              Install sounds\n"
 }
-
 
 # Create symlink from source $1 to destination $2.
 # Ask whether to overwrite (delete + write) destination, if it already exists.
@@ -87,7 +89,6 @@ _copy() {
     fi
 }
 
-
 # List all files that can be installed.
 _list() {
     for repo_file in "${sorted_repo_files[@]}"; do
@@ -99,8 +100,7 @@ _list() {
 
 _install_autostart() {
     echo "===== Installing autostart ..."
-    local autostart_dir
-    autostart_dir="$HOME/.config/autostart/"
+    local autostart_dir="$HOME/.config/autostart/"
     [[ ! -d "$autostart_dir" ]] && mkdir -p "$autostart_dir"
     cp autostart/* "$autostart_dir"
 }
@@ -127,9 +127,8 @@ _install_sounds() {
 }
 
 _install_config() {
-    local repo_file sys_file
-    repo_file="$1"
-    sys_file="${repo_files[$repo_file]}"
+    local repo_file="$1"
+    local sys_file="${repo_files[$repo_file]}"
     if [[ -e "$repo_file" ]]; then
         echo "===== Installing $repo_file ..."
         _copy "$(pwd)/$repo_file" "$sys_file"
@@ -138,24 +137,20 @@ _install_config() {
     fi
 }
 
-_install_all() {
+_install_configs() {
     for repo_file in "${sorted_repo_files[@]}"; do
         _install_config "$repo_file"
     done
+}
+
+_install_all() {
     _install_autostart
+    _install_configs
     _install_cronjobs
     _install_fonts
     _install_sounds
 }
 
-
-
-# Prepare config directory.
-XDG_CONFIG_HOME=${XDG_CONFIG_HOME:="$HOME/.config"}
-if [[ ! -d "$XDG_CONFIG_HOME" ]]; then
-    echo "Creating config folder '$XDG_CONFIG_HOME'."
-    mkdir -p "$XDG_CONFIG_HOME"
-fi
 
 # Get into this repository.
 cd ${0%/*} || _die
@@ -172,13 +167,15 @@ while [[ -n $1 ]]; do
             _list ; exit ;;
         -a | --all)
             _install_all ; exit ;;
-        --autostart)
+        --autostart | autostart)
             _install_autostart ;;
-        --cronjobs)
+        --configs | configs)
+            _install_configs ;;
+        --cronjobs | cronjobs)
             _install_cronjobs ;;
-        --fonts)
+        --fonts | fonts)
             _install_fonts ;;
-        --sounds)
+        --sounds | sounds)
             _install_sounds ;;
         -*)
             _die "Invalid option. See '$(basename "$0") -h' for more." ;;

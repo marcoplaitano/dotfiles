@@ -40,8 +40,8 @@ _die() {
 
 # Print question and wait for user to input "ok".
 _wait_ok() {
-    local question ans
-    question="$1"
+    local question="$1"
+    unset ans
     while [[ -z $ans ]]; do
         read -rp "$question " ans
         case "${ans,,}" in
@@ -53,12 +53,12 @@ _wait_ok() {
 
 # Ask the user a yes/no question.
 _ask_yes_no() {
-    local question ans
-    question="$1"
+    local question="$1"
+    unset ans
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
-            y | yes | si | sí) return ;;
+            y | yes | si | sí) return 0 ;;
             n | no ) return 1 ;;
             *) unset ans ;;
         esac
@@ -81,6 +81,8 @@ _install() {
     case "$1" in
         youtube-dl | pywal | "python-lsp-server[all]")
             pipx install "$1" ;;
+        markdown | python-beautifulsoup4)
+            sudo pacman -S python-$1 ;;
         *)
             sudo pacman -S --needed --noconfirm "$@" ;;
     esac
@@ -237,13 +239,17 @@ _show_section "PACKAGES"
 ###  PACKAGES
 ################################################################################
 
-_install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
+_install git gcc make cmaske unrar pass wget curl htop net-tools gnome-keyring \
          tree mlocate vim xclip evince gimp neofetch redshift shellcheck \
          transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
          fd plank mousepad playerctl brightnessctl lm_sensors \
          polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
-         ttf-roboto-mono-nerd numlockx xwallpaper dunst unclutter xss-lock
-_install python-pip python-pipx python-markdown
+         ttf-roboto-mono-nerd numlockx xwallpaper unclutter xss-lock \
+         python-pip python-pipx python-markdown
+
+# pip library
+_install markdown
+_install python-beautifulsoup4
 
 if _install cronie ; then
     sudo systemctl enable --now cronie.service
@@ -302,15 +308,16 @@ dir=$_CODE_DIR/dotfiles
 
 if [[ -n $do_dotfiles ]] && [[ ! -d "$dir" ]]; then
     git clone https://github.com/marcoplaitano/dotfiles "$dir"
-else
-    [[ ! -d "$dir" ]] && mv "$(pwd)" "$dir"
 fi
 
 # Set up the dotfiles with the installation script.
 if pushd "$dir" &>/dev/null ; then
+    for script in $(find bin/ -maxdepth 2 -type f); do
+        chmod +x "$script"
+    done
     bash ./install.sh
     source $HOME/.profile
-    bash ./bin/appearance/change_theme default
+    bash ./appearance/change_theme default
     popd &>/dev/null
 fi
 
@@ -437,11 +444,11 @@ The following files are needed:
     export GNUPGHOME="$HOME/.local/share/gnupg"
     export PASSWORD_STORE_DIR="$HOME/.local/share/passwords"
 
+    [[ -d "$HOME/.gnupg" ]] && mv "$HOME/.gnupg" "$GNUPGHOME"
+
     # Import keys and passwords from ZIP files.
     backup_gpg --import
     backup_pass --import
-
-    rm -rf "$HOME/.gnupg"
 fi
 
 

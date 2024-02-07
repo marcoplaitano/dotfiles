@@ -15,7 +15,7 @@ _help() {
 Create backup copy of given file.
 
 -h, --help          Show this guide and exit.
-FILE                File to backup.\n"
+FILE                File (or directory) to backup.\n"
 }
 
 
@@ -26,12 +26,12 @@ case "$1" in
     '')
         _die "No file given." ;;
     *)
-        if [[ -e "$1" ]]; then
-            file="$1"
-        else
-            _die "'$1' is not a file that can be backed up."
-        fi ;;
+        file="${1%/}";;
 esac
+
+if [[ ! -e "$file" ]]; then
+    _die "'$1' is not a file that can be backed up."
+fi
 
 # Add increasing number if backup already exist.
 bak_name="$file.bak"

@@ -168,7 +168,7 @@ export PINENTRY_USER_DATA="tty"
 # - NOT a tty session.
 # - NOT a root user session.
 if [[ $TERM_PROGRAM != "vscode" && $(tty) != /dev/tty* && "$EUID" -ne 0 ]]; then
-    if [[ $USE_TMUX -eq 1 ]]; then
+    if [[ $TMUX_AUTO -eq 1 ]]; then
         # If tmux is installed and a graphical environment is running:
         # try attaching to an existing session or create a new one.
         if [[ -x "$(command -v tmux)" && -n "${DISPLAY}" ]]; then

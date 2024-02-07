@@ -10,9 +10,7 @@ mesg n 2>/dev/null || true
 
 
 ################################################################################
-################################################################################
 ###   TEXT MODES & COLORS
-################################################################################
 ################################################################################
 
 export RESET="\e[00m"
@@ -38,11 +36,8 @@ export MAGENTA="\e[01;35m"
 export CYAN="\e[01;36m"
 
 
-
-################################################################################
 ################################################################################
 ###   CUSTOM VARIABLES
-################################################################################
 ################################################################################
 
 # Directories.
@@ -71,20 +66,28 @@ export THEME_FILE_POLYBAR="$HOME/.config/user/polybar_theme.ini"
 
 # Default applications.
 export WEBBROWSER="firefox"
-export EDITOR="nvim"
-export VISUAL="nvim"
 export FILE_EXPLORER="thunar"
-export TERMINAL="alacritty"
 export PAGER="less"
 export MANPAGER="less"
 export CALCULATOR="mate-calculator"
+# Use vim in SSH sessions.
+if [[ -n "$SSH_CONNECTION" ]]; then
+    export EDITOR="vim"
+    export VISUAL="vim"
+else
+    export EDITOR="nvim"
+    export VISUAL="nvim"
+fi
+# Determine terminal to use.
+if command -v alacritty &>/dev/null ; then
+    export TERMINAL="alacritty"
+else
+    export TERMINAL="xfce4-terminal"
+fi
 
 
-
-################################################################################
 ################################################################################
 ###   ENVIRONMENT VARIABLES
-################################################################################
 ################################################################################
 
 # XDG directories.
@@ -106,11 +109,8 @@ export PASSWORD_STORE_DIR="$XDG_DATA_HOME/passwords"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 
 
-
-################################################################################
 ################################################################################
 ###   ENVIRONMENT OPTIONS
-################################################################################
 ################################################################################
 
 # Change format of TIME command for BASH and ZSH.
@@ -122,25 +122,20 @@ export SUDO_PROMPT="Password: "
 
 # Change to 0 if no tmux session should be launched automatically when starting
 # a new login shell.
-export USE_TMUX=1
+export TMUX_AUTO=1
 
-# If the machine is being accessed via SSH then disable tmux.
+# Disable auto tmux in SSH sessions.
 if [[ -n "$SSH_CONNECTION" ]]; then
-    export USE_TMUX=0
+    export TMUX_AUTO=0
 fi
 
 # FZF default options.
 export FZF_DEFAULT_OPTS="-i --cycle --pointer='->' --scroll-off=2 --keep-right \
                          --height 40%"
 
-export WINIT_X11_SCALE_FACTOR=1.0
 
-
-
-################################################################################
 ################################################################################
 ###   LESS PAGER
-################################################################################
 ################################################################################
 
 export LESS="--quit-if-one-screen -X -R -i --status-column --LONG-PROMPT \
@@ -159,11 +154,8 @@ export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
 export LESSHISTFILE='-'
 
 
-
-################################################################################
 ################################################################################
 ###   PATH
-################################################################################
 ################################################################################
 
 PATH="/usr/local/bin:/usr/bin:/bin"

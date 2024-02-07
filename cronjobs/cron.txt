@@ -40,8 +40,7 @@ BASH_ENV=~/.profile
 */15 * * * * ~/dev/dotfiles/bin/night_mode
 
 # Update caches.
-00 * * * * ~/dev/dotfiles/bin/cache/cache_code_dirs
-30 * * * * ~/dev/dotfiles/bin/cache/cache_code_dirs
+*/30 * * * * ~/dev/dotfiles/bin/cache/cache_code_dirs
 00 * * * * ~/dev/dotfiles/bin/cache/cache_wallpapers
 00 * * * * ~/dev/dotfiles/bin/cache/cache_filesystem
 

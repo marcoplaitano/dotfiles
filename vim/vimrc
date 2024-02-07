@@ -149,6 +149,7 @@ set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
 
 " Colorscheme.
 colorscheme default
+set background=dark
 
 " Keep transparent background.
 highlight Normal ctermbg=none

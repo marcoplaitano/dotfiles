@@ -16,7 +16,7 @@ set $THEME_FILE_i3 ~/.config/user/i3_theme.conf
 
 set $BROWSER firefox
 set $TERMINAL WINIT_X11_SCALE_FACTOR=1.0 alacritty
-set $FALLBACK_TERMINAL xfce4-terminal --command "env USE_TMUX=0 bash"
+set $FALLBACK_TERMINAL xfce4-terminal --command "env TMUX_AUTO=0 bash"
 set $FILE_MANAGER thunar
 
 

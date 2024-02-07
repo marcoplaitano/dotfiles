@@ -35,9 +35,8 @@ _icons_show() {
 }
 
 _icons_toggle() {
-    local curr_state
-    curr_state=$(xfconf-query -lvc xfce4-desktop -p /desktop-icons/style | \
-        awk '{print $2}')
+    local curr_state=$(xfconf-query -lvc xfce4-desktop -p /desktop-icons/style \
+                        | awk '{print $2}')
     case $curr_state in
         0) _icons_show ;;
         *) _icons_hide ;;

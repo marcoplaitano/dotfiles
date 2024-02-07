@@ -68,7 +68,7 @@ _ask_confirmation() {
         return 1
     else
         case "${ans,,}" in
-            y | yes) return ;;
+            y | yes) return 0 ;;
             *)       return 1 ;;
         esac
     fi

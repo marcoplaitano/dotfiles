@@ -23,8 +23,7 @@ _die() {
 
 # Make sure that the script won't be executed more than once at a time.
 _check_pid() {
-    local PIDFILE
-    PIDFILE="/tmp/$(basename "$0").pid"
+    local PIDFILE="/tmp/$(basename "$0").pid"
     if [[ -f "$PIDFILE" ]]; then
         pid=$(cat "$PIDFILE")
         # Process found, script already running, do not execute this.
@@ -55,8 +54,7 @@ _choose_editor_directory() {
     done < "$CACHE_FILE_CODE_DIRS"
 
     # Ask which one to open.
-    local dir
-    dir=$(ask_dmenu -p "directory:" -l "$dirs_string" --num-lines 10 -F)
+    local dir=$(ask_dmenu -p "directory:" -l "$dirs_string" --num-lines 10 -F)
     [[ -z $dir ]] && exit
 
     if [[ "$dir" == "CACHE" ]]; then
@@ -75,8 +73,7 @@ _choose_editor_directory() {
 
 # Choose which process to kill.
 _choose_kill() {
-    local processes
-    processes="lofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
+    local processes="lofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
     processes+="screenrecorder\nspotify\ntelegram\nteams\nwebcam"
     # Accepts any input, even ones not included in the list.
     local process=$(ask_dmenu -p "process:" -l $processes)
@@ -87,9 +84,8 @@ _choose_kill() {
 
 # Open the given Google's site with the account the user chooses.
 _choose_account() {
-    local accounts account
-    accounts="99\nuni\n23\nea\nprea\nprmp"
-    account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
+    local accounts="99\nuni\n23\nea\nprea\nprmp"
+    local account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
     case $account in
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
         uni)  $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
@@ -110,9 +106,8 @@ _plank_dock() {
 
 # Show/hide desktop icons.
 _toggle_desktop_icons() {
-    local options option
-    options="toggle\nhide\nshow"
-    option=$(ask_dmenu -p "do:" -l "$options")
+    local options="toggle\nhide\nshow"
+    local option=$(ask_dmenu -p "do:" -l "$options")
     [[ -z $option ]] && return
     icons_desktop --$option
 }
@@ -121,9 +116,8 @@ _toggle_desktop_icons() {
 # Ask for the title of some content and look for it in a streaming website in
 # a browser's private session.
 _search_streaming() {
-    local site title
-    site="https://gomovies.sx"
-    title=$(ask_dmenu -p "title: " -l "home")
+    local site="https://gomovies.sx"
+    local title=$(ask_dmenu -p "title: " -l "home")
     if [[ $title == home ]]; then
         $WEBBROWSER $site/home &>/dev/null & disown
     elif [[ -n $title ]]; then
@@ -133,45 +127,18 @@ _search_streaming() {
 }
 
 
-# Turn on or off the VM.
-_control_vm() {
-    local vms vm
-    vms=$(vboxmanage list vms | awk '{print $1}' | sed 's/"//g' | tr ' ' '\n')
-    vm=$(ask_dmenu -l "$vms")
-    [[ -z $vm ]] && exit
-    cmd=$(ask_dmenu -l "off\non")
-    if [[ $cmd == on ]]; then
-        if [[ $(vboxmanage list runningvms) == *"$vm"* ]]; then
-            notify-send "VM: $vm" "Already on!"
-            exit 1
-        fi
-        notify-send "VM: $vm" "Turning on..."
-        vboxmanage startvm $vm --type headless
-    elif [[ $cmd == off ]]; then
-        if [[ $(vboxmanage list runningvms) != *"$vm"* ]]; then
-            notify-send "VM: $vm" "Already off!"
-            exit 1
-        fi
-        notify-send "VM: $vm" "Turning off..."
-        vboxmanage controlvm $vm poweroff --type headless
-    fi
-}
-
-
 _screenrecord() {
-    local audio_options
-    audio_options="audio-in\naudio-out\nmute"
-    audio_option=$(ask_dmenu -p "audio:" -l $audio_options --multiple-lines)
+    local audio_options="audio-in\naudio-out\nmute"
+    local audio_option=$(ask_dmenu -p "audio:" -l $audio_options --multiple-lines)
     [[ -z $audio_option ]] && exit
     screenrecord --$audio_option & disown
 }
 
 
 _change_theme() {
-    local themes theme
-    themes="base16-gruvbox-dark-hard\ncatppuccin\ncatppuccin-latte\ndefault\n"
-    themes+="everblush\ngruvbox\nnord\none-dark"
-    theme=$(ask_dmenu -p "theme:" -l $themes --multiple-lines)
+    local themes="base16-gruvbox-dark-hard\ncatppuccin\ncatppuccin-latte\n"
+    themes+="default\neverblush\ngruvbox\nnord\none-dark"
+    local theme=$(ask_dmenu -p "theme:" -l $themes --multiple-lines)
     [[ -z $theme ]] && exit
     case "$theme" in
         default)
@@ -216,6 +183,7 @@ declare -A actions=(
     [icloud]="$WEBBROWSER https://www.icloud.com/"
     [imageColorPalette]="$WEBBROWSER https://imagecolorpicker.com/"
     [kill]="_choose_kill"
+    [linkedin]="$WEBBROWSER https://www.linkedin.com"
     [localhost]="$WEBBROWSER http://localhost/"
     [lock]="exit.sh --lock"
     [lofi]="lofi"
@@ -256,14 +224,12 @@ declare -A actions=(
     [suspend]="exit.sh --suspend"
     [teams]="teams-for-linux"
     [telegram]="telegram-desktop"
-    [tesite]="$WEBBROWSER https://tesite.netlify.app"
     [theme]="_change_theme"
     [torrent]="transmission-gtk"
     [transmission]="transmission-gtk"
     [unidrive]="$WEBBROWSER https://drive.google.com/drive/u/1/my-drive"
     [unimail]="$WEBBROWSER https://mail.google.com/mail/u/1/"
     [virtualbox]="VirtualBox %U"
-    [vm]="_control_vm"
     [youtube]="$WEBBROWSER https://www.youtube.com/feed/subscriptions"
     [wallpaper]="wallpaper"
     [webcam]="webcam"

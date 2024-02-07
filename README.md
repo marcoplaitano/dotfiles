@@ -31,10 +31,10 @@ You can also decide to only install some specific config files:
 
 ```sh
 ./install.sh --list      # list all config files
-./install.sh nvim tmux   # only install configuration for these tools
+./install.sh nvim tmux   # only install configs for these tools
 ```
 
-See `./install.sh --help` to know more.
+See `./install.sh --help` for more options.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -19,7 +19,7 @@ _ask_yes_no() {
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
-            y | yes | si | sí) return ;;
+            y | yes | si | sí) return 0 ;;
             n | no ) return 1 ;;
             *) unset ans ;;
         esac
@@ -38,7 +38,7 @@ echo "#########    UNMOUNTING DEVICE    ##########"
 sudo umount "$DISK_PATH"*
 
 echo "#########      ERASING DATA       ##########"
-sudo wipefs --all "$DISK_PATH" || _die "Could not erase data at $DISK_PATH"
+sudo wipefs --all --force "$DISK_PATH" || _die "Could not erase data at $DISK_PATH"
 
 echo "######### CREATING FAT32 PARTITION #########"
 sudo parted "$DISK_PATH" --script -- mklabel msdos

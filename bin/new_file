@@ -16,17 +16,18 @@ Create a file with the given extension and, if the extension is known, write
 some default stuff in it.
 
 -h, --help      Show this guide and exit.
+--type TYPE     Filetype (e.g. sh, c, java, html, ...)
 FILE            The file(s) to create. More than one can be given.\n"
 }
 
 # Ask the user a yes/no question.
 _ask_yes_no() {
-    local ans question
-    question="$1"
+    local question="$1"
+    unset ans
     while [[ -z $ans ]]; do
         read -rp "$question" ans
         case "${ans,,}" in
-            y | yes | si | sí) return ;;
+            y | yes | si | sí) return 0 ;;
             n | no ) return 1 ;;
             *) unset ans ;;
         esac
@@ -51,6 +52,7 @@ _create_make_file() {
 
 _create_py_file() {
     $DOTS_DIR/_other/templates/template_PY.sh "$file" "$name"
+    chmod +x "$file"
 }
 
 _create_sh_file() {
@@ -80,6 +82,10 @@ while [[ -n $1 ]]; do
     case "$1" in
         -h | --help)
             _help ; exit ;;
+        --type)
+            [[ -z $2 ]] && _die "No filetype given."
+            extension="${2,,}"
+            shift ;;
         *)
             files+=("$1") ;;
     esac
@@ -94,9 +100,10 @@ fi
 for file in "${files[@]}"; do
     dir=$(dirname "$file")
     name=$(basename "$file")
-    # Save lowercase extension of file.
-    extension="${name#*.}"
-    extension=${extension,,}
+    # Save lowercase extension of file (if not given by command line argument).
+    if [[ -z $extension ]]; then
+        extension="${name#*.}" ; extension=${extension,,}
+    fi
     # Remove extension from name.
     name=${name%.*}
 

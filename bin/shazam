@@ -18,8 +18,7 @@ _die() {
 
 # Make sure that the script won't be executed more than once at a time.
 _check_pid() {
-    local PIDFILE
-    PIDFILE="/tmp/$(basename "$0").pid"
+    local PIDFILE="/tmp/$(basename "$0").pid"
     if [[ -f "$PIDFILE" ]]; then
         pid=$(cat "$PIDFILE")
         # Process found, script already running, do not execute this.
@@ -36,8 +35,9 @@ readonly _TEMP_FILE="/tmp/shazam.txt"
 # File containing a list of all songs recognized so far.
 readonly _LIST_FILE="$HOME/Music/shazam.md"
 # Maximum time to wait before declaring failure in recognizing song.
-readonly _MAX_TIME=10
+readonly _MAX_TIME=12
 # Device to listen audio from. This is the default speakers.
+# To check name of the device: pactl list sinks
 readonly _DEVICE="alsa_output.pci-0000_00_1f.3.analog-stereo.monitor"
 
 # Start listening.
@@ -60,8 +60,12 @@ fi
 # Get result from temporary output file.
 result="$(cat $_TEMP_FILE)"
 
-# Show result in a notification.
-notify-send "Shazam Result" "$result"
+# Show result.
+if [[ $TERM != dumb ]]; then
+    echo "$result"
+else
+    notify-send "Shazam Result" "$result"
+fi
 
 # Save result in the file (if it does not already exist).
 if ! grep -q "$result" "$_LIST_FILE"; then

@@ -9,7 +9,7 @@
     # Allow `$ git git git...`
     git = !exec git
     authors = shortlog --summary --numbered --email --all
-    hist = log --max-count=15 --graph --abbrev-commit --branches
+    hist = log --graph --abbrev-commit --branches --pretty=oneliner
     info = status -s
     branches = branch --all
     # Show last commit
@@ -24,6 +24,8 @@
     preview = log -p HEAD..origin/main
     # Show last commit message
     message = log --format=medium -1
+    # Reset files permissions
+	permission-reset = !git diff -p -R --no-ext-diff --no-color --diff-filter=M | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
 
 [branch]
     # Show most recently changed branches first.
@@ -67,7 +69,6 @@
     helper = /usr/share/git/credential/netrc/git-credential-netrc.perl -f ~/.local/share/passwords/gittoken.gpg
 
 [format]
-    pretty = default
     graph = true
 
 [help]
@@ -81,7 +82,7 @@
     date = format-local:%Y-%m-%d %H:%M
 
 [pretty]
-    default = format:%C(yellow)%h%C(reset) %C(green)(%ad)%C(reset) %C(bold blue)<%an>%C(reset) - %s%C(bold magenta)%d%C(reset)
+    oneliner = format:%C(yellow)%h%C(reset) %C(bold blue)<%an>%C(reset) %C(green)(%ad)%C(reset) - %s%C(bold magenta)%d%C(reset)
     nocolor = format:%h%d (%ad) <%an> - %s
 
 [push]

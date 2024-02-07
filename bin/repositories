@@ -68,8 +68,6 @@ done
 dirs_to_check=(
     "$CODE_DIR"
     "$HOME/Desktop"
-    "$HOME/Desktop/tesi/codice/"
-    "$HOME/Desktop/tesi/"
     "$HOME/Pictures"
 )
 

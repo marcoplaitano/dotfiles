@@ -4,7 +4,7 @@
 # Author: Marco Plaitano
 # Date:   26 Nov 2022
 # Brief:  Apply new theme to all programs and tools that support color
-#         customization: polybar, dmenu, terminal, vim, fzf...
+#         customization: i3, polybar, dmenu, terminal, vscode
 
 
 _die() {
@@ -30,8 +30,7 @@ THEME           Name of the new theme to apply.
 
 # Show a list of all the available themes.
 _show_list() {
-    local themes
-    themes=" base16-gruvbox-dark-hard catppuccin catppuccin-latte default"
+    local themes=" base16-gruvbox-dark-hard catppuccin catppuccin-latte default"
     themes+=" everblush gruvbox nord one-dark wal"
     echo -e "The available themes are: ${themes// /'\n  - '}"
 }
@@ -68,17 +67,16 @@ case $theme in
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/default.ini"
         # Decide Light/Dark theme based on night mode being enabled or not.
         if [[ $(dark_theme --status) == off ]]; then
-            fzf_theme_file="$DOTS_DIR/_other/colors/fzf/google_light.sh"
             terminal_theme="google-light"
+            vscode_theme="Light Modern"
         else
-            fzf_theme_file="$DOTS_DIR/_other/colors/fzf/base16_dark.sh"
             terminal_theme="default"
+            vscode_theme="Dark Modern"
         fi
     ;;
     base16-gruvbox-dark-hard)
         cp $DOTS_DIR/_other/colors/palettes/base16_gruvbox_dark_hard.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/base16_gruvbox_dark_hard.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/base16_gruvbox_dark_hard.sh"
         i3_theme_file="$DOTS_DIR/_other/colors/i3/base16-gruvbox-dark-hard.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/base16-gruvbox-dark-hard.ini"
         terminal_theme="base16-gruvbox-dark-hard"
@@ -87,7 +85,6 @@ case $theme in
     catppuccin)
         cp $DOTS_DIR/_other/colors/palettes/catppuccin_dark.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/catppuccin_dark.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/catppuccin_dark.sh"
         i3_theme_file="$DOTS_DIR/_other/colors/i3/catppuccin.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/catppuccin_dark.ini"
         terminal_theme="catppuccin-mocha"
@@ -96,7 +93,6 @@ case $theme in
     catppuccin-latte)
         cp $DOTS_DIR/_other/colors/palettes/catppuccin_latte.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/catppuccin_latte.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/catppuccin_latte.sh"
         i3_theme_file="$DOTS_DIR/_other/colors/i3/catppuccin_latte.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/catppuccin_latte.ini"
         terminal_theme="catppuccin-latte"
@@ -105,14 +101,12 @@ case $theme in
     everblush)
         cp $DOTS_DIR/_other/colors/palettes/everblush.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/everblush.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/google_light.sh"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/everblush.ini"
         terminal_theme="everblush"
     ;;
     gruvbox)
         cp $DOTS_DIR/_other/colors/palettes/gruvbox.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/gruvbox.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/gruvbox.sh"
         i3_theme_file="$DOTS_DIR/_other/colors/i3/gruvbox.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/gruvbox.ini"
         terminal_theme="gruvbox"
@@ -121,7 +115,6 @@ case $theme in
     nord)
         cp $DOTS_DIR/_other/colors/palettes/nord.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/nord.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/nord.sh"
         i3_theme_file="$DOTS_DIR/_other/colors/i3/nord.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/nord.ini"
         terminal_theme="nord"
@@ -130,7 +123,6 @@ case $theme in
     one-dark)
         cp $DOTS_DIR/_other/colors/palettes/one_dark.sh $HOME/.cache/wal/colors.sh
         dmenu_theme_file="$DOTS_DIR/_other/colors/dmenu/one_dark.sh"
-        fzf_theme_file="$DOTS_DIR/_other/colors/fzf/one_dark.sh"
         i3_theme_file="$DOTS_DIR/_other/colors/i3/one_dark.conf"
         polybar_theme_file="$DOTS_DIR/_other/colors/polybar/one_dark.ini"
         terminal_theme="one-dark"
@@ -146,15 +138,12 @@ case $theme in
         i3_theme_file="$DOTS_DIR/_other/colors/i3/wallpaper.conf"
         polybar_theme_file=""
         if pgrep -i picom &>/dev/null; then
-            fzf_theme_file="$DOTS_DIR/_other/colors/fzf/wallpaper.sh"
             terminal_theme="wal"
         else
             # Decide Light/Dark theme based on night mode being enabled or not.
             if [[ $(dark_theme --status) == off ]]; then
-                fzf_theme_file="$DOTS_DIR/_other/colors/fzf/google_light.sh"
                 terminal_theme="google-light"
             else
-                fzf_theme_file="$DOTS_DIR/_other/colors/fzf/base16_dark.sh"
                 terminal_theme="default"
             fi
         fi
@@ -170,5 +159,4 @@ theme_dmenu "$dmenu_theme_file"
 theme_i3 "$i3_theme_file"
 theme_polybar "$polybar_theme_file"
 theme_terminal "$terminal_theme"
-theme_fzf "$fzf_theme_file"
 theme_vscode "$vscode_theme"

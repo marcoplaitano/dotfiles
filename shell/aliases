@@ -65,6 +65,7 @@ alias hx='helix'
 # git
 alias ga='git add'
 alias gb='git branch'
+alias gbs='git branches'
 alias gc='git commit'
 alias gf='git fetch'
 alias gh='git hist'

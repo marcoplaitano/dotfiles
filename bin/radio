@@ -19,7 +19,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") [STATION]
+    printf "Usage: $(basename "$0") STATION
 Play radio station.
 
 -h, --help      Show this guide and exit.
@@ -27,10 +27,10 @@ STATION         Station to play. If not given it will be asked via dmenu.\n"
 }
 
 _play_radio() {
-    local station="$1"
-    [[ -z $station ]] && exit 1
+    local url="$1"
+    [[ -z $url ]] && exit 1
 
-    ffplay -autoexit -nodisp -loglevel quiet $station &>/dev/null & disown
+    ffplay -autoexit -nodisp -loglevel quiet $url &>/dev/null & disown
 
     # Check that it is actually playing.
     sleep 3
@@ -65,14 +65,12 @@ done
 choices+="STOP"
 
 # Parse command line arguments.
-if [[ -n $1 ]]; then
-    case "$1" in
-        -h | --help)
-            _help ; exit ;;
-        *)
-            station="$1" ;;
-    esac
-fi
+case "$1" in
+    -h | --help)
+        _help ; exit ;;
+    *)
+        station="$1" ;;
+esac
 
 # If no argument is given use dmenu to ask the user which station to play.
 if [[ -z $station ]]; then

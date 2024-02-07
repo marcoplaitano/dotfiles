@@ -6,12 +6,7 @@
 # Brief:  Toggle opacity settings for Alacritty terminal.
 
 _die() {
-    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
-    if [[ $TERM != dumb ]]; then
-        echo "$error_msg" >&2
-    else
-        notify-send "Error in $(basename "$0")" "$error_msg"
-    fi
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -25,12 +20,9 @@ Toggle opacity settings for Alacritty terminal.
 }
 
 _set_opacity() {
-    local config_file value
-
-    config_file="$XDG_CONFIG_HOME/alacritty/alacritty.toml"
+    local value="$1"
+    local config_file="$XDG_CONFIG_HOME/alacritty/alacritty.toml"
     [[ ! -f "$config_file" ]] && _die "Config file does not exist."
-
-    value="$1"
     sed -i -e "s/opacity.*/opacity = $value/" "$config_file"
 }
 

@@ -12,7 +12,8 @@ if [[ $name == "__init__" ]]; then
 fi
 
 
-echo $"\
+echo $"#!/usr/bin/env python
+
 # @file $(basename "$file")
 # @author Marco Plaitano
 # @date $(date +'%d %b %Y')

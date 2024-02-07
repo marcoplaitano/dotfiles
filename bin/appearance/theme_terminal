@@ -25,9 +25,8 @@ affect utilities such as bat, helix, vim, nvim and fzf.
 }
 
 _change_alacritty_colorscheme() {
-    local theme theme_file
-    theme="$1"
-    theme_file="$DOTS_DIR/_other/colors/alacritty/theme_$theme.toml"
+    local theme="$1"
+    local theme_file="$DOTS_DIR/_other/colors/alacritty/theme_$theme.toml"
 
     # Check that theme exists.
     if [[ ! -f "$theme_file" ]]; then
@@ -65,23 +64,22 @@ white = \"$color15\"
 }
 
 _change_xfce4_terminal_colorscheme() {
-    local _CONFIG_FILE _THEMES_DIR _THEME_FILE palette foreground background
-    _CONFIG_FILE="$HOME/.config/xfce4/terminal/terminalrc"
+    local _CONFIG_FILE="$HOME/.config/xfce4/terminal/terminalrc"
 
     if [[ $theme == wal ]]; then
         source $HOME/.cache/wal/colors.sh
-        palette="ColorPalette=$color0;$color1;$color2;$color3;$color4;$color5;$color6;$color7;$color8;$color9;$color10;$color11;$color12;$color13;$color14;$color15"
-        foreground="ColorForeground=$foreground"
-        background="ColorBackground=$background"
+        local palette="ColorPalette=$color0;$color1;$color2;$color3;$color4;$color5;$color6;$color7;$color8;$color9;$color10;$color11;$color12;$color13;$color14;$color15"
+        local foreground="ColorForeground=$foreground"
+        local background="ColorBackground=$background"
     else
         # Get colors from theme file.
-        _THEMES_DIR="/usr/share/xfce4/terminal/colorschemes"
-        _THEME_FILE="$_THEMES_DIR/$theme.theme"
+        local _THEMES_DIR="/usr/share/xfce4/terminal/colorschemes"
+        local _THEME_FILE="$_THEMES_DIR/$theme.theme"
         [[ ! -f "$_CONFIG_FILE" ]] && _die "Terminal config file not found."
         [[ ! -f "$_THEME_FILE" ]] && _die "Theme '$theme' does not exist."
-        palette=$(grep Palette "$_THEME_FILE")
-        foreground=$(grep Foreground "$_THEME_FILE")
-        background=$(grep Background "$_THEME_FILE")
+        local palette=$(grep Palette "$_THEME_FILE")
+        local foreground=$(grep Foreground "$_THEME_FILE")
+        local background=$(grep Background "$_THEME_FILE")
     fi
 
     # Apply new theme in config file.
@@ -102,7 +100,7 @@ case "$1" in
 esac
 
 _change_alacritty_colorscheme "${theme//-/_}"
-# _change_xfce4_terminal_colorscheme "$theme"
+_change_xfce4_terminal_colorscheme "$theme"
 
 # Update utilities such as vim, fzf...
 case "$theme" in

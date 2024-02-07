@@ -49,9 +49,6 @@ done
 # Check for any uncommited changes in any repository it can find.
 repositories --colored
 
-backup_gpg --export
-backup_pass --export
-
 printf "\nRemember to export your ${YELLOW}GPG keys${RESET} and "
 printf "${YELLOW}passwords${RESET}.\n"
 printf "Save any docker ${YELLOW}container${RESET}'s configfile or script.\n"
