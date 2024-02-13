@@ -1,0 +1,36 @@
+function _source() {
+    case "$SHELL" in
+        *bash) source devel/setup.bash ;;
+        *zsh) source devel/setup.zsh ;;
+    esac
+}
+
+function build() {
+    local curr_wd="$(pwd)"
+    while [[ ! -d .catkin_tools && "$(pwd)" == "/home/$USER/"* ]]; do
+        cd ..
+    done
+    catkin build || return 1
+    _source
+    cd "$curr_wd"
+}
+
+function run() {
+    local pkg="$1" file="$2" curr_wd="$(pwd)"
+    if [[ -z $file ]]; then
+        pkg="main" ; file="$1"
+    fi
+    [[ "$file" != *'.py' ]] && file="$file.py"
+    while [[ ! -d .catkin_tools && "$(pwd)" == "/home/$USER/"* ]]; do
+        cd ..
+    done
+    _source
+    rosrun "$pkg" "$file"
+    cd "$curr_wd"
+}
+
+function brun() {
+    build || return 1
+    clear
+    run "$1" "$2"
+}

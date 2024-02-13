@@ -167,3 +167,24 @@ for file in "${files[@]}"; do
 done
 unset files
 
+
+
+################################################################################
+###  ROS
+################################################################################
+
+alias social='cd $HOME/Desktop/social'
+alias socia='social'
+alias socila='social'
+alias nav='cd $HOME/pepper_navigation'
+alias nva='nav'
+
+setup_files=(
+    /opt/ros/noetic/setup.bash
+    /root/gazebo/devel/setup.bash
+    "$HOME/dev/dotfiles/bin/uni/shell"
+)
+for file in "${setup_files[@]}"; do
+   [[ -f "$file" ]] && source "$file"
+done
+unset setup_files

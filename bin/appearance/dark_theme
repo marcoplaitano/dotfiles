@@ -148,15 +148,15 @@ _apply_theme_icons() {
 
     case "$1" in
         on)
-            new_icon_theme="Qogir-dark" ;;
+            new_icon_theme="elementary-xfce-dark" ;;
         off)
-            new_icon_theme="Qogir" ;;
+            new_icon_theme="elementary-xfce" ;;
         toggle)
             case $curr_icon_theme in
-                Qogir-dark)
-                    new_icon_theme="Qogir" ;;
-                Qogir)
-                    new_icon_theme="Qogir-dark" ;;
+                elementary-xfce-dark)
+                    new_icon_theme="elementary-xfce" ;;
+                elementary-xfce)
+                    new_icon_theme="elementary-xfce-dark" ;;
             esac ;;
     esac
 

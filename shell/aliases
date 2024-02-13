@@ -79,7 +79,7 @@ alias d='docker'
 # my scripts
 alias kill='kill_process'
 alias compile='executer'
-alias run='executer --execute'
+# alias run='executer --execute'
 alias new='new_file'
 alias passwords='get_password'
 alias repo='repositories'

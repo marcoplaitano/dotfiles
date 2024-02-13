@@ -1,0 +1,501 @@
+#!/bin/bash
+
+# File:   syssetup
+# Author: Marco Plaitano
+# Github: https://github.com/marcoplaitano
+# Brief:  Perform initial configuration for a fresh installation of a (xfce)
+#         Ubuntu based distribution.
+
+
+if [[ "$EUID" -eq 0 ]]; then
+    echo "Please, DO NOT run as root."
+    exit
+fi
+
+# Get into this repository.
+cd ${0%/*}
+
+
+
+################################################################################
+################################################################################
+##################################  FUNCTIONS  #################################
+################################################################################
+################################################################################
+
+# Display a string in such a way to catch the user's attention.
+_show_section() {
+    local title="${1^^}"
+    echo
+    echo "============================================================"
+    echo "==========    $title"
+    echo "============================================================"
+}
+
+# Print error string and exit script.
+_die() {
+    [[ -n $1 ]] && echo "$1" >&2
+    exit 1
+}
+
+# Print question and wait for user to input "ok".
+_wait_ok() {
+    local question="$1"
+    unset ans
+    while [[ -z $ans ]]; do
+        read -rp "$question " ans
+        case "${ans,,}" in
+            ok) ;;
+            *) unset ans ;;
+        esac
+    done
+}
+
+# Ask the user a yes/no question.
+_ask_yes_no() {
+    local question="$1"
+    unset ans
+    while [[ -z $ans ]]; do
+        read -rp "$question" ans
+        case "${ans,,}" in
+            y | yes | si | sí) return 0 ;;
+            n | no ) return 1 ;;
+            *) unset ans ;;
+        esac
+    done
+}
+
+# Give me ownership of the given directory.
+_own() {
+    dir="$1"
+    if [[ -d "$1" ]]; then
+        sudo chown -R $USER:$USER "$dir"
+        return $?
+    else
+        return 1
+    fi
+}
+
+# Install the given package(s).
+_install() {
+    case "$1" in
+        yt-dlp)
+            python3 -m pip install "$1" ;;
+        youtube-dl | pywal | "python-lsp-server[all]")
+            pip3 install "$1" ;;
+        spotify)
+            sudo snap install "$1" ;;
+        *)
+            sudo apt install -y "$@" ;;
+    esac
+}
+
+
+
+################################################################################
+################################################################################
+#################################  PRE INSTALL  ################################
+################################################################################
+################################################################################
+
+# Ask whether to actually perform the installation/downloading of some packages.
+while [[ -z $confirm_proceed ]]; do
+    _ask_yes_no "Install ZSH? " && do_zsh=1
+    _ask_yes_no "Import GPG keys/passwords from zip? " && do_gpg=1
+    _ask_yes_no "Clone personal dotfiles repo? " && do_dotfiles=1
+    _ask_yes_no "Clone personal wallpapers repo? " && do_wallpapers=1
+    _ask_yes_no "Install dmenu? " && do_dmenu=1
+    _ask_yes_no "Install docker? " && do_docker=1
+    _ask_yes_no "Install Spotify? " && do_spotify=1
+    _ask_yes_no "Install Telegram? " && do_telegram=1
+    # Confirm previous choices.
+    _ask_yes_no "Confirm all choices? " && confirm_proceed=1
+done
+
+
+# Define path to log file and clear its content.
+LOGFILE="/var/tmp/installation.log"
+:> "$LOGFILE"
+
+# Append xtrace of every command of this script to the LOGFILE.
+exec {BASH_XTRACEFD}>>$LOGFILE
+
+# Define the format for the current command's xtrace:
+# - exit status (OF PREVIOUS COMMAND)
+# - timestamp of execution
+# - filename
+# - line number
+# - (not defined) name & params
+PS4='$?\011 $(date +%H:%M:%S.%3N)  $BASH_SOURCE@$LINENO   \011'
+
+# Start xtracing every command from this point onward.
+set -x
+
+
+
+################################################################################
+################################################################################
+#################################  SYSTEM SETUP ################################
+################################################################################
+################################################################################
+
+_show_section "GENERAL CONFIGURATION"
+################################################################################
+###  GENERAL CONFIGURATION
+################################################################################
+
+# Update.
+sudo apt update
+
+# Create a link to the python3 executable.
+sudo ln -fs /usr/bin/python3 /usr/bin/python
+
+# Give permissions to some directories.
+_own /usr/share/xfce4/terminal
+_own /usr/share/themes
+if _own /usr/share/doc/git/contrib/credential/netrc; then
+    chmod +x /usr/share/doc/git/contrib/credential/netrc/*
+fi
+
+# Create some directories.
+_CODE_DIR="$HOME/dev"
+mkdir -p "$_CODE_DIR"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.config/user"
+
+# Set current city in private file (to be sourced when determing weather).
+unset city
+while [[ -z $city ]]; do
+    read -rp "City you live in (for weather): " city
+done
+echo "$city" > "$HOME/.config/user/location"
+
+
+
+_show_section "SUDOERS FILE"
+################################################################################
+###  SUDOERS FILE
+################################################################################
+
+_EDITOR=/usr/bin/nvim
+
+# Define what lines have to be added to the sudoers file.
+lines=(
+    "Defaults    passprompt=\"Password: \""
+    "Defaults    pwfeedback"
+    "Defaults    editor=$_EDITOR"
+    "Defaults    timestamp_timeout=-1"
+)
+
+temp_file="/tmp/suers"
+
+for line in "${lines[@]}"; do
+    # For each line, it checks whether the file already contains it and, if not,
+    # the line is appended (to a separate, temporary file).
+    if sudo grep -Fxq "$line" /etc/sudoers &>/dev/null; then
+        echo "Line: '$line' already exists."
+        continue
+    fi
+    sudo cat /etc/sudoers > "$temp_file"
+    echo "$line" >> "$temp_file"
+
+    # The purpose of the temporary file is to check its validity with the visudo
+    # command.
+    # If the file, with this new added line, passes the check, the content is
+    # copied back to the original sudoers file.
+    if ! sudo visudo -c -q -f "$temp_file"; then
+        echo "Line: '$line' is not valid. Not added to sudoers file."
+        continue
+    else
+        sudo cp "$temp_file" /etc/sudoers
+    fi
+done
+
+# Remove the temporary file.
+if [[ -f "$temp_file" ]]; then rm "$temp_file" ; fi
+
+# Add the user to the needed groups.
+sudo adduser $USER video
+sudo adduser $USER dialout
+
+
+
+
+################################################################################
+###  ZSH
+################################################################################
+
+if [[ -n $do_zsh ]]; then
+    _show_section "ZSH"
+    _install zsh
+    sudo chsh -s /usr/bin/zsh $USER
+fi
+
+
+
+_show_section "PACKAGES"
+################################################################################
+###  PACKAGES
+################################################################################
+
+_install git gcc make unrar pass wget curl htop net-tools gnome-keyring \
+         tree mlocate vim xclip evince gimp neofetch redshift shellcheck \
+         transmission-gtk mplayer mpv baobab tmux fzf bc fd-find \
+         silversearcher-ag python3-pip i3lock \
+         plank mousepad playerctl brightnessctl lm-sensors \
+         ffmpeg feh scrot bat ripgrep jq \
+         numlockx xwallpaper dunst unclutter xss-lock \
+         pinentry-tty pinentry-gtk2 \
+# MANCANO:
+# polybar ttf-roboto-mono-nerd
+
+
+sudo chmod u+s /sbin/iwconfig
+ln -s "$(which batcat)" ~/.local/bin/bat
+ln -s "$(which fdfind)" ~/.local/bin/fd
+
+if _install youtube-dl ; then
+    sudo mv $HOME/.local/bin/youtube-dl /usr/local/bin/
+fi
+_install yt-dlp
+
+_install imagemagick
+if _install pywal ; then
+    sudo mv $HOME/.local/bin/wal /usr/local/bin/
+fi
+
+if sudo apt-add-repository ppa:marin-m/songrec -y ; then
+    sudo apt update
+    _install songrec
+fi
+
+
+
+################################################################################
+###  REPOSITORY: DOTFILES
+################################################################################
+_show_section "REPOSITORY: DOTFILES"
+dir=$_CODE_DIR/dotfiles
+
+if [[ -n $do_dotfiles ]] && [[ ! -d "$dir" ]]; then
+    git clone https://github.com/marcoplaitano/dotfiles "$dir"
+fi
+
+# Set up the dotfiles with the installation script.
+if pushd "$dir" &>/dev/null ; then
+    for script in $(find bin/ -maxdepth 2 -type f); do
+        chmod +x "$script"
+    done
+    bash ./install.sh
+    source $HOME/.profile
+    bash ./appearance/change_theme default
+    popd &>/dev/null
+fi
+
+
+
+################################################################################
+###  REPOSITORY: WALLPAPERS
+################################################################################
+
+if [[ -n $do_wallpapers ]]; then
+    _show_section "REPOSITORY: WALLPAPERS"
+    dir=$HOME/Pictures/wallpapers
+
+    git clone https://github.com/marcoplaitano/wallpapers "$dir"
+fi
+
+
+
+_show_section "NEOVIM"
+################################################################################
+###  NEOVIM
+################################################################################
+
+# Install language servers.
+_install npm
+sudo npm install -g n
+sudo n stable
+sudo npm install -g bash-language-server
+_install "python-lsp-server[all]"
+
+if wget https://github.com/neovim/neovim/releases/download/stable/nvim.appimage \
+    -O nvim
+then
+    chmod +x nvim
+    sudo mv nvim /usr/bin/nvim
+fi
+
+
+
+
+################################################################################
+###  DMENU
+################################################################################
+
+if [[ -n $do_dmenu ]]; then
+    _show_section "DMENU"
+    dir="$HOME/dmenu"
+
+    # Delete any pre-existing build.
+    if [[ -d "$dir" ]]; then rm -r "$dir" ; fi
+
+    # Get the source code from the personal fork repository.
+    git clone https://github.com/marcoplaitano/dmenu "$dir"
+
+    # Launch the installation script.
+    if pushd "$dir" >/dev/null ; then
+        _install gcc make libx11-dev libxinerama-dev libxft-dev
+        sudo make uninstall
+        sudo make install
+        popd >/dev/null
+    fi
+    if [[ -d "$dir" ]]; then rm -rf "$dir" ; fi
+fi
+
+
+
+################################################################################
+###  DOCKER
+################################################################################
+
+if [[ -n $do_docker ]]; then
+    _show_section "DOCKER"
+
+    sudo apt remove docker docker.io containerd runc
+    _install ca-certificates curl gnupg lsb-release
+
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+        sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    sudo apt update
+    _install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+    sudo groupadd docker
+    sudo gpasswd -a $USER docker
+    newgrp docker
+fi
+
+
+
+################################################################################
+###  SPOTIFY
+################################################################################
+
+if [[ -n $do_spotify ]]; then
+    _show_section "SPOTIFY"
+
+    _install spotify
+fi
+
+
+
+################################################################################
+###  TELEGRAM
+################################################################################
+
+if [[ -n $do_telegram ]]; then
+    _show_section "TELEGRAM"
+
+    wget https://telegram.org/dl/desktop/linux -O /tmp/telegram.tar.xz
+    tar -xf /tmp/telegram.tar.xz
+    sudo mv Telegram/* /usr/local/bin
+    rm -r Telegram/
+fi
+
+
+
+
+_show_section "CLEANUP"
+################################################################################
+###  CLEANUP
+################################################################################
+
+# Remove unused packages and clean up.
+sudo apt remove -y --auto-remove --purge xfce4-notes xfce4-clipman gigolo \
+                                         parole pidgin thunderbird onboard \
+                                         gnome-mines rhythmbox gnome-sudoku \
+                                         remmina sgt-puzzles atril hexchat
+sudo apt clean
+sudo apt autoremove --purge
+sudo apt autoclean
+sudo apt update
+sudo apt upgrade -y
+sudo apt clean
+sudo apt autoremove --purge
+sudo apt autoclean
+
+# Create filesystem database.
+updatedb --require-visibility 0 -o /tmp/locate.db
+
+
+
+################################################################################
+###  GPG KEYS & PASSWORDS
+################################################################################
+
+if [[ -n $do_gpg ]]; then
+    _show_section "GPG KEYS & PASSWORDS"
+    echo
+    printf "This section of the script will install GPG keys and passwords.
+The following files are needed:
+   ~/keys.tar.gz
+   ~/passwords.tar.gz\n"
+    _wait_ok "When all the needed files are in place write 'ok': "
+
+    # Install needed packages.
+    _install tar xclip git pass pinentry-tty pinentry-gtk2
+
+    # To use GUI pinentry in X sessions and CLI in SSH.
+    sudo update-alternatives --set pinentry /usr/bin/pinentry-gtk-2
+
+    # Set default directories in which to look for keys and credentials.
+    export GNUPGHOME="$HOME/.local/share/gnupg"
+    export PASSWORD_STORE_DIR="$HOME/.local/share/passwords"
+
+    [[ -d "$HOME/.gnupg" ]] && mv "$HOME/.gnupg" "$GNUPGHOME"
+
+    # Import keys and passwords from ZIP files.
+    backup_gpg --import
+    backup_pass --import
+fi
+
+
+
+################################################################################
+################################################################################
+################################  POST INSTALL  ################################
+################################################################################
+################################################################################
+
+# Disable tracing of the commands.
+set +x
+echo
+
+# Result log files for the user.
+readonly log_errors_file="$HOME/Desktop/syssetup_errors.log"
+readonly log_file="$HOME/Desktop/syssetup.log"
+
+# Get a list of all the lines in the log file starting with a number that is not
+# 0. These are the lines containing the commands that failed.
+# (the actual error happens at the line above, that is why I also display 1 line
+# before (-B1) the actual grep match).
+failed=$(grep --color=yes -n -T -B1 --no-group-separator -E '^[1-9]+' "$LOGFILE")
+
+# Print and save results.
+if [[ -n $failed ]]; then
+    echo "$failed" > "$log_errors_file"
+    printf "\nThe commands listed below failed.\nNotice that a non-zero exit "
+    printf "status on line N means the error occurred at line N-1.\n\n"
+    printf "%s\n" "$failed"
+    printf "\nThese errors are stored in '%s'.\n" "$log_errors_file"
+else
+    printf "\nAll good.\n"
+fi
+printf "A copy of the complete log file is in '%s'.\n" "$log_file"
+
+cat "$LOGFILE" > "$log_file"

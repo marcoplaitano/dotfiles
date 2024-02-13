@@ -34,6 +34,7 @@ _player_name() {
     # is currently playing.
     for p in $(playerctl -l -i firefox 2>/dev/null); do
         if [[ $(playerctl --player="$p" status 2>/dev/null) == Playing ]]; then
+            [[ "$p" == *firefox* ]] && continue
             echo "$p"
             return
         fi

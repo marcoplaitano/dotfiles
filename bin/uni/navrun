@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# File:   navrun
+# Author: Marco Plaitano
+# Date:   07 Feb 2024
+# Brief:
+
+
+_die() {
+    [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
+    if [[ $TERM != dumb ]]; then
+        echo "$error_msg" >&2
+    else
+        notify-send "Error in $(basename "$0")" "$error_msg"
+    fi
+    exit 1
+}
+
+_help() {
+    printf "Usage: ./%s [OPTION]
+Run 3 terminals with roscore, docker and pepper_navigation.launch
+Auto navigation can be toggled. By default it is set to false.
+
+-h    Show help and exit
+-n    Auto nav disabled (default)
+-a    Auto nav enabled\n" "$(basename "$0")"
+}
+
+
+# Make sure that the script won't be executed more than once at a time.
+_check_pid() {
+    local PIDFILE="/tmp/$(basename "$0").pid"
+    if [[ -f "$PIDFILE" ]]; then
+        pid=$(cat "$PIDFILE")
+        # Process found, script already running, do not execute this.
+        ps -p "$pid" &>/dev/null && _die "Script already running."
+    fi
+    # Script wasn't running, write its pid.
+    echo $$ > "$PIDFILE"
+}
+
+
+_check_pid
+
+readonly _WS="$HOME/Desktop/tesi/nav"
+[[ ! -d "$_WS" ]] && _die "Workspace $_WS not found."
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+    shift
+done
+
+
+
+pushd "$_WS" &>/dev/null || _die "Could not go to workspace"
+
+source catkin_ws/devel/setup.bash
+map_file="$(pwd)/catkin_ws/src/cartographer/src/exp_dir/exp_2/map_img/map_img_part26_2.pgm.yaml"
+
+
+# If not inside a TMUX session:
+if [[ -z "${TMUX}" ]]; then
+    # Terminal 1: roscore
+    gnome-terminal --tab -- bash -c "roscore; bash"
+    sleep 2
+
+    # Terminal 2: docker -> bringup_192
+    gnome-terminal --tab -- bash -c "docker start pepper_ros_cnt && \
+        docker exec -it pepper_ros_cnt bash -i -c naoqi_driver_ws/run/bringup_192; bash"
+    sleep 3
+
+    # Terminal 3: navigation nodes
+    gnome-terminal --tab -- bash -c "roslaunch pepper_navigation pepper_navigation.launch ip:=192.168.0.2 \
+        map_file:=$map_file \
+        move_forward_only:=true \
+        auto:=$auto; bash"
+else
+    tmux new-window -d -n roscore
+    tmux send-keys -t main:roscore 'roscore' C-m
+fi
+
+popd &>/dev/null

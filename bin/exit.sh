@@ -88,6 +88,7 @@ _lock() {
 }
 
 _suspend() {
+    betterlockscreen -l blur & sleep 0.5
     systemctl suspend
 }
 

@@ -130,8 +130,7 @@ if [[ -n "$SSH_CONNECTION" ]]; then
 fi
 
 # FZF default options.
-export FZF_DEFAULT_OPTS="-i --cycle --pointer='->' --scroll-off=2 --keep-right \
-                         --height 40%"
+export FZF_DEFAULT_OPTS="-i --cycle --height 40%"
 
 
 ################################################################################
@@ -158,7 +157,8 @@ export LESSHISTFILE='-'
 ###   PATH
 ################################################################################
 
-PATH="/usr/local/bin:/usr/bin:/bin"
+PATH="/usr/local/sbin:/usr/sbin:/sbin"
+PATH="/usr/local/bin:/usr/bin:/bin:/snap/bin:$PATH"
 PATH="$HOME/.local/bin:$PATH"
 
 # Add scripts directory with all its subdirectories.

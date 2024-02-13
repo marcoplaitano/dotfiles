@@ -61,10 +61,10 @@ require("mason").setup()
 require("mason-lspconfig").setup {
     ensure_installed = {
         "bashls",
-        "clangd",
+        -- "clangd",
         "jsonls",
         "lua_ls",
-        "pylsp",
+        -- "pylsp",
         "vimls",
     },
     automatic_installation = true,
@@ -113,28 +113,28 @@ require 'lspconfig'.lua_ls.setup {
 }
 
 -- PYTHON LSP
-require 'lspconfig'.pylsp.setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-    flags = {
-        debounce_text_changes = 50,
-    },
-    settings = {
-        pylsp = {
-            plugins = {
-                pycodestyle = {
-                    -- https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
-                    -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
-                    ignore = {
-                        'E225', 'E226', 'E266',
-                        'E302', 'E303', 'E305', 'E306',
-                        'E701', 'E702', 'E722', 'E741',
-                        'W191', 'W291', 'W292', 'W293',
-                        'W391'
-                    },
-                    maxLineLength = 120
-                }
-            }
-        }
-    }
-}
+-- require 'lspconfig'.pylsp.setup {
+--     on_attach = on_attach,
+--     capabilities = capabilities,
+--     flags = {
+--         debounce_text_changes = 50,
+--     },
+--     settings = {
+--         pylsp = {
+--             plugins = {
+--                 pycodestyle = {
+--                     -- https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
+--                     -- https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
+--                     ignore = {
+--                         'E225', 'E226', 'E266',
+--                         'E302', 'E303', 'E305', 'E306',
+--                         'E701', 'E702', 'E722', 'E741',
+--                         'W191', 'W291', 'W292', 'W293',
+--                         'W391'
+--                     },
+--                     maxLineLength = 120
+--                 }
+--             }
+--         }
+--     }
+-- }

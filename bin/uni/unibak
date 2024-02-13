@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# File:   unibak
+# Author: Marco Plaitano
+# Date:   31 Jan 2024
+# Brief:  Backup my thesis repositories.
+
+
+_die() {
+    [[ -n $1 ]] && echo "$1" >&2
+    exit 1
+}
+
+_help() {
+    printf "Usage: %s [OPTION]...
+Backup my thesis repositories.
+
+-h, --help          Show this guide and exit
+-r, --reverse       Reverse order of SRC and DEST\n" "$(basename "$0")"
+}
+
+# Make sure that the script won't be executed more than once at a time.
+_check_pid() {
+    local PIDFILE="/tmp/$(basename "$0").pid"
+    if [[ -f "$PIDFILE" ]]; then
+        pid=$(cat "$PIDFILE")
+        # Process found, script already running, do not execute this.
+        ps -p "$pid" &>/dev/null && _die "Script already running."
+    fi
+    # Script wasn't running, write its pid.
+    echo $$ > "$PIDFILE"
+}
+
+_sync() {
+    local src="$1" dest="$2"
+    shift ; shift
+    local files_to_copy=("$@")
+
+    [[ ! -d "$src" ]] && _die "Repo '$src' does not exist."
+    [[ ! -d "$dest" ]] && _die "Repo '$dest' does not exist."
+    [[ ! -d "$dest/.git" ]] && _die "Dir '$dest' not a repo."
+
+    for file in ${files_to_copy[@]}; do
+        [[ ! -e "$src/$file" ]] && _die "$src/$file does not exist."
+        cp -r "$src/$file" "$dest"/
+    done
+}
+
+
+_check_pid
+
+# Parse command-line arguments.
+while [[ -n $1 ]]; do
+    case "$1" in
+        -h | --help)
+            _help ; exit ;;
+        -r | --reverse)
+            reverse=1 ;;
+        *)
+            _die "Argument '$1' not recognized." ;;
+    esac
+    shift
+done
+
+
+################################################################################
+###  NAVIGATION
+################################################################################
+
+_SRC_NAV="$HOME/Desktop/tesi/nav"
+_DEST_NAV="$HOME/dev/tesi-nav"
+files_to_copy=(
+    catkin_ws/
+    docker_ros/
+    install_requirements/
+    scripts/
+    README.md
+    dispaly.rviz
+    .gitignore
+)
+if [[ -z $reverse ]]; then
+    _sync "$_SRC_NAV" "$_DEST_NAV" "${files_to_copy[@]}"
+else
+    _sync "$_DEST_NAV" "$_SRC_NAV" "${files_to_copy[@]}"
+fi
+
+
+
+################################################################################
+###  SOCIAL
+################################################################################
+
+_SRC_SOCIAL="$HOME/Desktop/tesi/social"
+_DEST_SOCIAL="$HOME/dev/tesi-social"
+
+[[ ! -d "$_SRC_SOCIAL" ]] && _die "Repo '$_SRC_SOCIAL' does not exist."
+[[ ! -d "$_DEST_SOCIAL" ]] && _die "Repo '$_DEST_SOCIAL' does not exist."
+[[ ! -d "$_DEST_SOCIAL/.git" ]] && _die "Dir '$_DEST_SOCIAL' not a repo."
+
+files_to_copy=(
+    demo_ws/src/
+)
+if [[ -z $reverse ]]; then
+    _sync "$_SRC_SOCIAL" "$_DEST_SOCIAL" "${files_to_copy[@]}"
+else
+    _sync "$_DEST_SOCIAL" "$_SRC_SOCIAL" "${files_to_copy[@]}"
+fi
