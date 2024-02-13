@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# File:   pomodoro
+# File:   pomodoro.sh
 # Author: Marco Plaitano
 # Brief:  Run a Pomodoro Timer to alternate work sprints with small pauses.
 #         https://en.wikipedia.org/wiki/Pomodoro_Technique
@@ -11,22 +11,30 @@
 ################################################################################
 
 # Number of minutes for each slice.
-readonly _TIME_FOCUS=25
-readonly _TIME_PAUSE=5
-readonly _TIME_LONG_PAUSE=20
+declare -A TIMES=(
+    [FOCUS]=25
+    [PAUSE]=5
+    [LONG PAUSE]=20
+)
 
 # Number of Focus slices to complete before a Long Pause is earned.
-readonly _NUM_ITERATIONS=3
+NUM_ITERATIONS=3
 
 # Which color to tint the text with, based on the current slice.
-readonly _COLOR_FOCUS="\e[01;31m"   # red
-readonly _COLOR_PAUSE="\e[01;32m"   # green
-readonly _COLOR_RESET="\e[00m"      # default
+declare -A COLORS=(
+    [FOCUS]="\e[01;31m"      # red
+    [PAUSE]="\e[01;32m"      # green
+    [LONG PAUSE]="\e[01;32m" # green
+    [RESET]="\e[00m"         # default foreground
+)
 
 # Notification sound to play when a new slice begins.
-# (yes, they are the same but this makes it easy to replace one of them)
-readonly _SOUND_FOCUS="/usr/share/sounds/freedesktop/stereo/complete.oga"
-readonly _SOUND_PAUSE="/usr/share/sounds/freedesktop/stereo/complete.oga"
+# (yes, they are the same but this makes it easy to replace each of them)
+declare -A SOUNDS=(
+    [FOCUS]="/usr/share/sounds/freedesktop/stereo/complete.oga"
+    [PAUSE]="/usr/share/sounds/freedesktop/stereo/complete.oga"
+    [LONG PAUSE]="/usr/share/sounds/freedesktop/stereo/complete.oga"
+)
 
 
 ################################################################################
@@ -38,25 +46,10 @@ _die() {
     exit 1
 }
 
-# Make sure that the script won't be executed more than once at a time.
-_check_pid() {
-    local PIDFILE="/tmp/$(basename "$0").pid"
-    if [[ -f "$PIDFILE" ]]; then
-        pid=$(cat "$PIDFILE")
-        # Process found, script already running, do not execute this.
-        ps -p "$pid" &>/dev/null && _die "Script already running."
-    fi
-    # Script wasn't running, write its pid.
-    echo $$ > "$PIDFILE"
-}
-
 _safe_exit() {
-    # Delete any output.
     printf "\r"
     clear
-    # Unblock social media.
     block_socialmedia --unblock --now &>/dev/null
-    # Turn cursor blinking back on.
     tput cnorm
     exit
 }
@@ -68,11 +61,11 @@ _read_input() {
             # Q = exit the script
             q)
                 _safe_exit ;;
-            # S = set variable to notify the main loop to skip the current slice
-            s)
-                skip_slice=true ;;
-            # SPACE = pause or resume the timer
-            ' ')
+            # N = set variable to notify the main loop to skip the current slice
+            n)
+                next_slice=true ;;
+            # P or SPACE = pause or resume the timer
+            p | ' ')
                 [[ $is_paused == false ]] && is_paused=true || is_paused=false ;;
         esac
     }
@@ -83,11 +76,8 @@ _read_input() {
 ###  SETUP
 ################################################################################
 
-# Redirect any signal that might stop the timer to the _safe_exit function.
+# Catch any signal that might stop the script abruptly.
 trap "_safe_exit" SIGINT SIGQUIT SIGTERM
-
-# Make sure that the script won't be executed more than once at a time.
-_check_pid
 
 # Hide the cursor.
 tput civis
@@ -101,73 +91,64 @@ slice="FOCUS"
 iteration=1
 is_paused=false
 
-while [ : ]; do
+while : ; do
     ############################# CONFIGURE SLICE ##############################
-    # Configure current slice with the correct lasting time and output color.
-    case "$slice" in
-        FOCUS)
-            color=$_COLOR_FOCUS ; time_slice=$_TIME_FOCUS ;;
-        PAUSE)
-            color=$_COLOR_PAUSE ; time_slice=$_TIME_PAUSE ;;
-        LONG_PAUSE)
-            color=$_COLOR_PAUSE ; time_slice=$_TIME_LONG_PAUSE ;;
-    esac
-
     # Block social media when starting FOCUS, unblock them during PAUSES.
+    # This is a custom script I wrote:
+    # https://github.com/marcoplaitano/dotfiles/blob/main/bin/block_socialmedia
     if [[ $slice == "FOCUS" ]]; then
-        block_socialmedia --block
+        block_socialmedia --block &>/dev/null
     else
-        block_socialmedia --unblock --now
+        block_socialmedia --unblock --now &>/dev/null
     fi
-    ############################################################################
 
-    ############################# COUNTDOWN ####################################
-    # Timestamp at which the timer should stop.
-    time_end=$(($(date +%s) + time_slice * 60))
+    # Timestamp at which slice will end.
+    time_end=$(($(date +%s) + ${TIMES[$slice]} * 60))
 
     # Show info.
     clear
-    printf "SPACE  pause/resume\n    S  skip slice\n    Q  quit\n\n"
-    printf "$color$slice  $iteration/$_NUM_ITERATIONS $_COLOR_RESET\n"
+    printf "n:  next slice\np:  pause/resume\nq:  quit\n\n"
+    printf "${COLORS[$slice]}%s  %s/%s${COLORS[RESET]}\n" \
+            "$slice" $iteration $NUM_ITERATIONS
 
-    while [[ $time_end -ge $(date +%s) ]]; do
+    ############################# COUNTDOWN ####################################
+    # Loop at a rate of 1 second until the end timestamp is reached.
+    while [[ $time_end -gt $(date +%s) ]]; do
         # Show remaining time.
         if [[ $is_paused == false ]]; then
-            printf "$(date -d @$((time_end - $(date +%s))) +%M:%S)       \r"
+            printf "%s       \r" "$(date -d @$((time_end-$(date +%s))) +%M:%S)"
         else
-            printf "$(date -d @$((time_end - $(date +%s))) +%M:%S) PAUSED\r"
-            # Pause the timer by adding 1 second to the end time, every second.
+            printf "%s PAUSED\r" "$(date -d @$((time_end-$(date +%s))) +%M:%S)"
+            # Keep the timer paused by adding 1 second to the end time.
             time_end=$((time_end + 1))
         fi
 
         # Wait 1 second listening for key presses.
         _read_input
 
-        # Variable set in the function above.
-        if [[ -n $skip_slice ]]; then
-            unset skip_slice
+        # Variable set in the function above if user presses N key.
+        if [[ -n $next_slice ]]; then
+            unset next_slice
             break
         fi
     done
-    ############################################################################
 
     ############################# END SLICE ####################################
-    # FOCUS ended. Start PAUSE
+    # FOCUS ended. Start PAUSE or LONG_PAUSE
     if [[ $slice == "FOCUS" ]]; then
-        slice="PAUSE"
-        paplay "$_SOUND_PAUSE" &
-        notify-send "🍅 Pomodoro" "Take a break!"
-    # PAUSE ended. Start FOCUS or LONG_PAUSE
-    else
-        if [[ $iteration -ge $_NUM_ITERATIONS ]]; then
-            slice="LONG_PAUSE"
+        if [[ $iteration -ge $NUM_ITERATIONS ]]; then
             iteration=0
+            slice="LONG PAUSE"
         else
-            slice="FOCUS"
-            iteration=$((iteration + 1))
-            paplay "$_SOUND_FOCUS" &
-            notify-send "🍅 Pomodoro" "Time to focus!"
+            slice="PAUSE"
         fi
+        paplay "${SOUNDS[$slice]}" &
+        notify-send "🍅 Pomodoro" "Take a break for ${TIMES[$slice]} min!"
+    # PAUSE ended. Start FOCUS.
+    else
+        iteration=$((iteration + 1))
+        slice="FOCUS"
+        paplay "${SOUNDS[$slice]}" &
+        notify-send "🍅 Pomodoro" "Time to focus for ${TIMES[$slice]} min!"
     fi
-    ############################################################################
 done

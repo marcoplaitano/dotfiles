@@ -42,7 +42,6 @@ list=()
 dirs=$(find "$CODE_DIR" -mindepth 1 -maxdepth $DEPTH -type d ! -path '*.git*')
 for dir in $dirs
 do
-    [[ "$dir" == *'dotfiles/bin/'* ]] && continue
     if [[ -d "$CODE_DIR"/"$(basename "$dir")" ]] ||
        [[ -d "$dir"/.git ]] ||
        ls "$dir"/*.*sh &>/dev/null ||

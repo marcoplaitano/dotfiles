@@ -324,6 +324,18 @@ fi
 
 
 ################################################################################
+###  REPOSITORY: POMODORO
+################################################################################
+dir="$_CODE_DIR/pomodoro"
+
+if git clone https://github.com/marcoplaitano/pomodoro-bash "$dir"; then
+    chmod +x "$dir/pomodoro.sh"
+    ln -fs "$dir/pomodoro.sh" "$HOME/.local/bin/pomodoro"
+fi
+
+
+
+################################################################################
 ###  REPOSITORY: WALLPAPERS
 ################################################################################
 

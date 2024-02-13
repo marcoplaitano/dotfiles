@@ -68,7 +68,6 @@ set -o vi
 bind -m vi-command 'Control-l: clear-screen'
 bind -m vi-insert 'Control-l: clear-screen'
 
-
 # To be able to use GPG in SSH connections.
 export GPG_TTY=$(tty)
 # To force tty pinentry when calling pass or GPG from the terminal.
@@ -97,10 +96,61 @@ fi
 
 
 ################################################################################
+###  START UP COMMANDS
+################################################################################
+
+# Only run the following commands if the terminal is:
+# - NOT launched from vscode.
+# - NOT a tty session.
+# - NOT a root user session.
+if [[ $TERM_PROGRAM != "vscode" && $(tty) != /dev/tty* && "$EUID" -ne 0 ]]; then
+    if [[ $TMUX_AUTO -eq 1 ]]; then
+        # If tmux is installed and a graphical environment is running:
+        # try attaching to an existing session or create a new one.
+        if [[ -x "$(command -v tmux)" && -n "${DISPLAY}" ]]; then
+            [[ -z "${TMUX}" ]] && {
+                tmux attach -t main || tmux new -s main
+            } &>/dev/null
+        fi
+    fi
+
+    # Show a welcome message at every first login after system's boot.
+    login_message --once
+fi
+
+
+
+################################################################################
 ###  PROMPT
 ################################################################################
 
-PS1="\[$GREEN\]\u@\h\[$RESET\]:\[$BLUE\]\w\[$RESET\]\$ "
+# Show info about current git repository.
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWSTASHSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWUPSTREAM=1
+GIT_PS1_STATESEPARATOR=" "
+GIT_PS1_SHOWCONFLICTSTATE="yes"
+GIT_PS1_HIDE_IF_PWD_IGNORED=1
+GIT_PROMPT_IGNORE_SUBMODULES=1
+source $HOME/.config/shell/git-prompt.sh
+
+_prompt_error() {
+    case $? in
+        0|130|146) echo "$" ;;
+        *) printf "${RED}X${RESET}" ;;
+    esac
+}
+
+PROMPT_DIRTRIM=3
+
+PS1=""
+PS1+="\[$GREEN\]\u\[$RESET\]:"
+PS1+="\[$BLUE\]\w\[$RESET\]"
+PS1+="\[$MAGENTA\]"'$(__git_ps1 "(%s)")'"\[$RESET\]"
+PS1+=""
+PS1+='$(_prompt_error)'
+PS1+=" "
 
 
 

@@ -25,7 +25,7 @@
     # Show last commit message
     message = log --format=medium -1
     # Reset files permissions
-	permission-reset = !git diff -p -R --no-ext-diff --no-color --diff-filter=M | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
+    permission-reset = !git diff -p -R --no-ext-diff --no-color --diff-filter=M | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
 
 [branch]
     # Show most recently changed branches first.
@@ -66,7 +66,7 @@
     untrackedCache = true
 
 [credential]
-    helper = /usr/share/git/credential/netrc/git-credential-netrc.perl -f ~/.local/share/passwords/gittoken.gpg
+    helper = git-credential-netrc.perl -f ~/.local/share/passwords/github/token-marcoplaitano.gpg
 
 [format]
     graph = true
@@ -91,3 +91,6 @@
 [user]
     name = Marco Plaitano
     email = marcoplaitano23@gmail.com
+
+[includeIf "gitdir:~/dev/blog/"]
+    path = ~/dev/blog/.gitconfig

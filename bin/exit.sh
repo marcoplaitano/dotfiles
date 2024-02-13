@@ -22,6 +22,7 @@ Logout from current xfce4 desktop session executing the command given.
 
 -h, --help      Show this guide and exit.
 --suspend
+--lock
 --logout
 --hibernate
 --poweroff      Perform shutdown routine and poweroff.

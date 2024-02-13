@@ -17,11 +17,13 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") THEME
+    printf "Usage: $(basename "$0") [OPTION|THEME]
 Apply colorscheme to either xfce4-terminal or alacritty. Changes will also
 affect utilities such as bat, helix, vim, nvim and fzf.
 
--h, --help      Show this guide and exit.\n"
+-h, --help      Show this guide and exit
+--get           Print current theme, do not change it
+THEME           Set new theme\n"
 }
 
 _change_alacritty_colorscheme() {
@@ -88,6 +90,16 @@ _change_xfce4_terminal_colorscheme() {
     sed -i -e "s/ColorForeground=#.*/$foreground/g" "$_CONFIG_FILE"
 }
 
+_set_theme() {
+    echo "$1" > "$_STATUS_FILE_THEME_TERMINAL"
+}
+
+_get_theme() {
+    cat "$_STATUS_FILE_THEME_TERMINAL"
+}
+
+
+readonly _STATUS_FILE_THEME_TERMINAL="$HOME/.config/user/theme_terminal"
 
 # Parse command line arguments.
 case "$1" in
@@ -95,12 +107,15 @@ case "$1" in
         exit ;;
     -h | --help)
         _help ; exit ;;
+    --get)
+        _get_theme ; exit ;;
     *)
         theme="${1%.theme}" ;;
 esac
 
 _change_alacritty_colorscheme "${theme//-/_}"
 _change_xfce4_terminal_colorscheme "$theme"
+_set_theme "$theme"
 
 # Update utilities such as vim, fzf...
 case "$theme" in

@@ -185,6 +185,13 @@ _apply_theme_mousepad() {
 }
 
 _apply_theme_terminal() {
+    # Do not apply default dark/light theme if terminal's current theme is not
+    # one of those.
+    current_terminal_theme="$(theme_terminal --get)"
+    case "$current_terminal_theme" in
+        default | google-light) ;;
+        *) return ;;
+    esac
     case "$1" in
         on)
             new_terminal_theme="default" ;;

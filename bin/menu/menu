@@ -84,7 +84,7 @@ _choose_kill() {
 
 # Open the given Google's site with the account the user chooses.
 _choose_account() {
-    local accounts="99\nuni\n23\nea\nprea\nprmp"
+    local accounts="99\nuni\n23\nea\nprea"
     local account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
     case $account in
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
@@ -92,7 +92,6 @@ _choose_account() {
         23)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
         ea)   $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
         prea) $WEBBROWSER https://mail.proton.me/u/0/inbox  & disown ;;
-        prmp) $WEBBROWSER https://mail.proton.me/u/1/inbox  & disown ;;
     esac
 }
 
@@ -183,7 +182,6 @@ declare -A actions=(
     [icloud]="$WEBBROWSER https://www.icloud.com/"
     [imageColorPalette]="$WEBBROWSER https://imagecolorpicker.com/"
     [kill]="_choose_kill"
-    [linkedin]="$WEBBROWSER https://www.linkedin.com"
     [localhost]="$WEBBROWSER http://localhost/"
     [lock]="exit.sh --lock"
     [lofi]="lofi"
