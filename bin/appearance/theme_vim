@@ -31,7 +31,7 @@ _background_mode() {
     #background=${background#*"ColorBackground="}
 
     # Alacritty
-    background="$(grep -m 1 background $THEME_FILE_ALACRITTY | awk '{print $6}')"
+    background="$(grep -m 1 background $THEME_FILE_ALACRITTY | awk '{print $3}')"
     background="${background::-1}"
     background=${background//\'/}
     background=${background//\"/}

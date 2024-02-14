@@ -33,13 +33,13 @@ if [[ ! -e "$file" ]]; then
     _die "'$1' is not a file that can be backed up."
 fi
 
-# Add increasing number if backup already exist.
-bak_name="$file.bak"
+# Add increasing number at the end of filename if backup already exist.
+file_bak="$file.bak"
 i=0
-while [[ -e "$bak_name" ]]; do
+while [[ -e "$file_bak" ]]; do
     i=$((i+1))
-    bak_name="$file.bak$i"
+    file_bak="$file.bak$i"
 done
 
-cp -r "$file" "$bak_name" || _die "Could not create backup."
-echo "Copied '$file' to '$bak_name'"
+cp -r "$file" "$file_bak" || _die "Could not create backup."
+echo "Copied '$file' to '$file_bak'"

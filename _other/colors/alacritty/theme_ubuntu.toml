@@ -1,6 +1,10 @@
 [colors]
 draw_bold_text_with_bright_colors = true
-primary = { background = "#300a24", foreground = "#eeeeec" }
+
+[colors.primary]
+background = "#300a24"
+foreground = "#eeeeec"
+
 [colors.normal]
 black = "#2e3436"
 red = "#cc0000"
@@ -10,6 +14,7 @@ blue = "#3465a4"
 magenta = "#75507b"
 cyan = "#06989a"
 white = "#d3d7cf"
+
 [colors.bright]
 black = "#555753"
 red = "#ef2929"

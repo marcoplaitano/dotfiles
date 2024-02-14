@@ -1,8 +1,18 @@
 [colors]
 draw_bold_text_with_bright_colors = true
-primary = { background = "#1c1c1c", foreground = "#ffffff" }
-cursor = { text = "CellBackground", cursor = "CellForeground" }
-selection = { text = "CellBackground", cursor = "CellForeground" }
+
+[colors.primary]
+background = "#1c1c1c"
+foreground = "#ffffff"
+
+[colors.cursor]
+text = "CellBackground"
+cursor = "CellForeground"
+
+[colors.selection]
+text = "CellBackground"
+cursor = "CellForeground"
+
 [colors.normal]
 black = "#000000"
 red = "#cc0000"
@@ -12,6 +22,7 @@ blue = "#3465a4"
 magenta = "#75507b"
 cyan = "#06989a"
 white = "#d3d7cf"
+
 [colors.bright]
 black = "#555753"
 red = "#ef2929"

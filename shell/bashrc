@@ -167,3 +167,4 @@ for file in "${files[@]}"; do
 done
 unset files
 
+eval "$(zoxide init bash)"

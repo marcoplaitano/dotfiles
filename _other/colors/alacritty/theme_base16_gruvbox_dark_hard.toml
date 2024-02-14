@@ -1,16 +1,18 @@
 [colors]
 draw_bold_text_with_bright_colors = true
-primary = { background = "#1D2021", foreground = "#D5C4A1" }
-cursor = { text = "#1D2021", cursor = "#D5C4A1" }
-selection = { text = "CellBackground" , cursor = "CellForeground" }
-indexed_colors = [
-    { index = 16, color = "#fe8019" },
-    { index = 17, color = "#d65d0e" },
-    { index = 18, color = "#3c3836" },
-    { index = 19, color = "#504945" },
-    { index = 20, color = "#bdae93" },
-    { index = 21, color = "#ebdbb2" }
-]
+
+[colors.primary]
+background = "#1D2021"
+foreground = "#D5C4A1"
+
+[colors.cursor]
+text = "#1D2021"
+cursor = "#D5C4A1"
+
+[colors.selection]
+text = "CellBackground"
+cursor = "CellForeground"
+
 [colors.normal]
 black = "#1D2021"
 red = "#FB4934"
@@ -20,6 +22,7 @@ blue = "#83A598"
 magenta = "#D3869B"
 cyan = "#8EC07C"
 white = "#D5C4A1"
+
 [colors.bright]
 black = "#665C54"
 red = "#FB4934"
@@ -29,3 +32,27 @@ blue = "#83A598"
 magenta = "#D3869B"
 cyan = "#8EC07C"
 white = "#FBF1C7"
+
+[[colors.indexed_colors]]
+index = 16
+color = "#fe8019"
+
+[[colors.indexed_colors]]
+index = 17
+color = "#d65d0e"
+
+[[colors.indexed_colors]]
+index = 18
+color = "#3c3836"
+
+[[colors.indexed_colors]]
+index = 19
+color = "#504945"
+
+[[colors.indexed_colors]]
+index = 20
+color = "#bdae93"
+
+[[colors.indexed_colors]]
+index = 21
+color = "#ebdbb2"

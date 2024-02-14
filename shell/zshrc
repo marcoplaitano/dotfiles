@@ -200,3 +200,5 @@ for file in "${files[@]}"; do
     [[ -r "$file" ]] && source "$file"
 done
 unset files
+
+eval "$(zoxide init zsh)"

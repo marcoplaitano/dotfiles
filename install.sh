@@ -46,9 +46,20 @@ declare -A repo_files=(
 )
 
 # Sort repo files in alphabetical order.
-sorted_repo_files=( $( echo ${!repo_files[@]} | tr ' ' $'\n' | sort ) )
+sorted_repo_files=( $(echo ${!repo_files[@]} | tr ' ' $'\n' | sort) )
 
 
+_safe_exit() {
+    popd &>/dev/null || true
+}
+trap _safe_exit EXIT
+
+_print_ok() {
+    printf "\e[1;32m✓\e[0m\n"
+}
+_print_err() {
+    printf "\e[1;31m✗ \e[0m%s\n" "$1"
+}
 
 _die() {
     [[ -n $1 ]] && echo "$1" >&2
@@ -56,7 +67,7 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") [FILE]... [OPTION]
+    printf "Usage: %s [FILE]... [OPTION]
 Install dotfiles from this repository onto the machine by using symlinks.
 
 -h, --help          Show this guide and exit
@@ -67,16 +78,17 @@ autostart           Install autostart applications
 configs             Install config files
 cronjobs            Install cronjobs
 fonts               Install fonts
-sounds              Install sounds\n"
+sounds              Install sounds\n" "$(basename "$0")"
 }
 
 # Create symlink from source $1 to destination $2.
 # Ask whether to overwrite (delete + write) destination, if it already exists.
 _copy() {
-    local ans
+    printf "===== %s " "$2"
     if [[ -e "$2" ]]; then
+        unset ans
         while [[ -z $ans ]]; do
-            read -rp "'$2' already exists. Replace it? " ans
+            read -rp "Replace? " ans
             case "${ans,,}" in
                 y|yes|s|si) rm -r "$2" ;;
                 n|no) return ;;
@@ -84,8 +96,9 @@ _copy() {
             esac
         done
     fi
-    if ! ln -fs "$1" "$2" ; then
-        echo "WARNING: Could not link '$1' to '$2'." >&2
+    if ln -fs "$1" "$2" &>/dev/null
+    then _print_ok
+    else _print_err "Couldn't link to $2"
     fi
 }
 
@@ -94,35 +107,44 @@ _list() {
     for repo_file in "${sorted_repo_files[@]}"; do
         echo "$repo_file"
     done
-    echo
-    echo "See '$(basename "$0") -h' for info about cronjobs, fonts, ..."
+    printf "\nSee '%s -h' for info about cronjobs, fonts, ...\n" "$(basename "$0")"
 }
 
 _install_autostart() {
-    echo "===== Installing autostart ..."
+    printf "===== autostart "
     local autostart_dir="$HOME/.config/autostart/"
     [[ ! -d "$autostart_dir" ]] && mkdir -p "$autostart_dir"
-    cp autostart/* "$autostart_dir"
+    if cp autostart/* "$autostart_dir"
+    then _print_ok
+    else _print_err
+    fi
 }
 
 _install_cronjobs() {
-    echo "===== Installing cronjobs ..."
-    [[ -e cronjobs/cron.txt ]] && crontab cronjobs/cron.txt
+    printf "===== cronjobs "
+    if [[ -e cronjobs/cron.txt ]]; then
+        if crontab cronjobs/cron.txt
+        then
+            _print_ok
+            return
+        fi
+    fi
+    _print_err
 }
 
 _install_fonts() {
-    echo "===== Installing fonts ..."
-    if pushd _other/fonts &>/dev/null ; then
-        bash ./install_fonts.sh
-        popd &>/dev/null
+    printf "===== fonts "
+    if bash _other/fonts/install_fonts.sh &>/dev/null
+    then _print_ok
+    else _print_err
     fi
 }
 
 _install_sounds() {
-    echo "===== Installing sounds ..."
-    if pushd _other/sounds &>/dev/null ; then
-        bash ./install_sounds.sh
-        popd &>/dev/null
+    printf "===== sounds "
+    if bash _other/sounds/install_sounds.sh &>/dev/null
+    then _print_ok
+    else _print_err
     fi
 }
 
@@ -130,10 +152,9 @@ _install_config() {
     local repo_file="$1"
     local sys_file="${repo_files[$repo_file]}"
     if [[ -e "$repo_file" ]]; then
-        echo "===== Installing $repo_file ..."
         _copy "$(pwd)/$repo_file" "$sys_file"
     else
-        echo "WARNING: dotfile '$repo_file' does not exist. Skipped." >&2
+        _print_err "Dotfile '$repo_file' does not exist. Skipped."
     fi
 }
 
@@ -153,7 +174,7 @@ _install_all() {
 
 
 # Get into this repository.
-cd ${0%/*} || _die
+pushd "${0%/*}" &>/dev/null || _die
 
 # Default action is to install everything.
 [[ -z $1 ]] && { _install_all ; exit ;}

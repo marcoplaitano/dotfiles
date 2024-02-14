@@ -172,6 +172,12 @@ case "$theme" in
         theme_vim "onedark"
         theme_helix "onedark"
     ;;
+    tokyonigh*)
+        theme_bat "OneHalfDark"
+        theme_fzf "$DOTS_DIR/_other/colors/fzf/${theme/-/_}.sh"
+        theme_vim "$theme"
+        theme_helix "tokyonight"
+    ;;
     wal)
         theme_bat "OneHalfDark"
         theme_fzf "$DOTS_DIR/_other/colors/fzf/wallpaper.sh"

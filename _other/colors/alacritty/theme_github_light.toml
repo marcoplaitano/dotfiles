@@ -1,10 +1,10 @@
 [colors]
 draw_bold_text_with_bright_colors = true
-primary = { background = "#ffffff", foreground = "#24292f" }
-indexed_colors = [
-    { index = 16, color = "#d18616" },
-    { index = 17, color = "#cb2431" }
-]
+
+[colors.primary]
+background = "#ffffff"
+foreground = "#24292f"
+
 [colors.normal]
 black = "#24292e"
 red = "#d73a49"
@@ -14,6 +14,7 @@ blue = "#0366d6"
 magenta = "#5a32a3"
 cyan = "#0598bc"
 white = "#6a737d"
+
 [colors.bright]
 black = "#959da5"
 red = "#cb2431"
@@ -23,3 +24,11 @@ blue = "#005cc5"
 magenta = "#5a32a3"
 cyan = "#3192aa"
 white = "#d1d5da"
+
+[[colors.indexed_colors]]
+index = 16
+color = "#d18616"
+
+[[colors.indexed_colors]]
+index = 17
+color = "#cb2431"

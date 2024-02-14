@@ -78,14 +78,7 @@ _own() {
 
 # Install the given package(s).
 _install() {
-    case "$1" in
-        youtube-dl | pywal | "python-lsp-server[all]")
-            pipx install "$1" ;;
-        markdown | python-beautifulsoup4)
-            sudo pacman -S python-$1 ;;
-        *)
-            sudo pacman -S --needed --noconfirm "$@" ;;
-    esac
+    sudo pacman -S --needed --noconfirm "$@"
 }
 
 
@@ -245,11 +238,17 @@ _install git gcc make cmaske unrar pass wget curl htop net-tools gnome-keyring \
          fd plank mousepad playerctl brightnessctl lm_sensors \
          polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
          ttf-roboto-mono-nerd numlockx xwallpaper unclutter xss-lock \
-         python-pip python-pipx python-markdown
+         zoxide
 
-# pip library
-_install markdown
-_install python-beautifulsoup4
+# python packages
+python_pkgs=(
+    python-pip
+    python-pipx
+    python-markdown
+    python-beautifulsoup4
+    python-requests
+)
+sudo pacman -S "${python_pkgs[@]}"
 
 if _install cronie ; then
     sudo systemctl enable --now cronie.service
@@ -263,13 +262,13 @@ if git clone https://github.com/hoyon/mpv-mpris ; then
     [[ -d mpv-mpris ]] && rm -rf mpv-mpris
 fi
 
-if _install youtube-dl ; then
+if pipx install youtube-dl ; then
     sudo mv $HOME/.local/bin/youtube-dl /usr/local/bin/
 fi
 _install yt-dlp
 
 _install imagemagick
-if _install pywal ; then
+if pipx install pywal ; then
     sudo mv $HOME/.local/bin/wal /usr/local/bin/
 fi
 
@@ -358,7 +357,7 @@ _install npm
 sudo npm install -g n
 sudo n stable
 sudo npm install -g bash-language-server
-_install "python-lsp-server[all]"
+pipx install "python-lsp-server[all]"
 
 _install neovim
 

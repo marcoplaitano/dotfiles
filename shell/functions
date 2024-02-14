@@ -175,6 +175,9 @@ extract() {
 ###   Make the following commands run in background automatically.
 ################################################################################
 firefox() { command firefox "$@" &>/dev/null & disown ; }
+chromium() { command chromium "$@" &>/dev/null & disown ; }
+chrome() { command google-chrome "$@" &>/dev/null & disown ; }
+google-chrome() { command google-chrome "$@" &>/dev/null & disown ; }
 mousepad() { command mousepad "$@" &>/dev/null & disown ; }
 thunar() { command thunar "$@" &>/dev/null & disown ; }
 mpv() { command mpv "$@" &>/dev/null & disown ; }

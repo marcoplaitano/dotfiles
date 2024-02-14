@@ -95,6 +95,7 @@ return packer.startup(function(use)
     use "projekt0n/github-nvim-theme"
     use "ellisonleao/gruvbox.nvim"
     use "RRethy/nvim-base16"
+    use "folke/tokyonight.nvim"
     use "Mofiqul/vscode.nvim"
     use { "catppuccin/nvim", as = "catppuccin" }
     use "shaunsingh/nord.nvim"
