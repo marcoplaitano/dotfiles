@@ -5,6 +5,7 @@ else
 fi
 
 alias :q='exit'
+alias cd='z'
 alias cd..='cd ..'
 alias ..='cd ..'
 
