@@ -63,13 +63,14 @@ do
     fi
 done
 
-readonly TESI_DIR="$HOME/Desktop/tesi"
+readonly TESI_DIR="$HOME/Desktop"
 list+=(
     "$TESI_DIR/cognitive"
     "$TESI_DIR/env"
     "$TESI_DIR/mobile"
     "$TESI_DIR/nav"
     "$TESI_DIR/social"
+    "$TESI_DIR/social2"
     "$TESI_DIR/trees"
     "$TESI_DIR/ubarbato"
 )
