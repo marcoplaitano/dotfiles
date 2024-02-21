@@ -18,7 +18,7 @@ function build() {
 function run() {
     local pkg="$1" file="$2" curr_wd="$(pwd)"
     if [[ -z $file ]]; then
-        pkg="main" ; file="$1"
+        pkg="demo_pkg" ; file="$1"
     fi
     [[ "$file" != *'.py' ]] && file="$file.py"
     while [[ ! -d .catkin_tools && "$(pwd)" == "/home/$USER/"* ]]; do
