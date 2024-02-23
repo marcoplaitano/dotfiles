@@ -86,7 +86,7 @@ VI_NORMAL_SYMBOL=':'
 VI_INSERT_SYMBOL='%%'
 
 
-_default_prompt() {
+_prompt_default() {
     PROMPT=''
     # Execution time.
     PROMPT+='%B%F{yellow}${cmd_time}%f'
@@ -122,7 +122,7 @@ _default_prompt() {
     zle reset-prompt
 }
 
-_no_colors_prompt() {
+_prompt_nocolors() {
     PROMPT=''
     # Execution time.
     PROMPT+='${cmd_time}'
@@ -158,8 +158,15 @@ _no_colors_prompt() {
     zle reset-prompt
 }
 
+_prompt_robbyrussell() {
+    PROMPT="%(?:%{$fg_bold[green]%}%1{➜%}:%{$fg_bold[red]%}%1{➜%}) %{$fg_bold[cyan]%}%c%{$reset_color%}"
+    PROMPT+='%B%F{magenta}$(__git_ps1 " (%s)")%b%f '
+
+    zle reset-prompt
+}
+
 function zle-line-init zle-keymap-select {
-    _default_prompt
+    _prompt_robbyrussell
 }
 
 zle -N zle-line-init

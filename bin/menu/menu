@@ -195,6 +195,7 @@ declare -A actions=(
     [music]="music"
     [nightmode]="night_mode --toggle"
     [notion]="$WEBBROWSER https://www.notion.so"
+    [obsidian]="obsidian"
     [paletteGenerator]="$WEBBROWSER https://coolors.co/generate"
     [panel]="panel"
     [passwords]="get_password"

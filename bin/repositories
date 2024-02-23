@@ -33,7 +33,7 @@ _repo_has_unpushed() {
 }
 
 _repo_has_uncommitted() {
-    ! git diff --quiet --ignore-submodules --cached
+    ! git diff --no-ext-diff --cached --quiet
 }
 
 _repo_has_unstaged() {
@@ -79,7 +79,7 @@ for root_dir in ${dirs_to_check[@]}; do
         [[ ! -d "$dir"/.git/ ]] && continue
         pushd "$dir" >/dev/null
         # With these ifs each repository will only show up once.
-        if _repo_has_unpushed       ; then list_unpushed+=("$dir")
+        if   _repo_has_unpushed     ; then list_unpushed+=("$dir")
         elif _repo_has_uncommitted  ; then list_uncommited+=("$dir")
         elif _repo_has_unstaged     ; then list_unstaged+=("$dir")
         elif _repo_has_untracked    ; then list_untracked+=("$dir")

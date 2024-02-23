@@ -44,7 +44,6 @@ export CYAN="\e[01;36m"
 export CODE_DIR="$HOME/dev"
 export DOTS_DIR="$CODE_DIR/dotfiles"
 export SCRIPTS_DIR="$DOTS_DIR/bin"
-export BLOG_DIR="$CODE_DIR/blog"
 export WALLPAPERS_DIR="$HOME/Pictures/wallpapers"
 
 # Status files.

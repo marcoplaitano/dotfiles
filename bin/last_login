@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# File:   last_login
+# Author: Marco Plaitano
+# Date:   23 Feb 2024
+# Brief:  Display time of last login.
+
+last -R | grep " boot" | grep -v "running" | \
+    head -1 | awk '{print $4, $5, $6, $7}'

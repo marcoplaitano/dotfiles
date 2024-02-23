@@ -12,19 +12,18 @@ _die() {
 }
 
 _help() {
-    printf "Usage: $(basename "$0") [OPTION]
+    printf "Usage: %s [OPTION]
 Show login message when a new shell is opened.
 
--h, --help      Show this guide and exit.
---once          Only display message at first login after system's (re)boot.\n"
+-h, --help      Show this guide and exit
+--once          Print message only if not done since last system boot
+" "$(basename "$0")"
 }
 
 _show_message() {
-    printf "%s\n" "$(date +%d' '%b' '%Y', '%H:%M:%S)"
+    printf "Last login: %s\n" "$(last_login)"
     printf "Welcome back %s!\n\n" "${USER^}"
-    # Show a random quote.
     quotes
-    # Check state of local repositories.
     repositories
 }
 

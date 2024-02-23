@@ -66,14 +66,14 @@
     untrackedCache = true
 
 [credential]
-    helper = git-credential-netrc.perl -f ~/.local/share/passwords/github/token-marcoplaitano.gpg
+    helper = /usr/share/doc/git/contrib/credential/netrc/git-credential-netrc.perl -f ~/.local/share/passwords/github/token-marcoplaitano.gpg
 
 [format]
     graph = true
 
 [help]
     # Automatically correct and execute mistyped commands.
-    autocorrect = 1
+    autocorrect = 50
 
 [init]
     defaultBranch = main

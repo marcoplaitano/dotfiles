@@ -145,7 +145,7 @@ _prompt_error() {
 PROMPT_DIRTRIM=3
 
 PS1=""
-PS1+="\[$GREEN\]\u\[$RESET\]:"
+PS1+="\[$GREEN\]\u@\h\[$RESET\]:"
 PS1+="\[$BLUE\]\w\[$RESET\]"
 PS1+="\[$MAGENTA\]"'$(__git_ps1 "(%s)")'"\[$RESET\]"
 PS1+=""
