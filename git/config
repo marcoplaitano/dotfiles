@@ -91,3 +91,6 @@
 [user]
     name = Marco Plaitano
     email = marcoplaitano23@gmail.com
+
+[includeIf "gitdir:~/dev/blog/"]
+    path = ~/dev/blog/.gitconfig
