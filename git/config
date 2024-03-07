@@ -66,7 +66,7 @@
     untrackedCache = true
 
 [credential]
-    helper = /usr/share/doc/git/contrib/credential/netrc/git-credential-netrc -f ~/.local/share/passwords/github/token-marcoplaitano.gpg
+    helper = /usr/share/doc/git/contrib/credential/netrc/git-credential-netrc.perl -f ~/.local/share/passwords/github/token-marcoplaitano.gpg
 
 [format]
     graph = true
