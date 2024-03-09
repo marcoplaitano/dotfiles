@@ -163,6 +163,7 @@ declare -A actions=(
     [amazon]="$WEBBROWSER amazon.it"
     [appearance]="xfce4-appearance-settings"
     [baobab]="baobab"
+    [brave]="brave-browser"
     [calculator]="calculator"
     [calendar]="$WEBBROWSER calendar.google.com/calendar/u/1/"
     [chatgpt]="$WEBBROWSER https://chat.openai.com/"

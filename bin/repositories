@@ -67,6 +67,7 @@ done
 # From these directories, look for git repositories with a maxdepth of 1 level.
 dirs_to_check=(
     "$CODE_DIR"
+    "$CODE_DIR/blog"
     "$HOME/Desktop"
     "$HOME/Pictures"
 )

@@ -119,7 +119,7 @@ if [[ -n $accept_all ]]; then
 
 # Launch regular dmenu (with a list of all system applications).
 elif [[ -z $list ]]; then
-    echo $(dmenu_run -p "$prompt" $options)
+    dmenu_path | dmenu -p "$prompt" $options | ${SHELL:-"/bin/sh"} &
 
 # Ask for a choice from the given list.
 else
