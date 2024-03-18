@@ -190,3 +190,6 @@ for file in "${setup_files[@]}"; do
    [[ -f "$file" ]] && source "$file"
 done
 unset setup_files
+
+export ROS_MASTER_URI="http://10.0.1.209:11311"
+export ROS_IP=10.0.1.246
