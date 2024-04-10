@@ -50,6 +50,8 @@ export WALLPAPERS_DIR="$HOME/Pictures/wallpapers"
 export STATUS_FILE_RADIO="$HOME/.config/user/radio"
 export STATUS_FILE_MICROPHONE="$HOME/.config/user/microphone"
 export WALLPAPER_FILE="$HOME/.config/user/wallpaper"
+export LOCATION_FILE="$HOME/.config/user/location"
+export TIME_SUN_FILE="$HOME/.config/user/time_sun"
 
 # Cache files.
 export CACHE_FILE_CODE_DIRS="$HOME/.config/user/cache_code_dirs"

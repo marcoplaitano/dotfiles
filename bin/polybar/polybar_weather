@@ -6,8 +6,6 @@
 # Brief:  Get current weather for specified location. (Used to display weather
 #         module in polybar).
 
-readonly _LOCATION_FILE="$HOME/.config/user/location"
-
 # Format modifiers:
 #   c    Weather condition symbol
 #   C    Weather condition text
@@ -29,15 +27,15 @@ readonly _LOCATION_FILE="$HOME/.config/user/location"
 
 if [[ -n $1 ]]; then
     location="$1"
-elif [[ -f "$_LOCATION_FILE" ]]; then
-    location=$(cat "$_LOCATION_FILE")
+elif [[ -f "$LOCATION_FILE" ]]; then
+    location=$(cat "$LOCATION_FILE")
 else
     location="Rome"
     show_location=1
 fi
 
 
-IFS='_' read -r -a infos <<< "$(curl -s wttr.in/${location}?format=%C_%t_%w_%s_%l)"
+IFS='_' read -r -a infos <<< "$(curl -s wttr.in/"${location}"?format=%C_%t_%w_%s_%l)"
 
 conditions="${infos[0]}"
 temperature="${infos[1]}"
