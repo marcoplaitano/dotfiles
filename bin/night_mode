@@ -83,8 +83,13 @@ _set_status() {
 _check_pid
 
 readonly _STATUS_FILE="$HOME/.config/user/nightmode"
-readonly _BEGIN_TIME="17:00"
-readonly _END_TIME="07:00"
+if [[ -s "$TIME_SUN_FILE" ]]; then
+    readonly _SUNRISE_TIME="$(head -1 "$TIME_SUN_FILE")"
+    readonly _SUNSET_TIME="$(head -2 "$TIME_SUN_FILE" | tail -1)"
+else
+    readonly _SUNRISE_TIME="07:00"
+    readonly _SUNSET_TIME="19:00"
+fi
 
 # Parse command line arguments.
 case "$1" in
@@ -102,10 +107,12 @@ esac
 # Default action is to toggle based on time of day.
 if [[ -z $flag ]]; then
     curr_time="$(date +%H:%M)"
-    if [[ ! $curr_time < $_BEGIN_TIME ]] || [[ ! $curr_time > $_END_TIME ]]
+    if [[ ! $curr_time < $_SUNSET_TIME ]] || [[ ! $curr_time > $_SUNRISE_TIME ]]
     then
+        echo "Turning on..."
         flag=on
     else
+        echo "Turning off..."
         flag=off
     fi
 fi

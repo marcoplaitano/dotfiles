@@ -29,6 +29,10 @@ DISPLAY=:0.0
 
 BASH_ENV=~/.profile
 
+# Write timestamps of sunrise and sunset for today.
+@reboot sleep 90 && ~/dev/dotfiles/bin/get_time_sun
+59 * * * * ~/dev/dotfiles/bin/get_time_sun
+
 # Random wallpaper every hour.
 # 00 * * * * ~/dev/dotfiles/bin/wallpaper -r ~/Pictures/wallpapers
 
