@@ -144,19 +144,20 @@ _apply_theme_xfwm4() {
 
 _apply_theme_icons() {
     local curr_icon_theme=$(xfconf-query -lvc xsettings -p /Net/IconThemeName)
-    curr_icon_theme=${curr_icon_theme#*"  "}
+    case "${curr_icon_theme}" in
+        *Qogir*) name="Qogir" ;;
+        *)       name="elementary-xfce" ;;
+    esac
 
     case "$1" in
         on)
-            new_icon_theme="Qogir-dark" ;;
+            new_icon_theme="$name-dark" ;;
         off)
-            new_icon_theme="Qogir" ;;
+            new_icon_theme="$name" ;;
         toggle)
             case $curr_icon_theme in
-                Qogir-dark)
-                    new_icon_theme="Qogir" ;;
-                Qogir)
-                    new_icon_theme="Qogir-dark" ;;
+                *dark*) new_icon_theme="$name" ;;
+                *)      new_icon_theme="$name-dark" ;;
             esac ;;
     esac
 
