@@ -80,6 +80,7 @@
       <property name="Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --quick"/>
       <property name="&lt;Shift&gt;Print" type="string" value="/home/marco/dev/dotfiles/bin/screenshot --select"/>
       <property name="&lt;Super&gt;c" type="string" value="/home/marco/dev/dotfiles/bin/calculator"/>
+      <property name="&lt;Super&gt;l" type="string" value="exit.sh --lock"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">

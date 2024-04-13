@@ -6,7 +6,7 @@
 # Brief:  Get time of sunrise and sunset, and write them on a file.
 
 _die() {
-    [[ -n $1 ]] && echo "$1"
+    [[ -n $1 ]] && echo "$1" >&2
     exit 1
 }
 
@@ -38,9 +38,22 @@ command ping -q -c 2 -w 2 google.com &>/dev/null || _die "No internet connection
 # Don't overwrite if file has already been modified today.
 [[ $(date "+%Y%m%d") == $(date -r "$TIME_SUN_FILE" "+%Y%m%d" 2>/dev/null) ]] && exit
 
+# Get time of sunrise and sunset.
 location="$(cat "$LOCATION_FILE")"
 IFS='_' read -r -a infos <<< "$(curl -s wttr.in/"${location}"?format=%S_%s)"
 sunrise="${infos[0]}"
+sunrise="${sunrise%:*}"
+[[ -z "$sunrise" ]] && _die "No sunrise"
 sunset="${infos[1]}"
-echo "${sunrise%:*}" > "$TIME_SUN_FILE"
-echo "${sunset%:*}" >> "$TIME_SUN_FILE"
+sunset="${sunset%:*}"
+[[ -z "$sunset" ]]  && _die "No sunset"
+
+# Move up sunset by 30 mins.
+sunset="$(date -d "$sunset today - 30 minutes" +"%H:%M")"
+
+# Write both to file and to stdout for me to see.
+echo "$sunrise" ; echo "$sunrise" > "$TIME_SUN_FILE"
+echo "$sunset"  ; echo "$sunset" >> "$TIME_SUN_FILE"
+
+# Toggle night mode based on current time.
+night_mode

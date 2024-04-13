@@ -4,8 +4,10 @@
 # Author: Marco Plaitano
 # Date:   14 Apr 2023
 # Brief:  Clone the given git repository. If only the name is given then the
-#         repo is assumed to be one of my owns.
+#         repo is assumed to be one of my own.
+#         Also, try installing any git hook found in the ./hooks/ direcory.
 
+set -e
 
 _die() {
     [[ -n $1 ]] && echo "$1" >&2
@@ -16,6 +18,7 @@ _help() {
     printf "Usage: $(basename "$0") REPO [DEST]
 Clone the given git repository. If only the name is given then the repo is
 cloned from my github's account.
+Also, try installing any git hook found in the ./hooks/ direcory.
 
 -h, --help      Show this guide and exit.
 REPO            Repository to clone.
@@ -43,4 +46,12 @@ done
 [[ -z $repo ]] && _die "No repository given."
 [[ $repo != *'/'* ]] && repo="https://github.com/marcoplaitano/$repo"
 
-git clone $repo $dest
+git clone "$repo" "$dest"
+
+# Try enabling any existing git hooks.
+pushd "$dest" &>/dev/null
+if [[ -d hooks ]]; then
+    chmod +x hooks/*
+    cp hooks/* .git/hooks/
+fi
+popd &>/dev/null

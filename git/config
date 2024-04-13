@@ -6,6 +6,7 @@
 [alias]
     # Print all aliases
     aliases = config --get-regexp alias
+    co = checkout
     # Allow `$ git git git...`
     git = !exec git
     authors = shortlog --summary --numbered --email --all
@@ -73,7 +74,7 @@
 
 [help]
     # Automatically correct and execute mistyped commands.
-    autocorrect = 50
+    autocorrect = 30
 
 [init]
     defaultBranch = main
