@@ -48,6 +48,7 @@ while [[ -n $1 ]]; do
         --focused)
             options+=" -u " ;;
         --select)
+            sleep 0.1
             # -f freezes the screen while waiting for area selection. Remove
             # this option if the screen has to update its content while
             # selecting.

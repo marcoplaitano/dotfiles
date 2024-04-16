@@ -159,7 +159,8 @@ export LESSHISTFILE='-'
 ###   PATH
 ################################################################################
 
-PATH="/usr/local/bin:/usr/bin:/bin"
+PATH="/usr/local/sbin:/usr/sbin:/sbin"
+PATH="/usr/local/bin:/usr/bin:/bin:/snap/bin:$PATH"
 PATH="$HOME/.local/bin:$PATH"
 
 # Add scripts directory with all its subdirectories.
