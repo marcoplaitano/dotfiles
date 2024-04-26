@@ -100,7 +100,7 @@ _shutdown_routine() {
     fi
 
     # Save thesis work to remote git repository.
-    $HOME/Documents/Tesi/cloud.sh || exit
+    $HOME/Documents/tesi/cloud.sh || exit
 
     for vm in $(find $HOME/.local/VMs -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
                 | awk -F "/" '{print $NF}')

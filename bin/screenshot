@@ -67,9 +67,9 @@ img_filename="$(_get_filename)"
 
 # Take screenshot.
 # -q 100 best quality
-# -p     capture the mouse pointer too
+# -p     capture the mouse pointer too  CURRENTLY DISABLED
 # -F     specify a custom filename
-scrot -q 100 -p $options "$img_filename" || _die
+scrot -q 100 $options "$img_filename" || _die
 # Play sound to alert that the screenshot has been taken.
 paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga & disown
 

@@ -73,6 +73,7 @@ list+=(
     "$TESI_DIR/social2"
     "$TESI_DIR/trees"
     "$TESI_DIR/ubarbato"
+    "$HOME/Documents/tesi"
 )
 # Avoid race conditions.
 killall menu &>/dev/null
