@@ -108,7 +108,8 @@ elif [[ -f "$filename".cpp ]]; then
     if [[ -f makefile ]]; then
         if [[ -n $debug ]]; then make debug ; else make; fi
     else
-        g++ -g $compile_flags "$filename".cpp -o "$filename".out
+        # g++ -g $compile_flags "$filename".cpp -o "$filename".out
+        g++ -std=c++23 -g -Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion $compile_flags "$filename".cpp -o "$filename".out
     fi
     # Exit the script if the compilation was not successful.
     [[ $? != 0 ]] && exit 1

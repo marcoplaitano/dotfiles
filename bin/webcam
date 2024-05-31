@@ -23,7 +23,8 @@ Open a window showing webcam stream.
 -h, --help          Show this guide and exit.
 -r, --res RES       Set resolution of RES. Accepted values are: 120, 240, 480,
                     720, 1080. Default is 240.
--d, --dev DEV       Set input device. Default is /dev/video0.\n"
+-d, --dev DEV       Set input device. Default is /dev/video0.
+--top               Window always on top\n"
 }
 
 # Make sure that the script won't be executed more than once at a time.
@@ -54,6 +55,8 @@ while [[ -n $1 ]]; do
             [[ -z $2 ]] && _die "No device given."
             device="$2"
             shift ;;
+        --top)
+            top=1 ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
@@ -77,4 +80,8 @@ x=$(( y * 16/9 ))
 # Kill previous running instance.
 kill $(pgrep ffplay -a | grep webcam | cut -d' ' -f 1) &>/dev/null
 
-ffplay -alwaysontop -x $x -y $y -window_title webcam -fast $device &>/dev/null & disown
+if [[ -n $top ]]; then
+    ffplay -alwaysontop -x $x -y $y -window_title webcam -fast $device &>/dev/null & disown
+else
+    ffplay -x $x -y $y -window_title webcam -fast $device &>/dev/null & disown
+fi

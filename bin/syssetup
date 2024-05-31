@@ -146,6 +146,7 @@ gsettings set org.gnome.nm-applet disable-connected-notifications true
 gsettings set org.gnome.nm-applet disable-disconnected-notifications true
 
 # Give permissions to some directories.
+_own /usr/share/endeavouros/backgrounds
 _own /usr/share/xfce4/terminal
 _own /usr/share/themes
 _own /etc/lightdm
@@ -165,6 +166,9 @@ while [[ -z $city ]]; do
     read -rp "City you live in (for weather): " city
 done
 echo "$city" > "$HOME/.config/user/location"
+
+# Set lockscreen image to current wallpaper.
+sed -i '/^background/c\background=/usr/share/endeavouros/backgrounds/lockscreen' /etc/lightdm/slick-greeter.conf
 
 
 
@@ -232,7 +236,7 @@ _show_section "PACKAGES"
 ###  PACKAGES
 ################################################################################
 
-_install git gcc make cmaske unrar pass wget curl htop net-tools gnome-keyring \
+_install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
          tree mlocate vim xclip evince gimp neofetch redshift shellcheck \
          transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
          fd plank mousepad playerctl brightnessctl lm_sensors \
@@ -286,9 +290,7 @@ if git clone https://github.com/marcoplaitano/paura "$_CODE_DIR/paura" ; then
     $HOME/.local/bin/paura "https://aur.archlinux.org/i3lock-color.git"
     $HOME/.local/bin/paura "https://aur.archlinux.org/visual-studio-code-bin"
     $HOME/.local/bin/paura "https://aur.archlinux.org/xfce-theme-greybird.git"
-    $HOME/.local/bin/paura "https://aur.archlinux.org/peerflix.git"
     $HOME/.local/bin/paura "https://aur.archlinux.org/betterlockscreen.git"
-    $HOME/.local/bin/paura "https://aur.archlinux.org/fluent-reader.git"
     sudo cp $HOME/.cache/aur_pkgs/betterlockscreen/betterlockscreen@.service /usr/lib/systemd/system/
     sudo systemctl enable betterlockscreen@$USER
 else

@@ -161,3 +161,4 @@ change_theme "$theme" -i "$image"
 
 echo "Updating lockscreen..."
 betterlockscreen -u "$image" --fx blur
+cp "$image" /usr/share/endeavouros/backgrounds/lockscreen

@@ -44,7 +44,7 @@ while [[ -n $1 ]]; do
 done
 
 [[ -z $repo ]] && _die "No repository given."
-[[ $repo != *'/'* ]] && repo="https://github.com/marcoplaitano/$repo"
+[[ $repo != *'/'* ]] && repo="git@github.com-marcoplaitano:marcoplaitano/$repo"
 
 git clone "$repo" "$dest"
 
