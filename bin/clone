@@ -46,7 +46,11 @@ done
 [[ -z $repo ]] && _die "No repository given."
 [[ $repo != *'/'* ]] && repo="git@github.com-marcoplaitano:marcoplaitano/$repo"
 
-git clone "$repo" "$dest"
+if [[ -z $dest ]]; then
+    git clone "$repo"
+else
+    git clone "$repo" "$dest"
+fi
 
 # Try enabling any existing git hooks.
 pushd "$dest" &>/dev/null

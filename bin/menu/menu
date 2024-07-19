@@ -88,9 +88,9 @@ _choose_account() {
     local account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
     case $account in
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
-        uni)  $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
-        23)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
-        ea)   $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
+        23)   $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
+        ea)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
+        uni)  $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
         prea) $WEBBROWSER https://mail.proton.me/u/0/inbox  & disown ;;
     esac
 }
@@ -172,7 +172,6 @@ declare -A actions=(
     [darktheme]="dark_theme --toggle"
     [discord]="discord"
     [drive]="_choose_account drive.google.com/drive my-drive"
-    [esse3]="$WEBBROWSER https://esse3web.unisa.it/"
     [exit]="exit.sh"
     [firefox]="firefox"
     [gemini]="$WEBBROWSER https://gemini.google.com/app"
@@ -182,12 +181,13 @@ declare -A actions=(
     [icons]="_toggle_desktop_icons"
     [icloud]="$WEBBROWSER https://www.icloud.com/"
     [imageColorPalette]="$WEBBROWSER https://imagecolorpicker.com/"
+    [instagram]="$WEBBROWSER https://www.instagram.com/"
     [kill]="_choose_kill"
     [localhost]="$WEBBROWSER http://localhost/"
+    [linkedin]="$WEBBROWSER http://www.linkedin.com/"
     [lock]="exit.sh --lock"
     [lofi]="lofi"
     [logout]="exit.sh --logout"
-    [magistrale]="$WEBBROWSER https://corsi.unisa.it/ingegneria-informatica-magistrale"
     [mail]="_choose_account mail.google.com/mail \#inbox"
     [maps]="$WEBBROWSER https://www.google.com/maps"
     [modernfamily]="$WEBBROWSER https://gomovies.sx/tv/watch-modern-family-gomovies-39507"
@@ -200,7 +200,6 @@ declare -A actions=(
     [paletteGenerator]="$WEBBROWSER https://coolors.co/generate"
     [panel]="panel"
     [passwords]="get_password"
-    [peerflix]="streaming"
     [photos]="$WEBBROWSER https://photos.google.com/"
     [pinterest]="$WEBBROWSER https://www.pinterest.co.uk"
     [plank]="_plank_dock"
@@ -211,7 +210,6 @@ declare -A actions=(
     [radio]="radio"
     [reboot]="exit.sh --reboot"
     [redshift]="blue_light_filter --on"
-    [rss]="fluent-reader"
     [screenrecord]="_screenrecord"
     [screenshot]="xfce4-screenshooter"
     [session]="xfce4-session-settings"
@@ -222,13 +220,11 @@ declare -A actions=(
     [spotify]="spotify"
     [streaming]="_search_streaming"
     [suspend]="exit.sh --suspend"
-    [teams]="teams-for-linux"
     [telegram]="telegram-desktop"
     [theme]="_change_theme"
     [torrent]="transmission-gtk"
     [transmission]="transmission-gtk"
-    [unidrive]="$WEBBROWSER https://drive.google.com/drive/u/1/my-drive"
-    [unimail]="$WEBBROWSER https://mail.google.com/mail/u/1/"
+    [twitter]="$WEBBROWSER https://www.x.com/"
     [virtualbox]="VirtualBox %U"
     [youtube]="$WEBBROWSER https://www.youtube.com/feed/subscriptions"
     [wallpaper]="wallpaper"
