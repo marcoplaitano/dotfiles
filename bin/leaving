@@ -52,4 +52,5 @@ repositories --colored
 printf "\nRemember to export your ${YELLOW}GPG keys${RESET} and "
 printf "${YELLOW}passwords${RESET}.\n"
 printf "Save any docker ${YELLOW}container${RESET}'s configfile or script.\n"
+printf "Logout from ${YELLOW}Telegram${RESET}.\n"
 printf "Check if there is any script in ${YELLOW}~/.local/bin${RESET}.\n"

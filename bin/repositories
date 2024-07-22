@@ -70,6 +70,7 @@ dirs_to_check=(
     "$CODE_DIR/blog"
     "$HOME/Desktop"
     "$HOME/Pictures"
+    "$HOME/Documents"
 )
 
 for root_dir in ${dirs_to_check[@]}; do
