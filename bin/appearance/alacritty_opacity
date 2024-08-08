@@ -34,7 +34,7 @@ case "$1" in
     -h | --help)
         _help ;;
     on | --on)
-        _set_opacity 0.90 ;;
+        _set_opacity 0.80 ;;
     off | --off)
         _set_opacity 1.00 ;;
     *)

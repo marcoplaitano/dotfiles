@@ -96,6 +96,7 @@ while [[ -z $confirm_proceed ]]; do
     _ask_yes_no "Clone personal dotfiles repo? " && do_dotfiles=1
     _ask_yes_no "Clone personal wallpapers repo? " && do_wallpapers=1
     _ask_yes_no "Install dmenu? " && do_dmenu=1
+    _ask_yes_no "Install i3? " && do_i3=1
     _ask_yes_no "Install docker? " && do_docker=1
     _ask_yes_no "Install Spotify? " && do_spotify=1
     _ask_yes_no "Install Telegram? " && do_telegram=1
@@ -242,7 +243,7 @@ _install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
          fd plank mousepad playerctl brightnessctl lm_sensors \
          polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
          ttf-roboto-mono-nerd numlockx xwallpaper unclutter xss-lock \
-         zoxide
+         zoxide obsidian
 
 # python packages
 python_pkgs=(
@@ -276,6 +277,19 @@ if pipx install pywal ; then
     sudo mv $HOME/.local/bin/wal /usr/local/bin/
 fi
 
+# Lock screen packages.
+if git clone https://github.com/Raymo111/i3lock-color ; then
+    pushd i3lock-color >/dev/null
+    ./build.sh
+    pushd build >/dev/null
+    sudo make install
+    popd >/dev/null
+    popd >/dev/null
+    wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/main/install.sh -O - -q | sudo bash -s system
+    sudo wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/next/system/betterlockscreen%40.service -O /usr/lib/systemd/system/betterlockscreen@.service
+    sudo systemctl enable betterlockscreen@$USER
+fi
+
 
 
 ################################################################################
@@ -287,12 +301,8 @@ if git clone https://github.com/marcoplaitano/paura "$_CODE_DIR/paura" ; then
     ln -s $_CODE_DIR/paura/paura $HOME/.local/bin/paura
 
     # Install AUR packages.
-    $HOME/.local/bin/paura "https://aur.archlinux.org/i3lock-color.git"
     $HOME/.local/bin/paura "https://aur.archlinux.org/visual-studio-code-bin"
     $HOME/.local/bin/paura "https://aur.archlinux.org/xfce-theme-greybird.git"
-    $HOME/.local/bin/paura "https://aur.archlinux.org/betterlockscreen.git"
-    sudo cp $HOME/.cache/aur_pkgs/betterlockscreen/betterlockscreen@.service /usr/lib/systemd/system/
-    sudo systemctl enable betterlockscreen@$USER
 else
     echo
     echo "Could not install AUR helper and packages."
@@ -346,15 +356,6 @@ if [[ -n $do_wallpapers ]]; then
 
     git clone https://github.com/marcoplaitano/wallpapers "$dir"
 fi
-
-
-
-################################################################################
-###  REPOSITORY: OBSIDIAN
-################################################################################
-dir="$HOME/Documents/obsidian"
-
-git clone https://github.com/marcoplaitano/obsidian "$dir"
 
 
 
@@ -430,6 +431,18 @@ if [[ -n $do_spotify ]]; then
         # Launch installer.
         spotify &>/dev/null & disown
     fi
+fi
+
+
+
+################################################################################
+###  i3
+################################################################################
+
+if [[ -n $do_i3 ]]; then
+    _show_section "i3"
+
+    _install i3-wm i3blocks i3lock picom network-manager-applet
 fi
 
 

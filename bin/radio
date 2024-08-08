@@ -8,6 +8,18 @@
 #         launched via menu.
 
 
+declare -A radioURLs=(
+    ["Capital"]="https://streamcdnr8-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiocapital/radiocapital/master_ma.m3u8"
+    ["Deejay"]="http://radiodeejay-lh.akamaihd.net/i/RadioDeejay_Live_1@189857/master.m3u8"
+    ["Montecarlo"]="http://edge.radiomontecarlo.net/RMC.mp3"
+    ["Pooh"]="https://rtr99.fluidstream.eu/rtr99_pooh.mp3"
+    ["RDS Relax"]="https://stream.rds.radio/audio/rdsrelax.stream_aac/playlist.m3u8"
+    ["RTL"]="https://streamingv2.shoutcast.com/rtl-1025"
+    ["RTL Best"]="https://streamingv2.shoutcast.com/rtl-1025-best"
+    ["Virgin"]="http://icecast.unitedradio.it/Virgin.mp3"
+)
+
+
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -23,7 +35,14 @@ _help() {
 Play radio station.
 
 -h, --help      Show this guide and exit.
+-l, --list      List all available radio stations.
 STATION         Station to play. If not given it will be asked via dmenu.\n"
+}
+
+_list_radio_stations() {
+    for name in "${!radioURLs[@]}"; do
+        echo "$name"
+    done | sort
 }
 
 _play_radio() {
@@ -44,33 +63,24 @@ _record_status() {
 }
 
 
-declare -A radioURLs=(
-    ["capital"]="https://streamcdnr8-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiocapital/radiocapital/master_ma.m3u8"
-    ["deejay"]="http://radiodeejay-lh.akamaihd.net/i/RadioDeejay_Live_1@189857/master.m3u8"
-    ["montecarlo"]="http://edge.radiomontecarlo.net/RMC.mp3"
-    ["pooh"]="https://rtr99.fluidstream.eu/rtr99_pooh.mp3"
-    ["rtl"]="https://streamingv2.shoutcast.com/rtl-1025"
-    ["rtl-best"]="https://streamingv2.shoutcast.com/rtl-1025-best"
-    ["virgin"]="http://icecast.unitedradio.it/Virgin.mp3"
-)
-
-
-# Sort the keys of the dictionary in alphabetical order.
-radios=( $( echo ${!radioURLs[@]} | tr ' ' '\n' | sort ) )
-# Add all the keys to a string, separating them with \n. (needed for dmenu)
-for r in ${radios[@]}; do
-    choices+="$r\n"
-done
-# Add also an option to stop playing the stream.
-choices+="STOP"
-
 # Parse command line arguments.
 case "$1" in
     -h | --help)
         _help ; exit ;;
+    -l | --list)
+        _list_radio_stations ; exit ;;
     *)
         station="$1" ;;
 esac
+
+
+# Sort the keys of the dictionary in alphabetical order, and add all of them
+# to a string, separating them with \n. (needed for dmenu)
+choices=$(for name in "${!radioURLs[@]}"; do
+    echo "$name"
+done | sort | sed ':a;N;$!ba;s/\n/\\n/g')
+# Add also an option to stop playing the stream.
+choices+="\nSTOP"
 
 # If no argument is given use dmenu to ask the user which station to play.
 if [[ -z $station ]]; then
@@ -84,7 +94,7 @@ if [[ $station == STOP ]]; then
 elif [[ -v radioURLs[$station] ]]; then
     kill_process radio music lofi
     _record_status "${station^}"
-    _play_radio ${radioURLs[$station]}
+    _play_radio "${radioURLs[$station]}"
 else
     _die "Station '$station' not recognized."
 fi

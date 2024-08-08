@@ -30,6 +30,7 @@ declare -A repo_files=(
     ["nvim"]="$XDG_CONFIG_HOME/nvim"
     ["picom"]="$XDG_CONFIG_HOME/picom"
     ["polybar"]="$XDG_CONFIG_HOME/polybar"
+    ["_other/colors/polybar/default.ini"]="$XDG_CONFIG_HOME/user/polybar_theme.ini"
     ["python"]="$XDG_CONFIG_HOME/python"
     ["redshift"]="$XDG_CONFIG_HOME/redshift"
     ["shell"]="$XDG_CONFIG_HOME/shell"
@@ -123,8 +124,7 @@ _install_autostart() {
 _install_cronjobs() {
     printf "===== cronjobs "
     if [[ -e cronjobs/cron.txt ]]; then
-        if crontab cronjobs/cron.txt
-        then
+        if crontab cronjobs/cron.txt; then
             _print_ok
             return
         fi

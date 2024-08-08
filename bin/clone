@@ -46,11 +46,12 @@ done
 [[ -z $repo ]] && _die "No repository given."
 [[ $repo != *'/'* ]] && repo="git@github.com-marcoplaitano:marcoplaitano/$repo"
 
+# Default destination path if none is given.
 if [[ -z $dest ]]; then
-    git clone "$repo"
-else
-    git clone "$repo" "$dest"
+    dest="${repo##*/}"
 fi
+
+git clone "$repo" "$dest"
 
 # Try enabling any existing git hooks.
 pushd "$dest" &>/dev/null
