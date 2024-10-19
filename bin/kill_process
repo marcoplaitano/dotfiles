@@ -48,6 +48,9 @@ while [[ -n $1 ]]; do
         screenrecord)
             screenrecord --stop
         ;;
+        skype)
+            killall -q skypeforlinux
+        ;;
         teams)
             killall -q teams teams-for-linux
         ;;

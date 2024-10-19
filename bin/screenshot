@@ -70,7 +70,9 @@ img_filename="$(_get_filename)"
 # -F     specify a custom filename
 scrot -q 100 -p $options -F "$img_filename" || _die
 # Play sound to alert that the screenshot has been taken.
-paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga & disown
+if ! pgrep skype &>/dev/null; then
+    paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga & disown
+fi
 
 # Only when selecting area, ask whether to save image (already done) or to paste
 # it into the clipboard.
