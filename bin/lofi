@@ -53,8 +53,8 @@ esac
 
 # Original Lo-Fi girl stream.
 #video_url="${video_url:=https://www.youtube.com/watch?v=jfKfPfyJRdk}"
-# Lo-Fi girl sleep stream.
-video_url="${video_url:=https://www.youtube.com/watch?v=rUxyKA_-grg}"
+# Jazz Lo-Fi
+video_url="${video_url:=https://www.youtube.com/watch?v=HuFYqnbVbzY}"
 
 yt-dlp "$video_url" -o - 2>/dev/null \
     | ffplay - -autoexit -nodisp -loglevel quiet &>/dev/null & disown

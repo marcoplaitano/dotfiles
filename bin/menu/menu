@@ -216,6 +216,7 @@ declare -A actions=(
     [session]="xfce4-session-settings"
     [settings]="xfce4-settings-manager"
     [shazam]="shazam"
+    [skype]="skype"
     [simplescreenrecorder]="simplescreenrecorder"
     [speedtest]="speedtest"
     [spotify]="spotify"

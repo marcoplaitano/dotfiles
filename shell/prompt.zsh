@@ -166,7 +166,7 @@ _prompt_robbyrussell() {
 }
 
 function zle-line-init zle-keymap-select {
-    _prompt_robbyrussell
+    _prompt_default
 }
 
 zle -N zle-line-init
