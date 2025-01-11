@@ -24,6 +24,7 @@ _show_message() {
     printf "Last login: %s\n" "$(last_login)"
     printf "Welcome back %s!\n\n" "${USER^}"
     quotes
+    printf "\n"
     repositories
 }
 

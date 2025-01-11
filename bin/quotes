@@ -22,4 +22,4 @@ num_lines=$(wc -l < "$_QUOTES_FILE")
 num=$(( RANDOM % num_lines + 1 ))
 line=$(head -$num "$_QUOTES_FILE" | tail -1)
 
-printf "${ITALIC}\"%b\"${RESET}\n\n" "$line"
+printf "${ITALIC}\"%b\"${RESET}\n" "$line"
