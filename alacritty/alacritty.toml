@@ -2,6 +2,7 @@
 # Author: Marco Plaitano
 # Github: https://github.com/marcoplaitano
 
+[general]
 live_config_reload = true
 
 # File containing current colorscheme declaration. It is a separate file to
