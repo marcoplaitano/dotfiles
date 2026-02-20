@@ -42,6 +42,13 @@ _check_pid() {
     echo \$\$ > \"\$PIDFILE\"
 }
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+    )
+    check-installed \${programs[*]}
+}
+_check_dependencies || _die
 
 _check_pid
 

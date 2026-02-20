@@ -77,6 +77,18 @@ _get_torrent_url() {
     url=$(cat "$_URL_FILE" | grep -E 'magnet:\?' | sed 's/href\=/ /g' | awk '{print $2}' | sed 's/"/ /g' | head -n $num | tail -n 1 | sed 's/ //g')
 }
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        curl
+        xclip
+        peerflix
+        mpv
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
+
 
 # Parse command line arguments.
 while [[ -n $1 ]]; do

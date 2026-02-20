@@ -23,6 +23,15 @@ FILE            Name of the file in which to save the video. If not given, last
                 part of the URL is used.\n"
 }
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        youtube-dl
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
+
 
 # Parse command line arguments.
 while [[ -n $1 ]]; do

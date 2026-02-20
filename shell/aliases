@@ -67,7 +67,6 @@ alias gco='git checkout'
 alias gf='git fetch'
 alias gh='git hist'
 alias gi='git info'
-alias gl='git pull'
 alias gp='git push'
 
 # docker

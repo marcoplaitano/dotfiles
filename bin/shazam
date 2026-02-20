@@ -68,6 +68,6 @@ else
 fi
 
 # Save result in the file (if it does not already exist).
-if ! grep -q "$result" "$_LIST_FILE"; then
+if ! grep -q "$result" "$_LIST_FILE" 2>/dev/null; then
     echo + "$result" >> "$_LIST_FILE"
 fi

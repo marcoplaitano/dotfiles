@@ -6,7 +6,6 @@
 #         seconds from the end/beginning of that video. The result is saved in a
 #         new file.
 
-
 _die() {
     [[ -n $1 ]] && error_msg="$1" || error_msg="Error in $(basename "$0")."
     if [[ $TERM != dumb ]]; then
@@ -28,6 +27,16 @@ Cut a certain amount of seconds from the given audio/video file.
 -b, --beginning         Cut from the beginning of the file.
 FILE                    Input file.\n"
 }
+
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        ffprobe
+        ffmpeg
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
 
 
 

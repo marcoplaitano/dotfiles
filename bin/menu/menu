@@ -90,7 +90,6 @@ _choose_account() {
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
         23)   $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
         ea)   $WEBBROWSER https://"$1"/u/2/"$2" &>/dev/null & disown ;;
-        uni)  $WEBBROWSER https://"$1"/u/3/"$2" &>/dev/null & disown ;;
         prea) $WEBBROWSER https://mail.proton.me/u/0/inbox  & disown ;;
     esac
 }
@@ -170,7 +169,6 @@ declare -A actions=(
     [chromium]="chromium"
     [code]="_choose_editor_directory"
     [darktheme]="dark_theme --toggle"
-    [discord]="discord"
     [drive]="_choose_account drive.google.com/drive my-drive"
     [exit]="exit.sh"
     [facebook]="$WEBBROWSER https://facebook.com"
@@ -192,7 +190,6 @@ declare -A actions=(
     [logout]="exit.sh --logout"
     [mail]="_choose_account mail.google.com/mail \#inbox"
     [maps]="$WEBBROWSER https://www.google.com/maps"
-    [modernfamily]="$WEBBROWSER https://gomovies.sx/tv/watch-modern-family-gomovies-39507"
     [monitor]="monitors"
     [mousepad]="mousepad"
     [music]="music"
@@ -207,7 +204,6 @@ declare -A actions=(
     [plank]="_plank_dock"
     [polybar]="polybar.sh"
     [poweroff]="exit.sh --poweroff"
-    [primevideo]="$WEBBROWSER https://www.primevideo.com"
     [private]="$WEBBROWSER --private-window"
     [radio]="radio"
     [reboot]="exit.sh --reboot"
