@@ -2,7 +2,7 @@
 
 # File:   menu
 # Author: Marco Plaitano
-# Brief:  Let the user launch anything via dmenu.
+# Brief:  Let the user launch anything via rofi.
 
 
 ################################################################################
@@ -54,7 +54,7 @@ _choose_editor_directory() {
     done < "$CACHE_FILE_CODE_DIRS"
 
     # Ask which one to open.
-    local dir=$(ask_dmenu -p "directory:" -l "$dirs_string" --num-lines 10 -F)
+    local dir=$(ask_menu -p "directory:" -l "$dirs_string" --num-lines 10 -F)
     [[ -z $dir ]] && exit
 
     if [[ "$dir" == "CACHE" ]]; then
@@ -76,7 +76,7 @@ _choose_kill() {
     local processes="lofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
     processes+="screenrecorder\nskype\nspotify\ntelegram\nteams\nwebcam"
     # Accepts any input, even ones not included in the list.
-    local process=$(ask_dmenu -p "process:" -l $processes)
+    local process=$(ask_menu -p "process:" -l $processes)
     [[ -z $process ]] && exit
     kill_process "$process"
 }
@@ -85,7 +85,7 @@ _choose_kill() {
 # Open the given Google's site with the account the user chooses.
 _choose_account() {
     local accounts="99\nuni\n23\nea\nprea"
-    local account=$(ask_dmenu -p "account:" -l $accounts --multiple-lines)
+    local account=$(ask_menu -p "account:" -l $accounts --multiple-lines)
     case $account in
         99)   $WEBBROWSER https://"$1"/u/0/"$2" &>/dev/null & disown ;;
         23)   $WEBBROWSER https://"$1"/u/1/"$2" &>/dev/null & disown ;;
@@ -105,7 +105,7 @@ _plank_dock() {
 # Show/hide desktop icons.
 _toggle_desktop_icons() {
     local options="toggle\nhide\nshow"
-    local option=$(ask_dmenu -p "do:" -l "$options")
+    local option=$(ask_menu -p "do:" -l "$options")
     [[ -z $option ]] && return
     icons_desktop --$option
 }
@@ -115,7 +115,7 @@ _toggle_desktop_icons() {
 # a browser's private session.
 _search_streaming() {
     local site="https://gomovies.sx"
-    local title=$(ask_dmenu -p "title: " -l "home")
+    local title=$(ask_menu -p "title: " -l "home")
     if [[ $title == home ]]; then
         $WEBBROWSER $site/home &>/dev/null & disown
     elif [[ -n $title ]]; then
@@ -127,7 +127,7 @@ _search_streaming() {
 
 _screenrecord() {
     local audio_options="audio-in\naudio-out\nmute"
-    local audio_option=$(ask_dmenu -p "audio:" -l $audio_options --multiple-lines)
+    local audio_option=$(ask_menu -p "audio:" -l $audio_options --multiple-lines)
     [[ -z $audio_option ]] && exit
     screenrecord --$audio_option & disown
 }
@@ -136,7 +136,7 @@ _screenrecord() {
 _change_theme() {
     local themes="base16-gruvbox-dark-hard\ncatppuccin\ncatppuccin-latte\n"
     themes+="default\neverblush\ngruvbox\nnord\none-dark"
-    local theme=$(ask_dmenu -p "theme:" -l $themes --multiple-lines)
+    local theme=$(ask_menu -p "theme:" -l $themes --multiple-lines)
     [[ -z $theme ]] && exit
     case "$theme" in
         default)
@@ -158,7 +158,7 @@ _change_theme() {
 
 # Key-Value containing all the possible actions and their command.
 declare -A actions=(
-    [all]="ask_dmenu -p run:"
+    [all]="ask_menu -p run:"
     [amazon]="$WEBBROWSER amazon.it"
     [appearance]="xfce4-appearance-settings"
     [baobab]="baobab"
@@ -250,8 +250,8 @@ done
 # Remove last 2 characters (an exceeding \n).
 choices=${choices::-2}
 
-# The user chooses the action to perform via dmenu.
-selected=$(ask_dmenu -F -p "run:" -l "$choices")
+# The user chooses the action to perform via rofi.
+selected=$(ask_menu -F -p "run:" -l "$choices")
 [[ -z $selected ]] && exit
 
 # Perform the selected action.

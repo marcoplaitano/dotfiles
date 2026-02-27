@@ -52,7 +52,7 @@ _get_torrent_list() {
 _get_torrent_url() {
     # Get the title of the movie/tv-show to stream.
     if [[ -z $title ]]; then
-        query=$(ask_dmenu -p "Movie: " -l " ")
+        query=$(ask_menu -p "Movie: " -l " ")
     else
         # Remove last character (whitespace).
         query="${title::-1}"
@@ -64,9 +64,9 @@ _get_torrent_url() {
     echo "Looking for torrents..."
     _get_torrent_list https://thepiratebay.party/search/$query/1/99/200
 
-    # Use dmenu to choose one of the available titles.
+    # Use rofi to choose one of the available titles.
     titles=$(echo "$titles" | tr '|' '\n')
-    title=$(ask_dmenu -p "Stream: " -l "$titles")
+    title=$(ask_menu -p "Stream: " -l "$titles")
     [[ -z $title ]] && exit
 
     # Get number and title from result string.
@@ -108,7 +108,7 @@ while [[ -n $1 ]]; do
 done
 
 # If no URL has been given find one based on the title search. (If no title has
-# been given either, ask one via dmenu).
+# been given either, ask one via rofi).
 [[ -z $url ]] && _get_torrent_url
 [[ -z $url ]] && _die "No torrent given."
 echo "$url"

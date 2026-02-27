@@ -18,7 +18,7 @@ _die() {
 _help() {
     printf "Usage: $(basename "$0") [OPTION]
 Mute or unmute system microphone, or increase/decrease capture volume. If no
-action is specified, a dmenu instance is launched to ask what to do.
+action is specified, a rofi instance is launched to ask what to do.
 
 -h, --help          Show this guide and exit.
 --status            Print current status.

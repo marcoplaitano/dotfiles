@@ -77,7 +77,7 @@ fi
 # Only when selecting area, ask whether to save image (already done) or to paste
 # it into the clipboard.
 if [[ $options == *"-f"* ]]; then
-    choice="$(ask_dmenu -F -l "clipboard\nsave" -nl 2)"
+    choice="$(ask_menu -F -l "clipboard\nsave" -nl 2)"
     if [[ $choice == "clipboard" ]]; then
         xclip -selection clipboard -target image/png -i "$img_filename"
         rm "$img_filename"

@@ -93,12 +93,12 @@ _external_toggle() {
 # Parse command line arguments.
 if [[ -n $1 ]]; then
     cmd="$1"
-# If no argument is given, ask for one with dmenu.
+# If no argument is given, ask for one with rofi.
 else
     options=""
     options+="internal-off\nextend-right\nmirror\n"
     options+="extend-left\ninternal-on"
-    cmd=$(ask_dmenu -p "monitor:" -F -l "$options" --multiple-lines)
+    cmd=$(ask_menu -p "monitor:" -F -l "$options" --multiple-lines)
 fi
 
 

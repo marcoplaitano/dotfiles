@@ -36,7 +36,7 @@ Play radio station.
 
 -h, --help      Show this guide and exit.
 -l, --list      List all available radio stations.
-STATION         Station to play. If not given it will be asked via dmenu.\n"
+STATION         Station to play. If not given it will be asked via rofi.\n"
 }
 
 _list_radio_stations() {
@@ -53,7 +53,7 @@ _play_radio() {
 
     # Check that it is actually playing.
     sleep 3
-    if ! pgrep ffplay; then
+    if ! pgrep ffplay &>/dev/null; then
         _die "Could not play station '$station'."
     fi
 }
@@ -75,16 +75,16 @@ esac
 
 
 # Sort the keys of the dictionary in alphabetical order, and add all of them
-# to a string, separating them with \n. (needed for dmenu)
+# to a string, separating them with \n. (needed for rofi)
 choices=$(for name in "${!radioURLs[@]}"; do
     echo "$name"
 done | sort | sed ':a;N;$!ba;s/\n/\\n/g')
 # Add also an option to stop playing the stream.
 choices+="\nSTOP"
 
-# If no argument is given use dmenu to ask the user which station to play.
+# If no argument is given use rofi to ask the user which station to play.
 if [[ -z $station ]]; then
-    station=$(ask_dmenu -p "station:" -l "$choices")
+    station=$(ask_menu -p "station:" -l "$choices")
 fi
 [[ -z $station ]] && exit
 

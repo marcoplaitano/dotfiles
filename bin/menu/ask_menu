@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# File:   ask_dmenu
+# File:   ask_menu
 # Author: Marco Plaitano
-# Brief:  Run dmenu with the the given options and colors.
+# Brief:  Run rofi with the the given options and colors.
 # See:    menu
 
 
@@ -31,8 +31,7 @@ _check_pid() {
 # Check that all dependencies are met.
 _check_dependencies() {
     programs=(
-        dmenu
-        dmenu_path
+        rofi
     )
     check-installed ${programs[*]}
 }
@@ -43,18 +42,8 @@ _check_pid
 
 
 ################################################################################
-###  DMENU APPEARANCE
+###  ROFI APPEARANCE
 ################################################################################
-
-font="NotoSansRegular-12"
-
-# Height in pixels.
-height="26"
-
-# Sourcing this to get fuzzy highlight default colors in case the current theme
-# does not have them.
-source "$DOTS_DIR/_other/colors/dmenu/default.sh"
-source "$THEME_FILE_DMENU"
 
 
 ################################################################################
@@ -77,62 +66,86 @@ while [[ -n $1 ]]; do
             multiple_lines=1 ;;
         # Display exactly N lines.
         -nl | --num-lines)
-            lines=$2
+            num_lines=$2
             shift ;;
-        # Accept all user input.
-        --accept-all)
-            accept_all=1 ;;
         # Use fuzzy match.
         -F | --fuzzy)
-            fuzzy="-F" ;;
+            fuzzy="-matching fuzzy" ;;
+        # Hide input characters with a *
         -P | --password)
-            password="-P"
-            # Use monospaced font when inserting passwords so that the cursor
-            # will not shift from the * (character used to hide actual letters)
-            # because some characters are larger and other thinner.
-            font="monospace-12" ;;
+            password="-password" ;;
         *)
             _die "Argument '$1' not recognized." ;;
     esac
     shift
 done
 
-lines=${lines:=0}
-# If requested, calculate the number of lines in the list string.
-if [[ -n $multiple_lines ]] && [[ $lines -eq 0 ]]; then
-    lines=$(echo -e "$list" | wc -l)
-fi
-
 # Default values.
-prompt=${prompt:="choose:"}
-
-options="$fuzzy $password -i -h $height -fn $font -nb $nb -nf $nf \
-         -sb $sb -sf $sf -nhb $nhb -nhf $nhf -shb $shb -shf $shf "
-
-# Only center dmenu when using tiling window manager.
-if pgrep -x picom &>/dev/null; then
-    lines=10
-    prompt=""
-    options+=" -c -bw 2 -a "
-else lines=10 ; prompt="" ; options+=" -c "
+num_lines=${num_lines:=0}
+prompt=${prompt:="choose"}
+# Delete last character from prompt if it is ':' because rofi already adds one
+[[ "${prompt: -1}" == ":" ]] && prompt="${prompt::-1}"
+# If requested, calculate the number of lines in the list string.
+if [[ -n $multiple_lines ]] && [[ $num_lines -eq 0 ]]; then
+    num_lines=$(echo -e "$list" | wc -l)
+fi
+# If number of elements to choose from is less than number of lines, decrease
+# lines.
+num_elements="$(echo -e "$list" | wc -l)"
+if (( num_elements < num_lines )); then
+    num_lines=$num_elements
 fi
 
-options+=" -l $lines "
+options=(
+    -dmenu
+    -p "$prompt"
+    -i
+    "$fuzzy"
+    "$password"
+    -theme-str '
+        window {
+            location: north;
+            width: 100%;
+        }
+        listview {
+            spacing: 10px;
+        }
+    '
+)
+if [[ $num_lines -eq 0 ]]; then
+    options+=(
+        -theme-str '
+            window {
+                width: 100%;
+                lines: 1;
+            }
+            listview {
+                layout: horizontal;
+                spacing: 10px;
+            }
+            element {
+                expand: true;
+                padding: 8px;
+            }
+            element-text {
+                horizontal-align: 0.5;
+            }
+        '
+    )
+else
+    options+=(-l $num_lines)
+fi
 
 
 ################################################################################
-###  LAUNCH DMENU
+###  LAUNCH ROFI
 ################################################################################
 
-# Ask for any input.
-if [[ -n $accept_all ]]; then
-    echo $(dmenu -p "$prompt" $options)
-
-# Launch regular dmenu (with a list of all system applications).
-elif [[ -z $list ]]; then
-    dmenu_path | dmenu -p "$prompt" $options | ${SHELL:-"/bin/sh"} &
+# Launch rofi with a list of all system applications to run.
+if [[ -z $list ]]; then
+    program_list | rofi "${options[@]}" | ${SHELL:-"/bin/sh"} &
 
 # Ask for a choice from the given list.
 else
-    echo $(echo -e "$list" | dmenu -p "$prompt" $options)
+    echo $(echo -e "$list" | rofi "${options[@]}" )
 fi

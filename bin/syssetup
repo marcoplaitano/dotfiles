@@ -78,7 +78,14 @@ _own() {
 
 # Install the given package(s).
 _install() {
-    sudo pacman -S --needed --noconfirm "$@"
+    # Create new list filtering only the packages that actually exist.
+    local valid_pkgs=()
+    for pkg in "$@"; do
+        if pacman -Si "$pkg" &>/dev/null; then
+            valid_pkgs+=("$pkg")
+        fi
+    done
+    sudo pacman -S --needed --noconfirm "${valid_pkgs[@]}"
 }
 
 
@@ -95,11 +102,7 @@ while [[ -z $confirm_proceed ]]; do
     _ask_yes_no "Import GPG keys/passwords from zip? " && do_gpg=1
     _ask_yes_no "Clone personal dotfiles repo? " && do_dotfiles=1
     _ask_yes_no "Clone personal wallpapers repo? " && do_wallpapers=1
-    _ask_yes_no "Install dmenu? " && do_dmenu=1
     _ask_yes_no "Install i3? " && do_i3=1
-    _ask_yes_no "Install docker? " && do_docker=1
-    _ask_yes_no "Install Spotify? " && do_spotify=1
-    _ask_yes_no "Install Telegram? " && do_telegram=1
     # Confirm previous choices.
     _ask_yes_no "Confirm all choices? " && confirm_proceed=1
 done
@@ -238,10 +241,10 @@ _show_section "PACKAGES"
 ################################################################################
 
 _install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
-         tree mlocate vim xclip evince gimp neofetch redshift shellcheck \
-         transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
+         tree mlocate vim wl-clipboard xclip evince gimp neofetch redshift \
+         shellcheck transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
          fd plank mousepad playerctl brightnessctl lm_sensors \
-         polybar ffmpeg feh pinentry scrot bat ripgrep jq alacritty \
+         polybar ffmpeg rofi feh pinentry scrot bat ripgrep jq alacritty \
          ttf-roboto-mono-nerd numlockx xwallpaper unclutter xss-lock \
          zoxide obsidian
 
@@ -376,66 +379,6 @@ _install neovim
 
 
 ################################################################################
-###  DMENU
-################################################################################
-
-if [[ -n $do_dmenu ]]; then
-    _show_section "DMENU"
-    dir="$HOME/dmenu"
-
-    # Delete any pre-existing build.
-    if [[ -d "$dir" ]]; then rm -r "$dir" ; fi
-
-    # Get the source code from the personal fork repository.
-    git clone https://github.com/marcoplaitano/dmenu "$dir"
-
-    # Launch the installation script.
-    if pushd "$dir" >/dev/null ; then
-        _install gcc make libx11 libxinerama libxft
-        sudo make uninstall
-        sudo make install
-        popd >/dev/null
-    fi
-    if [[ -d "$dir" ]]; then rm -rf "$dir" ; fi
-fi
-
-
-
-################################################################################
-###  DOCKER
-################################################################################
-
-if [[ -n $do_docker ]]; then
-    _show_section "DOCKER"
-
-    if _install docker ; then
-        _install xorg-xhost
-        sudo systemctl enable --now docker.service
-        sudo usermod -aG docker $USER
-    fi
-fi
-
-
-
-################################################################################
-###  SPOTIFY
-################################################################################
-
-if [[ -n $do_spotify ]]; then
-    _show_section "SPOTIFY"
-
-    if _install spotify-launcher ; then
-        sudo mv "$(which spotify-launcher)" /usr/bin/spotify
-        sudo cp /usr/share/applications/spotify-launcher.desktop \
-                /usr/share/applications/spotify.desktop
-        # Launch installer.
-        spotify &>/dev/null & disown
-    fi
-fi
-
-
-
-################################################################################
 ###  i3
 ################################################################################
 
@@ -443,18 +386,6 @@ if [[ -n $do_i3 ]]; then
     _show_section "i3"
 
     _install i3-wm i3blocks i3lock picom network-manager-applet
-fi
-
-
-
-################################################################################
-###  TELEGRAM
-################################################################################
-
-if [[ -n $do_telegram ]]; then
-    _show_section "TELEGRAM"
-
-    _install telegram-desktop
 fi
 
 
@@ -480,10 +411,18 @@ The following files are needed:
     export PASSWORD_STORE_DIR="$HOME/.local/share/passwords"
 
     [[ -d "$HOME/.gnupg" ]] && mv "$HOME/.gnupg" "$GNUPGHOME"
+    if [[ ! -d "$GNUPGHOME" ]]; then
+        mkdir "$GNUPGHOME"
+    fi
 
     # Import keys and passwords from ZIP files.
     backup_gpg --import
     backup_pass --import
+
+    # Give right permissions.
+    chmod 700 "$GNUPGHOME"
+    chmod 600 "$GNUPGHOME"/*
+    chmod 700 "$GNUPGHOME"/private-keys-v1.d 2>/dev/null
 fi
 
 

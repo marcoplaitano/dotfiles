@@ -24,7 +24,7 @@ _help() {
 Change current wallpaper with a new image and update system's color palette
 accordingly.
 If no image is provided, the user is asked to choose one from the system's
-wallpapers folder via dmenu or fzf.
+wallpapers folder via rofi or fzf.
 
 -h, --help              Show this guide and exit.
 IMAGE                   Global path to the image to use as wallpaper.
@@ -63,7 +63,7 @@ _ask_image() {
         image=$(ask_fzf -s -p "image: " -l "$images")
     else
         images=$(echo $images | tr '|' '\n')
-        image=$(ask_dmenu -p "image:" -l "$images" --num-lines 10 -F)
+        image=$(ask_menu -p "image:" -l "$images" --num-lines 10 -F)
     fi
 }
 
@@ -102,7 +102,7 @@ if [[ -z $image ]]; then
 
     [[ -z $images ]] && _die "Error: list of images is empty."
 
-    # Ask the user to choose an image either via FZF or DMENU.
+    # Ask the user to choose an image either via fzf or rofi.
     _ask_image
     # Some choices are special options and not really images.
     case "$image" in
@@ -114,7 +114,7 @@ if [[ -z $image ]]; then
             cache_wallpapers
             exit ;;
         *)
-            # Because output of dmenu is just the filename; I have to find the
+            # Because output of rofi is just the filename; I have to find the
             # global path and the extension.
             image=$(find "$WALLPAPERS_DIR" -maxdepth 2 -type f -name "${image}.*")
             ;;

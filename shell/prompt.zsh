@@ -110,13 +110,13 @@ _prompt_default() {
     # Do not consider "error" the following exit status codes:
     #    - 130  (CTRL+C)
     #    - 148  (CTRL+Z)
-    PROMPT+='%f%(?..%(130?..%(148?..%F{red})))'
+    PROMPT+='%(?..%(130?..%(148?..%F{red})))'
     # Change actual symbol based on the current vi mode and whether the user is
     # root.
     if [[ $KEYMAP == vicmd ]]; then
-        PROMPT+='%(!.$ROOT_SYMBOL.$VI_NORMAL_SYMBOL)%f%b '
+        PROMPT+='%b%(!.$ROOT_SYMBOL.$VI_NORMAL_SYMBOL)%f%b '
     else
-        PROMPT+='%(!.$ROOT_SYMBOL.$VI_INSERT_SYMBOL)%f%b '
+        PROMPT+='%b%(!.$ROOT_SYMBOL.$VI_INSERT_SYMBOL)%f%b '
     fi
 
     zle reset-prompt

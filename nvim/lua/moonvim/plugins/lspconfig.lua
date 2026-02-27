@@ -86,18 +86,20 @@ local servers = {
     'jsonls',
     'vimls',
 }
-for _, lsp in pairs(servers) do
-    require('lspconfig')[lsp].setup {
+for _, server in ipairs(servers) do
+    vim.lsp.config(server, {
         on_attach = on_attach,
         capabilities = capabilities,
         flags = {
             debounce_text_changes = 50,
-        }
-    }
+        },
+    })
+
+    vim.lsp.enable(server)
 end
 
 -- LUA LSP
-require 'lspconfig'.lua_ls.setup {
+vim.lsp.config("lua_ls", {
     on_attach = on_attach,
     capabilities = capabilities,
     flags = {
@@ -106,14 +108,15 @@ require 'lspconfig'.lua_ls.setup {
     settings = {
         Lua = {
             diagnostics = {
-                globals = { "vim" }
-            }
-        }
-    }
-}
+                globals = { "vim" },
+            },
+        },
+    },
+})
+vim.lsp.enable("lua_ls")
 
 -- PYTHON LSP
-require 'lspconfig'.pylsp.setup {
+vim.lsp.config("pylsp", {
     on_attach = on_attach,
     capabilities = capabilities,
     flags = {
@@ -137,4 +140,5 @@ require 'lspconfig'.pylsp.setup {
             }
         }
     }
-}
+})
+vim.lsp.enable("pylsp")

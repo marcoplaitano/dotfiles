@@ -29,7 +29,7 @@ Logout from current xfce4 desktop session executing the command given.
 --reboot        Perform shutdown routine and reboot. Ask for confirmation first.\n"
 }
 
-# Ask to specify a command via dmenu.
+# Ask to specify a command via rofi.
 _ask_action() {
     declare -A menu=(
       [  Shutdown]="_shutdown_routine poweroff"
@@ -39,7 +39,7 @@ _ask_action() {
       [  Logout]="_logout"
     )
     options="$(printf "%s\n" "${!menu[@]}")"
-    choice="$(ask_dmenu -F -l "$options")"
+    choice="$(ask_menu -F -l "$options")"
     choice="${choice##*' '}" # remove icon and spaces
     cmd="${choice,,}"      # make it lowercase
 }
@@ -63,7 +63,7 @@ _ask_confirmation() {
     if [[ $TERM != dumb ]]; then
         ans=$(ask_fzf -p "confirm?" -l "yes no")
     else
-        ans=$(ask_dmenu -p "confirm?" -l "yes\nno")
+        ans=$(ask_menu -p "confirm?" -l "yes\nno")
     fi
     if [[ -z $ans ]]; then
         return 1

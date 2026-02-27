@@ -70,7 +70,7 @@ export WEBBROWSER="firefox"
 export FILE_EXPLORER="thunar"
 export PAGER="less"
 export MANPAGER="less"
-export CALCULATOR="mate-calculator"
+export CALCULATOR="kcalc"
 # Use vim in SSH sessions.
 if [[ -n "$SSH_CONNECTION" ]]; then
     export EDITOR="vim"
@@ -80,11 +80,7 @@ else
     export VISUAL="nvim"
 fi
 # Determine terminal to use.
-if command -v alacritty &>/dev/null ; then
-    export TERMINAL="alacritty"
-else
-    export TERMINAL="xfce4-terminal"
-fi
+export TERMINAL="konsole"
 
 
 ################################################################################

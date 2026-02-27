@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# File:   program_list
+# Author: Marco Plaitano
+# Brief:  Personal copy of dmenu_path
+
+CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache"}"
+cache="$CACHE_DIR/program_list"
+
+[ ! -e "$CACHE_DIR" ] && mkdir -p "$CACHE_DIR"
+
+IFS=:
+if stest -dqr -n "$cache" $PATH &>/dev/null; then
+    stest -flx $PATH | sort -u | tee "$cache"
+else
+    cat "$cache"
+fi

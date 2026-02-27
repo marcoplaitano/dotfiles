@@ -65,14 +65,14 @@ while IFS="," read -r title path; do
 done < "$CACHE_FILE_MUSIC"
 
 
-# Ask the user to choose one of the albums either via FZF or DMENU.
+# Ask the user to choose one of the albums either via fzf or rofi.
 if [[ $TERM != dumb ]]; then
     options="-p "
     options+=$(get_fzf_colors)
     album=$(echo "$albums" | tr '|' '\n' | fzf-tmux $options --prompt="album to play: ")
 else
     albums="$(echo $albums | tr '|' '\n')"
-    album=$(ask_dmenu -p "album:" -l "$albums" --num-lines 15)
+    album=$(ask_menu -p "album:" -l "$albums" --num-lines 15)
 fi
 
 [[ -z $album ]] && exit
