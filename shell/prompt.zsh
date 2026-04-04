@@ -24,7 +24,7 @@ precmd() {
         # If the last command is one of the following then discard execution
         # time. I don't want to print it out in the prompt.
         case "$last_cmd" in
-            v | vi* | nvim* | *EDITOR* | terminalrc* | ssh* | \
+            v' '* | vi* | nvim* | *EDITOR* | terminalrc* | ssh* | \
             tmux* | *htop* | man* | fzf* | *pomodoro* | \
             cat* | less* | more* | bash)
                 unset cmd_start cmd_time
