@@ -73,7 +73,7 @@ _choose_editor_directory() {
 
 # Choose which process to kill.
 _choose_kill() {
-    local processes="lofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
+    local processes="firefox\nlofi\nmusic\npanel\nplank\npomodoro\nradio\nredshift\n"
     processes+="screenrecorder\nskype\nspotify\ntelegram\nteams\nwebcam"
     # Accepts any input, even ones not included in the list.
     local process=$(ask_menu -p "process:" -l $processes)
@@ -165,8 +165,9 @@ declare -A actions=(
     [brave]="brave"
     [calculator]="calculator"
     [calendar]="$WEBBROWSER calendar.google.com/calendar/u/1/"
-    [chatgpt]="$WEBBROWSER https://chat.openai.com/"
+    [chatgpt]="$WEBBROWSER https://chatgpt.com/"
     [chromium]="chromium"
+    [claude]="$WEBBROWSER claude.ai"
     [code]="_choose_editor_directory"
     [darktheme]="dark_theme --toggle"
     [drive]="_choose_account drive.google.com/drive my-drive"
