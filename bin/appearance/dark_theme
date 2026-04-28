@@ -38,45 +38,39 @@ _check_pid() {
     echo $$ > "$PIDFILE"
 }
 
-# Check whether dark mode is enabled.
+# Check whether dark mode is enabled by reading from the status file.
 _get_status() {
-    local currTheme="$(lookandfeeltool -l)"
-    if [[ "$currTheme" == *breezedark* ]]; then
-        echo on
+    local status=$(cat "$_STATUS_FILE" 2>/dev/null)
+    if [[ -n $status ]]; then
+        echo $status
     else
         echo off
     fi
 }
 
-_apply_theme_gtk() {
-    # Format of the ouptut is "/Net/ThemeName  Greybird".
-    local curr_gtk_theme=$(xfconf-query -lvc xsettings -p /Net/ThemeName)
-    curr_gtk_theme=${curr_gtk_theme#*"  "}
-
+# Write current status (on, off) on file.
+_set_status() {
     case $1 in
         on)
-            new_gtk_theme="Greybird-dark" ;;
+            echo "on" > "$_STATUS_FILE" ;;
         off)
-            new_gtk_theme="Greybird" ;;
+            echo "off" > "$_STATUS_FILE" ;;
         toggle)
-            case $curr_gtk_theme in
-                *dark)
-                    new_gtk_theme="Greybird" ;;
-                *)
-                    new_gtk_theme="Greybird-dark" ;;
-            esac ;;
+            if [[ $(_get_status) == on ]]; then
+                echo "off" > "$_STATUS_FILE"
+            else
+                echo "on" > "$_STATUS_FILE"
+            fi ;;
     esac
-
-    if [[ -n $new_gtk_theme ]]; then
-        xfconf-query -c xsettings -p /Net/ThemeName -s $new_gtk_theme
-    fi
 }
+
 
 
 _check_pid
 
 # Need this environment variable when this script is called by a cron job.
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$UID/bus"
+readonly _STATUS_FILE="$HOME/.config/user/darktheme"
 
 # Parse command line arguments.
 case "$1" in
@@ -117,3 +111,4 @@ case $flag in
 esac
 
 lookandfeeltool -a $new_theme
+_set_status $flag
