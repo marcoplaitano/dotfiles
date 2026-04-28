@@ -102,7 +102,6 @@ if [[ -z $flag ]]; then
 fi
 
 # Apply new theme.
-_apply_theme_vscode   $flag
 case $flag in
     on)
         new_theme="org.kde.breezedark.desktop" ;;
