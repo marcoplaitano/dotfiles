@@ -17,8 +17,9 @@ alias lt='ll -tr'
 alias lsize='ll -Sr'
 
 alias mkdir='mkdir -p'
-alias cp='cp -r'
+alias cp='cp -ri'
 alias mv='mv -iv'
+alias rm='rm --preserve-root -v'
 
 alias grep='grep --color=auto -i --exclude-dir=.git'
 alias pgrep='pgrep -i'
@@ -34,6 +35,7 @@ alias pau='sudo pacman -Syu'
 
 alias who='who -u'
 alias hostnamechange='hostnamectl set-hostname'
+alias ping='ping -c 3'
 
 alias cal='ncal -M -b'
 alias locate='locate --database=/tmp/locate.db'
