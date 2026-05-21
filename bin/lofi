@@ -40,6 +40,17 @@ _check_pid() {
 
 _check_pid
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        yt-dlp
+        ffplay
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
+
+
 # Parse command line arguments.
 case "$1" in
     '') ;;

@@ -66,11 +66,11 @@ export THEME_FILE_i3="$HOME/.config/user/i3_theme.conf"
 export THEME_FILE_POLYBAR="$HOME/.config/user/polybar_theme.ini"
 
 # Default applications.
-export WEBBROWSER="firefox"
-export FILE_EXPLORER="thunar"
+export WEBBROWSER="brave-browser"
+export FILE_EXPLORER="nautilus"
 export PAGER="less"
 export MANPAGER="less"
-export CALCULATOR="kcalc"
+export CALCULATOR="gnome-calculator"
 # Use vim in SSH sessions.
 if [[ -n "$SSH_CONNECTION" ]]; then
     export EDITOR="vim"
@@ -80,7 +80,7 @@ else
     export VISUAL="nvim"
 fi
 # Determine terminal to use.
-export TERMINAL="konsole"
+export TERMINAL="gnome-terminal"
 
 
 ################################################################################
@@ -113,9 +113,6 @@ export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 # Change format of TIME command for BASH and ZSH.
 export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S'
 export TIMEFMT=$'\nreal %*E\tuser %*U\tsys %*S'
-
-# Prompt to display when inserting password for sudo.
-export SUDO_PROMPT="Password: "
 
 # Change to 0 if no tmux session should be launched automatically when starting
 # a new login shell.

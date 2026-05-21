@@ -9,6 +9,18 @@
 
 readonly CALCULATOR="${CALCULATOR:=mate-calc}"
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        python3
+        xfce4-terminal
+        $CALCULATOR
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
+
+
 if command -v python3 &>/dev/null; then
     xfce4-terminal --geometry=60x10 \
                    --role="calculator" --initial-title "Calculator" \

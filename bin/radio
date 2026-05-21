@@ -39,6 +39,16 @@ Play radio station.
 STATION         Station to play. If not given it will be asked via rofi.\n"
 }
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        ffplay
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
+
+
 _list_radio_stations() {
     for name in "${!radioURLs[@]}"; do
         echo "$name"

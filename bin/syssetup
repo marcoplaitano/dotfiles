@@ -1,6 +1,4 @@
 #!/bin/bash
-
-# File:   syssetup
 # Author: Marco Plaitano
 # Github: https://github.com/marcoplaitano
 # Brief:  Perform initial configuration for a fresh installation of a (xfce)
@@ -78,14 +76,7 @@ _own() {
 
 # Install the given package(s).
 _install() {
-    # Create new list filtering only the packages that actually exist.
-    local valid_pkgs=()
-    for pkg in "$@"; do
-        if pacman -Si "$pkg" &>/dev/null; then
-            valid_pkgs+=("$pkg")
-        fi
-    done
-    sudo pacman -S --needed --noconfirm "${valid_pkgs[@]}"
+    sudo apt install -y "$@"
 }
 
 
@@ -99,10 +90,10 @@ _install() {
 # Ask whether to actually perform the installation/downloading of some packages.
 while [[ -z $confirm_proceed ]]; do
     _ask_yes_no "Install ZSH? " && do_zsh=1
-    _ask_yes_no "Import GPG keys/passwords from zip? " && do_gpg=1
     _ask_yes_no "Clone personal dotfiles repo? " && do_dotfiles=1
     _ask_yes_no "Clone personal wallpapers repo? " && do_wallpapers=1
-    _ask_yes_no "Install i3? " && do_i3=1
+    _ask_yes_no "Install VS Code? " && do_vscode=1
+    _ask_yes_no "Import GPG keys/passwords from zip? " && do_gpg=1
     # Confirm previous choices.
     _ask_yes_no "Confirm all choices? " && confirm_proceed=1
 done
@@ -140,22 +131,16 @@ _show_section "GENERAL CONFIGURATION"
 ################################################################################
 
 # Update.
-sudo pacman -Syu --noconfirm
+sudo apt update
+sudo apt upgrade
 
 # Create a link to the python3 executable.
 sudo ln -fs /usr/bin/python3 /usr/bin/python
 
-# Disable network notifications.
-gsettings set org.gnome.nm-applet disable-connected-notifications true
-gsettings set org.gnome.nm-applet disable-disconnected-notifications true
-
 # Give permissions to some directories.
-_own /usr/share/endeavouros/backgrounds
-_own /usr/share/xfce4/terminal
-_own /usr/share/themes
-_own /etc/lightdm
-if _own /usr/share/git/credential/netrc; then
-    chmod +x /usr/share/git/credential/netrc/*
+_git_credentials_dir=/usr/share/doc/git/contrib/credential/netrc
+if _own "$_git_credentials_dir"; then
+    chmod +x "$_git_credentials_dir"
 fi
 
 # Create some directories.
@@ -164,16 +149,6 @@ mkdir -p "$_CODE_DIR"
 mkdir -p "$HOME/.local/bin"
 mkdir -p "$HOME/.config/user"
 
-# Set current city in private file (to be sourced when determing weather).
-unset city
-while [[ -z $city ]]; do
-    read -rp "City you live in (for weather): " city
-done
-echo "$city" > "$HOME/.config/user/location"
-
-# Set lockscreen image to current wallpaper.
-sed -i '/^background/c\background=/usr/share/endeavouros/backgrounds/lockscreen' /etc/lightdm/slick-greeter.conf
-
 
 
 _show_section "SUDOERS FILE"
@@ -181,14 +156,10 @@ _show_section "SUDOERS FILE"
 ###  SUDOERS FILE
 ################################################################################
 
-_EDITOR=/usr/bin/nvim
-
 # Define what lines have to be added to the sudoers file.
 lines=(
-    "Defaults    passprompt=\"Password: \""
     "Defaults    pwfeedback"
-    "Defaults    editor=$_EDITOR"
-    "Defaults    timestamp_timeout=-1"
+    "Defaults    editor=/usr/bin/vim"
 )
 
 temp_file="/tmp/suers"
@@ -241,20 +212,14 @@ _show_section "PACKAGES"
 ################################################################################
 
 _install git gcc make cmake unrar pass wget curl htop net-tools gnome-keyring \
-         tree mlocate vim wl-clipboard xclip evince gimp neofetch redshift \
-         shellcheck transmission-gtk mplayer mpv songrec baobab tmux fzf bc \
-         fd plank mousepad playerctl brightnessctl lm_sensors \
-         polybar ffmpeg rofi feh pinentry scrot bat ripgrep jq alacritty \
-         ttf-roboto-mono-nerd numlockx xwallpaper unclutter xss-lock \
-         zoxide obsidian
+         tree plocate vim wtmpdb wl-clipboard xclip gimp shellcheck \
+         baobab tmux fzf bc ffmpeg pinentry scrot bat fd-find ripgrep jq \
+         zoxide unclutter transmission-gtk
 
 # python packages
 python_pkgs=(
     python-pip
     python-pipx
-    python-markdown
-    python-beautifulsoup4
-    python-requests
 )
 sudo pacman -S "${python_pkgs[@]}"
 
@@ -262,55 +227,10 @@ if _install cronie ; then
     sudo systemctl enable --now cronie.service
 fi
 
-# To control mpv via playerctl
-if git clone https://github.com/hoyon/mpv-mpris ; then
-    cd mpv-mpris
-    make && make install
-    cd ..
-    [[ -d mpv-mpris ]] && rm -rf mpv-mpris
-fi
-
 if pipx install youtube-dl ; then
     sudo mv $HOME/.local/bin/youtube-dl /usr/local/bin/
 fi
 _install yt-dlp
-
-_install imagemagick
-if pipx install pywal ; then
-    sudo mv $HOME/.local/bin/wal /usr/local/bin/
-fi
-
-# Lock screen packages.
-if git clone https://github.com/Raymo111/i3lock-color ; then
-    pushd i3lock-color >/dev/null
-    ./build.sh
-    pushd build >/dev/null
-    sudo make install
-    popd >/dev/null
-    popd >/dev/null
-    wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/main/install.sh -O - -q | sudo bash -s system
-    sudo wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/next/system/betterlockscreen%40.service -O /usr/lib/systemd/system/betterlockscreen@.service
-    sudo systemctl enable betterlockscreen@$USER
-fi
-
-
-
-################################################################################
-###  AUR PACKAGES
-################################################################################
-
-# Install aur package manager script.
-if git clone https://github.com/marcoplaitano/paura "$_CODE_DIR/paura" ; then
-    ln -s $_CODE_DIR/paura/paura $HOME/.local/bin/paura
-
-    # Install AUR packages.
-    $HOME/.local/bin/paura "https://aur.archlinux.org/visual-studio-code-bin"
-    $HOME/.local/bin/paura "https://aur.archlinux.org/xfce-theme-greybird.git"
-else
-    echo
-    echo "Could not install AUR helper and packages."
-    _wait_ok "Type 'ok' to continue: "
-fi
 
 
 
@@ -333,18 +253,6 @@ if pushd "$dir" &>/dev/null ; then
     source $HOME/.profile
     bash ./appearance/change_theme default
     popd &>/dev/null
-fi
-
-
-
-################################################################################
-###  REPOSITORY: POMODORO
-################################################################################
-dir="$_CODE_DIR/pomodoro"
-
-if git clone https://github.com/marcoplaitano/pomodoro-bash "$dir"; then
-    chmod +x "$dir/pomodoro.sh"
-    ln -fs "$dir/pomodoro.sh" "$HOME/.local/bin/pomodoro"
 fi
 
 
@@ -379,13 +287,18 @@ _install neovim
 
 
 ################################################################################
-###  i3
+###  VS Code
 ################################################################################
 
-if [[ -n $do_i3 ]]; then
-    _show_section "i3"
+if [[ -n $do_vscode ]]; then
+    _show_section "VS Code"
 
-    _install i3-wm i3blocks i3lock picom network-manager-applet
+    if curl "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" \
+        -o ./vscode.deb
+    then
+        sudo apt install ./vscode.deb
+        rm ./vscode.deb
+    fi
 fi
 
 

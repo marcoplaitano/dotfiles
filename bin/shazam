@@ -29,6 +29,15 @@ _check_pid() {
 }
 _check_pid
 
+# Check that all dependencies are met.
+_check_dependencies() {
+    programs=(
+        songrec
+    )
+    check-installed ${programs[*]}
+}
+_check_dependencies || _die
+
 
 # File in which to temporarily save output of song recognition.
 readonly _TEMP_FILE="/tmp/shazam.txt"

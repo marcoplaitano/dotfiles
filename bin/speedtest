@@ -44,7 +44,7 @@ if [[ ! -f "$_SCRIPT_FILE" ]]; then
 fi
 
 # Execute script.
-python3 "$_SCRIPT_FILE" --simple --no-upload --secure > $_OUTPUT_FILE
+python3 "$_SCRIPT_FILE" --simple --no-upload --secure > $_OUTPUT_FILE 2>/dev/null
 
 # Define ouptut string.
 if [[ $? -ne 0 ]]; then

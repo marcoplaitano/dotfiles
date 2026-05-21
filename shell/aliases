@@ -35,7 +35,6 @@ alias pau='sudo pacman -Syu'
 
 alias who='who -u'
 alias hostnamechange='hostnamectl set-hostname'
-alias ping='ping -c 3'
 
 alias cal='ncal -M -b'
 alias locate='locate --database=/tmp/locate.db'
