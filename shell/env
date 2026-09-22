@@ -13,27 +13,27 @@ mesg n 2>/dev/null || true
 ###   TEXT MODES & COLORS
 ################################################################################
 
-export RESET="\e[00m"
+export RESET=$'\e[00m'
 
-export BOLD="\e[01m"
-export DIM="\e[02m"
-export ITALIC="\e[03m"
-export UNDERLINED="\e[04m"
-export BLINK="\e[05m"
-export HIGHLIGHTED="\e[07m"
-export HIDDEN="\e[08m"
-export CROSSED="\e[09m"
+export BOLD=$'\e[01m'
+export DIM=$'\e[02m'
+export ITALIC=$'\e[03m'
+export UNDERLINED=$'\e[04m'
+export BLINK=$'\e[05m'
+export HIGHLIGHTED=$'\e[07m'
+export HIDDEN=$'\e[08m'
+export CROSSED=$'\e[09m'
 
-export BLACK="\e[00;30m"
-export BROWN="\e[00;33m"
-export WHITE="\e[01;20m"
-export GREY="\e[01;30m"
-export RED="\e[01;31m"
-export GREEN="\e[01;32m"
-export YELLOW="\e[01;33m"
-export BLUE="\e[01;34m"
-export MAGENTA="\e[01;35m"
-export CYAN="\e[01;36m"
+export BLACK=$'\e[00;30m'
+export BROWN=$'\e[00;33m'
+export WHITE=$'\e[01;20m'
+export GREY=$'\e[01;30m'
+export RED=$'\e[01;31m'
+export GREEN=$'\e[01;32m'
+export YELLOW=$'\e[01;33m'
+export BLUE=$'\e[01;34m'
+export MAGENTA=$'\e[01;35m'
+export CYAN=$'\e[01;36m'
 
 
 ################################################################################
